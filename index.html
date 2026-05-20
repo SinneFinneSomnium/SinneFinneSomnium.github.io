@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SinneFinneSomnium — Personal portfolio and creative showcase.">
+  <meta name="theme-color" content="#0a0a1a">
+  <link rel="stylesheet" href="Style.css">
+  <link rel="icon" type="image/png" href="Img/icon/ic.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="script.js" defer></script>
+  <title id="dynamic-title">SinneFinneSomnium</title>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <video class="bg-video" autoplay loop muted playsinline></video>
+  <audio id="bg-music" loop preload="auto">
+    <source src="music/viva.mp3" type="audio/mpeg">
+  </audio>
+  <div id="cursor-glow"></div>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loader-content">
+      <div class="spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loader-text" id="loader-text">Loading</p>
+    </div>
+  </div>
+
+  <!-- Welcome Screen -->
+  <div class="welcome-screen" id="welcome-screen">
+    <h1 class="welcome-text" id="welcome-text">Welcome To SinneFinneSomnium</h1>
+    <div class="welcome-line"></div>
+  </div>
+
+  <!-- Login -->
+  <div class="login-wrapper" id="login-wrapper">
+    <div class="login-container" id="login-container">
+      <div class="login-border-glow"></div>
+      <div class="login-avatar">
+        <img src="Img/icon/ic.png" alt="SinneFinneSomnium" id="login-avatar-img">
+        <div class="avatar-ring"></div>
+      </div>
+      <h2 class="login-heading" id="login-heading"></h2>
+      <p class="login-subtitle">Enter your credentials to continue</p>
+      <form id="login-form" autocomplete="off">
+        <div class="input-group">
+          <span class="input-icon">&#x1F464;</span>
+          <input type="text" id="username" required>
+          <label for="username" class="floating-label">Username</label>
+        </div>
+        <div class="input-group">
+          <span class="input-icon">&#x1F512;</span>
+          <input type="password" id="password" required>
+          <label for="password" class="floating-label">Password</label>
+        </div>
+        <button type="submit" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-shimmer"></span>
+        </button>
+      </form>
+      <div class="error-toast" id="error-toast">
+        <span class="error-icon">&#x26A0;&#xFE0F;</span>
+        <span class="error-msg" id="error-msg">Invalid username or password</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Controls -->
+  <div class="audio-controls" id="audio-controls">
+    <button id="music-toggle" class="music-toggle" title="Toggle Music">
+      <span id="music-icon">&#x1F507;</span>
+    </button>
+    <div class="visualizer" id="visualizer">
+      <div class="viz-bar"></div><div class="viz-bar"></div>
+      <div class="viz-bar"></div><div class="viz-bar"></div>
+      <div class="viz-bar"></div>
+    </div>
+    <div class="vol-slider-wrap">
+      <input type="range" id="vol-slider" min="0" max="100" step="1" value="8">
+      <span class="vol-value" id="vol-value">8%</span>
+      <span class="song-name">Viva</span>
+    </div>
+  </div>
+</body>
+</html>

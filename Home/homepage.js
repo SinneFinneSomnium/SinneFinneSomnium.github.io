@@ -282,8 +282,8 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(function () {
         var nextIdx = pickRandom(bgVideos, currentVideoIndex);
         startVideoWithFade(nextIdx);
-      }, 1500);
-    }, 10000);
+      }, 4000);
+    }, 15000);
   }
 
   // ===== Background Music System (Random Shuffle) =====

@@ -1,29 +1,35 @@
 document.addEventListener("DOMContentLoaded", function () {
 
   // ===== DOM References =====
-  const loadingScreen = document.getElementById("loading-screen");
-  const loaderText = document.getElementById("loader-text");
-  const welcomeScreen = document.getElementById("welcome-screen");
-  const loginWrapper = document.getElementById("login-wrapper");
-  const loginContainer = document.getElementById("login-container");
-  const video = document.querySelector(".bg-video");
-  const titleElement = document.getElementById("dynamic-title");
-  const bgMusic = document.getElementById("bg-music");
-  const volSlider = document.getElementById("vol-slider");
-  const volValue = document.getElementById("vol-value");
-  const audioControls = document.getElementById("audio-controls");
-  const musicToggle = document.getElementById("music-toggle");
-  const musicIcon = document.getElementById("music-icon");
-  const visualizer = document.getElementById("visualizer");
-  const loginHeading = document.getElementById("login-heading");
-  const loginForm = document.getElementById("login-form");
-  const errorToast = document.getElementById("error-toast");
-  const cursorGlow = document.getElementById("cursor-glow");
-  const canvas = document.getElementById("particles");
-  const ctx = canvas.getContext("2d");
+  var loadingScreen = document.getElementById("loading-screen");
+  var loaderText = document.getElementById("loader-text");
+  var welcomeScreen = document.getElementById("welcome-screen");
+  var loginWrapper = document.getElementById("login-wrapper");
+  var loginContainer = document.getElementById("login-container");
+  var video = document.querySelector(".bg-video");
+  var titleElement = document.getElementById("dynamic-title");
+  var bgMusic = document.getElementById("bg-music");
+  var volSlider = document.getElementById("vol-slider");
+  var volValue = document.getElementById("vol-value");
+  var audioControls = document.getElementById("audio-controls");
+  var musicToggle = document.getElementById("music-toggle");
+  var musicIcon = document.getElementById("music-icon");
+  var visualizer = document.getElementById("visualizer");
+  var songNameEl = document.getElementById("song-name");
+  var loginHeading = document.getElementById("login-heading");
+  var loginForm = document.getElementById("login-form");
+  var errorToast = document.getElementById("error-toast");
+  var cursorGlow = document.getElementById("cursor-glow");
+  var canvas = document.getElementById("particles");
+  var ctx = canvas.getContext("2d");
 
-  // ===== Music State (single source of truth) =====
-  let musicPlaying = false;
+  // ===== Media State =====
+  var musicPlaying = false;
+  var bgVideos = [];
+  var bgMusicList = [];
+  var currentVideoIndex = -1;
+  var currentMusicIndex = -1;
+  var videoFadeTimer = null;
 
   // ===== Custom Cursor =====
   document.addEventListener("mousemove", function (e) {
@@ -32,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ===== Particle System =====
-  let particles = [];
+  var particles = [];
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -50,11 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
       opacity: Math.random() * 0.4 + 0.1
     };
   }
-  for (let i = 0; i < 80; i++) particles.push(createParticle());
+  for (var i = 0; i < 80; i++) particles.push(createParticle());
 
   function drawParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
+    particles.forEach(function (p) {
       p.x += p.vx;
       p.y += p.vy;
       if (p.x < 0) p.x = canvas.width;
@@ -66,12 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
       ctx.fillStyle = "rgba(108, 159, 255, " + p.opacity + ")";
       ctx.fill();
     });
-    // Draw connection lines
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 120) {
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
@@ -87,8 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
   drawParticles();
 
   // ===== Title Typing Effect =====
-  const titleText = "\u2728 Welcome \u2728";
-  let ti = 0;
+  var titleText = "\u2728 Welcome \u2728";
+  var ti = 0;
   function typeTitle() {
     if (ti < titleText.length) {
       titleElement.textContent += titleText[ti];
@@ -99,36 +104,117 @@ document.addEventListener("DOMContentLoaded", function () {
   typeTitle();
 
   // ===== Loading Animation =====
-  let dots = 0;
-  const dotInterval = setInterval(function () {
+  var dots = 0;
+  var dotInterval = setInterval(function () {
     loaderText.textContent = "Loading" + ".".repeat(dots);
     dots = (dots + 1) % 4;
   }, 500);
 
-  // ===== Background Videos =====
-  const bgVideos = [
-    "bg/1.mp4","bg/2.mp4","bg/3.mp4","bg/4.mp4",
-    "bg/5.mp4","bg/6.mp4","bg/7.mp4","bg/8.mp4",
-    "bg/9.mp4","bg/10.mp4","bg/11.mp4"
-  ];
-  let currentVideoIndex = 0;
-
-  function startVideoCycle() {
-    setInterval(function() {
-      video.style.opacity = "0"; // Start fade out
-      setTimeout(function() {
-        currentVideoIndex = (currentVideoIndex + 1) % bgVideos.length;
-        video.src = bgVideos[currentVideoIndex];
-        video.load();
-        video.play();
-        video.style.opacity = "1"; // Fade back in
-      }, 3000); // Wait for the 3s CSS opacity transition
-    }, 10000); // Change every 10 seconds
+  // ===== Random Picker (no consecutive repeat) =====
+  function pickRandom(arr, lastIndex) {
+    if (arr.length === 0) return -1;
+    if (arr.length === 1) return 0;
+    var next;
+    do {
+      next = Math.floor(Math.random() * arr.length);
+    } while (next === lastIndex);
+    return next;
   }
 
-  // ===== Sequence: Loading → Welcome → Login =====
+  // ===== Background Video System (Random + Fade) =====
+  function startVideoWithFade(idx) {
+    if (bgVideos.length === 0) return;
+    currentVideoIndex = idx;
+    video.src = bgVideos[idx].url;
+    video.load();
+    video.play().catch(function () { });
 
-  // Step 1: After 4s, hide loading, show welcome
+    // Fade in
+    video.style.opacity = "1";
+
+    // After 10s visible, fade out then pick next
+    clearTimeout(videoFadeTimer);
+    videoFadeTimer = setTimeout(function () {
+      // Fade out
+      video.style.opacity = "0";
+      // After fade-out transition (1.5s), swap to next
+      setTimeout(function () {
+        var nextIdx = pickRandom(bgVideos, currentVideoIndex);
+        startVideoWithFade(nextIdx);
+      }, 1500);
+    }, 10000);
+  }
+
+  // ===== Background Music System (Random Shuffle) =====
+  function startMusic(idx) {
+    if (bgMusicList.length === 0) return;
+    currentMusicIndex = idx;
+    bgMusic.src = bgMusicList[idx].url;
+    bgMusic.load();
+
+    // Update song name display
+    if (songNameEl) {
+      songNameEl.textContent = bgMusicList[idx].name;
+    }
+
+    var targetVol = volSlider.value / 100;
+    bgMusic.volume = 0;
+
+    var playPromise = bgMusic.play();
+    if (playPromise !== undefined) {
+      playPromise.then(function () {
+        musicPlaying = true;
+        updateMusicUI();
+        // Fade in volume
+        var fadeInterval = setInterval(function () {
+          if (bgMusic.volume < targetVol) {
+            bgMusic.volume = Math.min(targetVol, bgMusic.volume + 0.005);
+          } else {
+            clearInterval(fadeInterval);
+          }
+        }, 50);
+      }).catch(function () {
+        musicPlaying = false;
+        updateMusicUI();
+        bgMusic.volume = targetVol;
+      });
+    }
+  }
+
+  // When current song ends, play next random song
+  bgMusic.addEventListener("ended", function () {
+    var nextIdx = pickRandom(bgMusicList, currentMusicIndex);
+    if (nextIdx >= 0) {
+      startMusic(nextIdx);
+    }
+  });
+
+  // ===== Load Assets from assets.json =====
+  fetch("assets.json")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      bgVideos = data.videos || [];
+      bgMusicList = data.music || [];
+
+      // Start random video
+      if (bgVideos.length > 0) {
+        var firstVideo = pickRandom(bgVideos, -1);
+        startVideoWithFade(firstVideo);
+      }
+
+      // Prepare music (will try to play after user interaction or in sequence)
+      if (bgMusicList.length > 0) {
+        var firstMusic = pickRandom(bgMusicList, -1);
+        currentMusicIndex = firstMusic;
+        bgMusic.src = bgMusicList[firstMusic].url;
+        if (songNameEl) {
+          songNameEl.textContent = bgMusicList[firstMusic].name;
+        }
+      }
+    })
+    .catch(function (err) { console.error("Failed to load assets.json", err); });
+
+  // ===== Sequence: Loading → Welcome → Login =====
   setTimeout(function () {
     loadingScreen.classList.add("hidden");
     clearInterval(dotInterval);
@@ -138,38 +224,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1500);
   }, 4000);
 
-  // Step 2: After 8s, hide welcome, show login + video + controls
   setTimeout(function () {
     welcomeScreen.classList.remove("visible");
     welcomeScreen.classList.add("hidden");
     setTimeout(function () {
       welcomeScreen.style.display = "none";
-
-      // Show login
       loginWrapper.classList.add("visible");
-
-      // Load & show background video
-      video.src = bgVideos[currentVideoIndex];
-      video.load();
-      video.style.opacity = "1";
-      startVideoCycle();
-
-      // Show audio controls
       audioControls.classList.add("visible");
-
-      // Type login heading
       typeLoginHeading();
-
-      // Try auto-play music
       tryPlayMusic();
-
     }, 2000);
   }, 8000);
 
   // ===== Login Heading Typing =====
   function typeLoginHeading() {
-    const text = "SinneFinneSomnium";
-    let idx = 0;
+    var text = "SinneFinneSomnium";
+    var idx = 0;
     loginHeading.textContent = "";
     function typeChar() {
       if (idx < text.length) {
@@ -185,30 +255,8 @@ document.addEventListener("DOMContentLoaded", function () {
   bgMusic.volume = volSlider.value / 100;
 
   function tryPlayMusic() {
-    bgMusic.volume = 0; // Start at 0 for fade in
-    var targetVol = volSlider.value / 100;
-    var playPromise = bgMusic.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function () {
-        musicPlaying = true;
-        updateMusicUI();
-        
-        // Fade in effect
-        var fadeInterval = setInterval(function () {
-          if (bgMusic.volume < targetVol) {
-            bgMusic.volume = Math.min(targetVol, bgMusic.volume + 0.005);
-          } else {
-            clearInterval(fadeInterval);
-          }
-        }, 50);
-
-      }).catch(function () {
-        // Autoplay blocked — will start on first user interaction
-        musicPlaying = false;
-        updateMusicUI();
-        bgMusic.volume = targetVol; // Reset volume if failed
-      });
-    }
+    if (bgMusicList.length === 0 && !bgMusic.src) return;
+    startMusic(currentMusicIndex >= 0 ? currentMusicIndex : 0);
   }
 
   function toggleMusic() {
@@ -229,13 +277,13 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateMusicUI() {
     var vol = bgMusic.volume;
     if (!musicPlaying || vol === 0) {
-      musicIcon.textContent = "\uD83D\uDD07"; // muted
+      musicIcon.textContent = "\uD83D\uDD07";
       visualizer.classList.remove("active");
     } else if (vol < 0.4) {
-      musicIcon.textContent = "\uD83D\uDD09"; // low
+      musicIcon.textContent = "\uD83D\uDD09";
       visualizer.classList.add("active");
     } else {
-      musicIcon.textContent = "\uD83D\uDD0A"; // loud
+      musicIcon.textContent = "\uD83D\uDD0A";
       visualizer.classList.add("active");
     }
   }
@@ -253,29 +301,19 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", onFirstInteraction);
   document.addEventListener("touchstart", onFirstInteraction);
 
-  // ===== Volume Control (BUG FIX) =====
+  // ===== Volume Control =====
   volSlider.addEventListener("input", function (e) {
-    // Stop event from bubbling to document click (which triggers music start)
     e.stopPropagation();
-
     var val = volSlider.value;
     bgMusic.volume = val / 100;
-
-    // Update slider fill visual
     volSlider.style.background = "linear-gradient(to right, #6c9fff " + val + "%, rgba(255,255,255,0.12) " + val + "%)";
-
-    // Update percentage display
     volValue.textContent = val + "%";
-
-    // Update icon based on volume
     updateMusicUI();
   });
 
-  // Prevent slider click from triggering document-level music start
   volSlider.addEventListener("click", function (e) { e.stopPropagation(); });
   volSlider.addEventListener("mousedown", function (e) { e.stopPropagation(); });
 
-  // Initialize slider visual
   var initVal = volSlider.value;
   volSlider.style.background = "linear-gradient(to right, #6c9fff " + initVal + "%, rgba(255,255,255,0.12) " + initVal + "%)";
 
@@ -294,32 +332,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     var bgX = (e.clientX / window.innerWidth - 0.5) * 8;
     var bgY = (e.clientY / window.innerHeight - 0.5) * 8;
-    video.style.transform = "translate(" + bgX + "px, " + bgY + "px)";
+    if (video) {
+      video.style.transform = "translate(" + bgX + "px, " + bgY + "px)";
+    }
   });
 
   // ===== Login System =====
   loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
-
     var username = document.getElementById("username").value.trim();
     var password = document.getElementById("password").value.trim();
 
     if (username === "admin" && password === "1234") {
-      // Success — fade out and redirect
       loginWrapper.style.opacity = "0";
       loginWrapper.style.transform = "scale(1.05)";
       loginWrapper.style.transition = "all 0.8s ease";
       setTimeout(function () {
-        window.location.href = "Home/homepage.html";
+        window.location.href = "Home/Homepage.html";
       }, 800);
     } else {
-      // Error — show toast
       errorToast.classList.add("visible");
-      // Shake the login container
       loginContainer.style.animation = "none";
-      loginContainer.offsetHeight; // force reflow
+      loginContainer.offsetHeight;
       loginContainer.style.animation = "";
-
       setTimeout(function () {
         errorToast.classList.remove("visible");
       }, 3000);

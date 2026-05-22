@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --bg-dark: #0a0a1a;
+  --glass-bg: rgba(15, 15, 35, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent-blue: #6c9fff;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
+  --accent-gradient: linear-gradient(135deg, #6c9fff, #a855f7, #ec4899);
+  --text-primary: #f0f0f5;
+  --text-secondary: rgba(240, 240, 245, 0.6);
+  --font-main: 'Inter', 'Outfit', system-ui, sans-serif;
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  background: var(--bg-dark);
+  min-height: 100vh;
+}
+
+/* Nav */
+.company-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  background: rgba(10, 10, 26, 0.7);
+  border-bottom: 1px solid var(--glass-border);
+}
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.back-link:hover { opacity: 0.8; }
+.back-arrow { font-size: 1.2rem; }
+.company-brand {
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero */
+.company-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 40px;
+  background: radial-gradient(ellipse at center, rgba(108,159,255,0.08) 0%, transparent 70%);
+}
+.company-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.company-tagline {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 600px;
+}
+
+/* Sections */
+.company-section {
+  padding: 100px 40px;
+}
+.section-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.section-title {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: center;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px);
+  transition: all 0.4s ease;
+}
+.glass-card:hover {
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 8px 40px rgba(108,159,255,0.1);
+}
+
+.about-card {
+  padding: 40px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.about-card p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+/* Services */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.service-card {
+  padding: 36px;
+  text-align: center;
+}
+.service-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+.service-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+.service-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Contact */
+.contact-text {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  font-size: 1.05rem;
+}
+.contact-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 30px;
+  font-size: 0.95rem;
+}
+
+/* Button */
+.btn { padding: 14px 32px; border-radius: 50px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; font-family: var(--font-main); cursor: pointer; }
+.btn-primary { background: var(--accent-gradient); color: white; border: none; }
+.btn-primary:hover { box-shadow: 0 8px 30px rgba(108,159,255,0.35); transform: translateY(-2px); }
+
+/* Fade-in */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Footer */
+.company-footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--glass-border);
+}
+
+@media (max-width: 768px) {
+  .company-nav { padding: 0 20px; }
+  .company-hero { padding: 80px 20px; }
+  .company-section { padding: 60px 20px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .contact-cards { flex-direction: column; align-items: center; }
+}

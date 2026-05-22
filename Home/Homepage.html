@@ -16,38 +16,339 @@
 </head>
 
 <body>
+
   <!-- Background Video -->
-  <video class="bg-video" autoplay loop muted playsinline></video>
+  <video class="bg-video" muted playsinline></video>
   <div class="bg-overlay"></div>
 
-  <!-- Navigation -->
+  <!-- Background Music -->
+  <audio id="bg-music" preload="auto"></audio>
+
+  <!-- Navbar -->
   <nav class="navbar" id="navbar">
-    <div class="nav-logo">
-      <img src="../Img/icon/ic.png" alt="Logo" class="nav-logo-img">
-      <span class="nav-brand">SinneFinneSomnium</span>
+    <div class="nav-left">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open Sidebar" title="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a href="#hero" class="nav-logo">
+        <img src="../Img/icon/ic.png" alt="Logo" class="nav-logo-img">
+        <span class="nav-brand" data-i18n="nav_brand">SinneFinneSomnium</span>
+      </a>
     </div>
+
     <ul class="nav-links">
-      <li><a href="#hero" class="nav-link active">Home</a></li>
-      <li><a href="#about" class="nav-link">About</a></li>
-      <li><a href="#skills" class="nav-link">Skills</a></li>
-      <li><a href="#interests" class="nav-link">Interests</a></li>
-      <li><a href="#projects" class="nav-link">Projects</a></li>
-      <li><a href="#contact" class="nav-link">Contact</a></li>
+      <li><a href="#hero" class="nav-link active" data-i18n="nav_home">Home</a></li>
+      <li><a href="#about" class="nav-link" data-i18n="nav_about">About</a></li>
+      <li><a href="#skills" class="nav-link" data-i18n="nav_skills">Skills</a></li>
+      <li><a href="#projects" class="nav-link" data-i18n="nav_projects">Projects</a></li>
+      <li><a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a></li>
     </ul>
-    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+
+    <div class="nav-right">
+      <!-- Language Switcher -->
+      <button class="lang-switcher" id="lang-switcher" title="Switch Language">
+        <span class="lang-option active" data-lang="en">EN</span>
+        <span class="lang-divider">/</span>
+        <span class="lang-option" data-lang="th">TH</span>
+      </button>
+
+      <!-- Mobile Hamburger -->
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </nav>
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
-    <a href="#hero" class="mobile-link">Home</a>
-    <a href="#about" class="mobile-link">About</a>
-    <a href="#skills" class="mobile-link">Skills</a>
-    <a href="#interests" class="mobile-link">Interests</a>
-    <a href="#projects" class="mobile-link">Projects</a>
-    <a href="#contact" class="mobile-link">Contact</a>
+    <a href="#hero" class="mobile-link" data-i18n="nav_home">Home</a>
+    <a href="#about" class="mobile-link" data-i18n="nav_about">About</a>
+    <a href="#skills" class="mobile-link" data-i18n="nav_skills">Skills</a>
+    <a href="#projects" class="mobile-link" data-i18n="nav_projects">Projects</a>
+    <a href="#contact" class="mobile-link" data-i18n="nav_contact">Contact</a>
   </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>SinneFinneSomnium</h2>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close Sidebar">
+        <span class="close-icon">&times;</span>
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+
+      <!-- 1. Library Dropdown -->
+      <div class="sidebar-dropdown" id="dropdown-library">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-library-content">
+          <span class="sidebar-dropdown-icon">&#x1F4D6;</span>
+          <span class="sidebar-dropdown-title" data-i18n="sidebar_library">My Library</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-library-content">
+          <div class="books-shelf">
+            <!-- Book 1 -->
+            <div class="book-item">
+              <div class="book-cover gradient-1">
+                <span class="book-spine"></span>
+                <span class="book-emoji">&#x1F4BB;</span>
+                <span class="book-badge reading">Reading</span>
+              </div>
+              <div class="book-details">
+                <h4>Clean Code</h4>
+                <p class="book-author">Robert C. Martin</p>
+                <div class="book-meta">
+                  <span class="book-tag">Software Eng</span>
+                  <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                </div>
+                <div class="book-progress-wrap">
+                  <div class="book-progress-bar">
+                    <div class="book-progress-fill" style="width: 65%;"></div>
+                  </div>
+                  <span class="book-progress-pct">65%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Book 2 -->
+            <div class="book-item">
+              <div class="book-cover gradient-2">
+                <span class="book-spine"></span>
+                <span class="book-emoji">&#x26A1;</span>
+                <span class="book-badge completed">Done</span>
+              </div>
+              <div class="book-details">
+                <h4>You Don't Know JS</h4>
+                <p class="book-author">Kyle Simpson</p>
+                <div class="book-meta">
+                  <span class="book-tag">JavaScript</span>
+                  <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                </div>
+                <div class="book-progress-wrap">
+                  <div class="book-progress-bar">
+                    <div class="book-progress-fill" style="width: 100%;"></div>
+                  </div>
+                  <span class="book-progress-pct">100%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Book 3 -->
+            <div class="book-item">
+              <div class="book-cover gradient-3">
+                <span class="book-spine"></span>
+                <span class="book-emoji">&#x1F52E;</span>
+                <span class="book-badge planned">To Read</span>
+              </div>
+              <div class="book-details">
+                <h4>Gödel, Escher, Bach</h4>
+                <p class="book-author">Douglas Hofstadter</p>
+                <div class="book-meta">
+                  <span class="book-tag">Cognitive Sci</span>
+                  <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2728;</div>
+                </div>
+                <div class="book-progress-wrap">
+                  <div class="book-progress-bar">
+                    <div class="book-progress-fill" style="width: 10%;"></div>
+                  </div>
+                  <span class="book-progress-pct">10%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Book 4 -->
+            <div class="book-item">
+              <div class="book-cover gradient-4">
+                <span class="book-spine"></span>
+                <span class="book-emoji">&#x1F4C8;</span>
+                <span class="book-badge completed">Done</span>
+              </div>
+              <div class="book-details">
+                <h4>Atomic Habits</h4>
+                <p class="book-author">James Clear</p>
+                <div class="book-meta">
+                  <span class="book-tag">Self-Help</span>
+                  <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                </div>
+                <div class="book-progress-wrap">
+                  <div class="book-progress-bar">
+                    <div class="book-progress-fill" style="width: 100%;"></div>
+                  </div>
+                  <span class="book-progress-pct">100%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Quotes Dropdown -->
+      <div class="sidebar-dropdown" id="dropdown-quotes">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-quotes-content">
+          <span class="sidebar-dropdown-icon">&#x1F4AC;</span>
+          <span class="sidebar-dropdown-title" data-i18n="sidebar_quotes">Mindful Quotes</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-quotes-content">
+          <div class="quote-body">
+            <span class="quote-mark">&#x201C;</span>
+            <div class="quote-content-wrap">
+              <p class="quote-text" id="sidebar-quote-text">Simplicity is the ultimate sophistication.</p>
+              <p class="quote-author" id="sidebar-quote-author">&mdash; Leonardo da Vinci</p>
+            </div>
+            <button class="btn btn-outline sidebar-quote-btn" id="sidebar-new-quote-btn">
+              <span class="btn-text" data-i18n="btn_shuffle">Shuffle Quote</span>
+              <span class="btn-icon">&#x267B;&#xFE0F;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Tools Dropdown -->
+      <div class="sidebar-dropdown" id="dropdown-tools">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-tools-content">
+          <span class="sidebar-dropdown-icon">&#x1F527;</span>
+          <span class="sidebar-dropdown-title" data-i18n="sidebar_tools">Tools</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-tools-content">
+          <div class="tools-grid">
+            <div class="tool-card">
+              <h4>YouTube Video Downloader</h4>
+              <div class="tool-input-group">
+                <input type="url" id="youtube-url" placeholder="Enter YouTube URL" />
+                <button class="btn btn-primary tool-btn" id="youtube-download-btn">Download</button>
+              </div>
+              <p class="tool-status" id="youtube-status"></p>
+            </div>
+            <div class="tool-card">
+              <h4>Twitter/X Video Downloader</h4>
+              <div class="tool-input-group">
+                <input type="url" id="twitter-url" placeholder="Enter Twitter/X URL" />
+                <button class="btn btn-primary tool-btn" id="twitter-download-btn">Download</button>
+              </div>
+              <p class="tool-status" id="twitter-status"></p>
+            </div>
+            <div class="tool-card">
+              <h4>Instagram Video Downloader</h4>
+              <div class="tool-input-group">
+                <input type="url" id="instagram-url" placeholder="Enter Instagram URL" />
+                <button class="btn btn-primary tool-btn" id="instagram-download-btn">Download</button>
+              </div>
+              <p class="tool-status" id="instagram-status"></p>
+            </div>
+            <div class="tool-card">
+              <h4>Facebook Video Downloader</h4>
+              <div class="tool-input-group">
+                <input type="url" id="facebook-url" placeholder="Enter Facebook URL" />
+                <button class="btn btn-primary tool-btn" id="facebook-download-btn">Download</button>
+              </div>
+              <p class="tool-status" id="facebook-status"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Certificates Dropdown -->
+      <div class="sidebar-dropdown" id="dropdown-certificates">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-certificates-content">
+          <span class="sidebar-dropdown-icon">&#x1F3C6;</span>
+          <span class="sidebar-dropdown-title" data-i18n="sidebar_certificates">Certificates</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-certificates-content">
+          <div class="certificates-gallery">
+            <div class="cert-card">
+              <div class="cert-placeholder">&#x1F4C4;</div>
+              <p class="cert-title">[Certificate Title]</p>
+              <p class="cert-issuer">[Issuer Name]</p>
+            </div>
+            <div class="cert-card">
+              <div class="cert-placeholder">&#x1F4C4;</div>
+              <p class="cert-title">[Certificate Title]</p>
+              <p class="cert-issuer">[Issuer Name]</p>
+            </div>
+            <div class="cert-card">
+              <div class="cert-placeholder">&#x1F4C4;</div>
+              <p class="cert-title">[Certificate Title]</p>
+              <p class="cert-issuer">[Issuer Name]</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5-9. Template Dropdowns -->
+      <div class="sidebar-dropdown" id="dropdown-template-5">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-template-5-content">
+          <span class="sidebar-dropdown-icon">&#x1F4CC;</span>
+          <span class="sidebar-dropdown-title">Template 5</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-template-5-content">
+          <p class="template-placeholder">Content coming soon...</p>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown" id="dropdown-template-6">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-template-6-content">
+          <span class="sidebar-dropdown-icon">&#x1F4CC;</span>
+          <span class="sidebar-dropdown-title">Template 6</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-template-6-content">
+          <p class="template-placeholder">Content coming soon...</p>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown" id="dropdown-template-7">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-template-7-content">
+          <span class="sidebar-dropdown-icon">&#x1F4CC;</span>
+          <span class="sidebar-dropdown-title">Template 7</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-template-7-content">
+          <p class="template-placeholder">Content coming soon...</p>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown" id="dropdown-template-8">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-template-8-content">
+          <span class="sidebar-dropdown-icon">&#x1F4CC;</span>
+          <span class="sidebar-dropdown-title">Template 8</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-template-8-content">
+          <p class="template-placeholder">Content coming soon...</p>
+        </div>
+      </div>
+
+      <div class="sidebar-dropdown" id="dropdown-template-9">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-template-9-content">
+          <span class="sidebar-dropdown-icon">&#x1F4CC;</span>
+          <span class="sidebar-dropdown-title">Template 9</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-template-9-content">
+          <p class="template-placeholder">Content coming soon...</p>
+        </div>
+      </div>
+
+      <!-- 10. Company Link -->
+      <div class="sidebar-company-link">
+        <a href="../Company/index.html" class="company-link-btn">
+          <span class="sidebar-dropdown-icon">&#x1F3E2;</span>
+          <span data-i18n="sidebar_company">My Company</span>
+          <span class="company-arrow">&#x2192;</span>
+        </a>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <!-- Main Content -->
   <main class="main-content" id="main-content">
@@ -55,16 +356,34 @@
     <!-- Hero Section -->
     <section class="section hero" id="hero">
       <div class="hero-content">
-        <p class="hero-greeting">Hello, I'm</p>
+        <p class="hero-greeting" data-i18n="hero_greeting">Hello, I'm</p>
         <h1 class="hero-name">SinneFinneSomnium</h1>
         <p class="hero-tagline" id="hero-tagline"></p>
+
+        <!-- Bangkok Time Clock -->
+        <div class="bangkok-clock" id="bangkok-clock">
+          <div class="clock-row">
+            <span class="clock-icon">&#x1F30F;</span>
+            <span class="clock-label" data-i18n="clock_label">Bangkok Time</span>
+          </div>
+          <div class="clock-time-display">
+            <span class="clock-time" id="bangkok-time">Loading...</span>
+          </div>
+          <div class="clock-date-display">
+            <span class="clock-date" id="bangkok-date">Loading...</span>
+          </div>
+          <div class="clock-year-display">
+            <span class="clock-year" id="bangkok-year">Loading...</span>
+          </div>
+        </div>
+
         <div class="hero-buttons">
-          <a href="#projects" class="btn btn-primary">View Projects</a>
-          <a href="#contact" class="btn btn-outline">Contact Me</a>
+          <a href="#projects" class="btn btn-primary" data-i18n="btn_projects">View Projects</a>
+          <a href="#contact" class="btn btn-outline" data-i18n="btn_contact">Contact Me</a>
         </div>
       </div>
       <div class="scroll-indicator">
-        <span>Scroll</span>
+        <span data-i18n="scroll">Scroll</span>
         <div class="scroll-line"></div>
       </div>
     </section>
@@ -72,7 +391,7 @@
     <!-- About Section -->
     <section class="section" id="about">
       <div class="section-inner">
-        <h2 class="section-title">About Me</h2>
+        <h2 class="section-title" data-i18n="section_about">About Me</h2>
         <div class="about-grid">
           <div class="about-card glass-card">
             <div class="about-avatar">
@@ -80,23 +399,21 @@
             </div>
           </div>
           <div class="about-text glass-card">
-            <h3>Who am I?</h3>
-            <p>I'm a creative developer passionate about building beautiful digital experiences. I love combining art
-              and technology to create something truly unique.</p>
-            <p>From web development to creative coding, I explore the intersection of design and engineering to craft
-              immersive, interactive projects.</p>
+            <h3 data-i18n="about_title">Who am I?</h3>
+            <p data-i18n="about_p1">I'm a creative developer passionate about building beautiful digital experiences. I love combining art and technology to create something truly unique.</p>
+            <p data-i18n="about_p2">From web development to creative coding, I explore the intersection of design and engineering to craft immersive, interactive projects.</p>
             <div class="about-stats">
               <div class="stat">
                 <span class="stat-num" data-target="10">0</span>+
-                <span class="stat-label">Projects</span>
+                <span class="stat-label" data-i18n="stat_projects">Projects</span>
               </div>
               <div class="stat">
                 <span class="stat-num" data-target="5">0</span>+
-                <span class="stat-label">Technologies</span>
+                <span class="stat-label" data-i18n="stat_tech">Technologies</span>
               </div>
               <div class="stat">
                 <span class="stat-num" data-target="2">0</span>+
-                <span class="stat-label">Years Experience</span>
+                <span class="stat-label" data-i18n="stat_years">Years Experience</span>
               </div>
             </div>
           </div>
@@ -107,7 +424,7 @@
     <!-- Skills Section -->
     <section class="section" id="skills">
       <div class="section-inner">
-        <h2 class="section-title">Skills & Technologies</h2>
+        <h2 class="section-title" data-i18n="section_skills">Skills &amp; Technologies</h2>
         <div class="skills-grid">
           <div class="skill-card glass-card">
             <div class="skill-icon">&#x1F310;</div>
@@ -139,7 +456,7 @@
           </div>
           <div class="skill-card glass-card">
             <div class="skill-icon">&#x1F916;</div>
-            <h3>AI & Automation</h3>
+            <h3>AI &amp; Automation</h3>
             <div class="skill-bar">
               <div class="skill-fill" data-width="70"></div>
             </div>
@@ -155,147 +472,10 @@
       </div>
     </section>
 
-    <!-- Interests Section -->
-    <section class="section" id="interests">
-      <div class="section-inner">
-        <h2 class="section-title">My Interests</h2>
-
-        <div class="interests-grid">
-
-          <!-- Library Card -->
-          <div class="library-container glass-card">
-            <div class="card-header">
-              <span class="card-icon">&#x1F4D6;</span>
-              <h3>My Library</h3>
-              <p class="subtitle">What I'm reading & highly recommend</p>
-            </div>
-
-            <div class="books-shelf">
-
-              <!-- Book 1 -->
-              <div class="book-item">
-                <div class="book-cover gradient-1">
-                  <span class="book-spine"></span>
-                  <span class="book-emoji">&#x1F4BB;</span>
-                  <span class="book-badge reading">Reading</span>
-                </div>
-                <div class="book-details">
-                  <h4>Clean Code</h4>
-                  <p class="book-author">Robert C. Martin</p>
-                  <div class="book-meta">
-                    <span class="book-tag">Software Eng</span>
-                    <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
-                  </div>
-                  <div class="book-progress-wrap">
-                    <div class="book-progress-bar">
-                      <div class="book-progress-fill" style="width: 65%;"></div>
-                    </div>
-                    <span class="book-progress-pct">65%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 2 -->
-              <div class="book-item">
-                <div class="book-cover gradient-2">
-                  <span class="book-spine"></span>
-                  <span class="book-emoji">&#x26A1;</span>
-                  <span class="book-badge completed">Done</span>
-                </div>
-                <div class="book-details">
-                  <h4>You Don't Know JS</h4>
-                  <p class="book-author">Kyle Simpson</p>
-                  <div class="book-meta">
-                    <span class="book-tag">JavaScript</span>
-                    <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
-                  </div>
-                  <div class="book-progress-wrap">
-                    <div class="book-progress-bar">
-                      <div class="book-progress-fill" style="width: 100%;"></div>
-                    </div>
-                    <span class="book-progress-pct">100%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 3 -->
-              <div class="book-item">
-                <div class="book-cover gradient-3">
-                  <span class="book-spine"></span>
-                  <span class="book-emoji">&#x1F52E;</span>
-                  <span class="book-badge planned">To Read</span>
-                </div>
-                <div class="book-details">
-                  <h4>Gödel, Escher, Bach</h4>
-                  <p class="book-author">Douglas Hofstadter</p>
-                  <div class="book-meta">
-                    <span class="book-tag">Cognitive Sci</span>
-                    <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2728;</div>
-                  </div>
-                  <div class="book-progress-wrap">
-                    <div class="book-progress-bar">
-                      <div class="book-progress-fill" style="width: 10%;"></div>
-                    </div>
-                    <span class="book-progress-pct">10%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Book 4 -->
-              <div class="book-item">
-                <div class="book-cover gradient-4">
-                  <span class="book-spine"></span>
-                  <span class="book-emoji">&#x1F4C8;</span>
-                  <span class="book-badge completed">Done</span>
-                </div>
-                <div class="book-details">
-                  <h4>Atomic Habits</h4>
-                  <p class="book-author">James Clear</p>
-                  <div class="book-meta">
-                    <span class="book-tag">Self-Help</span>
-                    <div class="book-rating">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
-                  </div>
-                  <div class="book-progress-wrap">
-                    <div class="book-progress-bar">
-                      <div class="book-progress-fill" style="width: 100%;"></div>
-                    </div>
-                    <span class="book-progress-pct">100%</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Quote Card -->
-          <div class="quote-container glass-card">
-            <div class="card-header">
-              <span class="card-icon">&#x1F4AC;</span>
-              <h3>Mindful Quotes</h3>
-              <p class="subtitle">Words that inspire my design and code</p>
-            </div>
-
-            <div class="quote-body">
-              <span class="quote-mark">&#x201C;</span>
-              <div class="quote-content-wrap">
-                <p class="quote-text" id="quote-text">Simplicity is the ultimate sophistication.</p>
-                <p class="quote-author" id="quote-author">&mdash; Leonardo da Vinci</p>
-              </div>
-              <button class="btn btn-outline" id="new-quote-btn">
-                <span class="btn-text">Shuffle Quote</span>
-                <span class="btn-icon">&#x267B;&#xFE0F;</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
     <!-- Projects Section -->
     <section class="section" id="projects">
       <div class="section-inner">
-        <h2 class="section-title">Projects</h2>
+        <h2 class="section-title" data-i18n="section_projects">Projects</h2>
         <div class="projects-grid">
           <div class="project-card glass-card">
             <div class="project-preview" style="background: linear-gradient(135deg, #6c9fff, #a855f7);">
@@ -340,8 +520,8 @@
     <!-- Contact Section -->
     <section class="section" id="contact">
       <div class="section-inner contact-inner">
-        <h2 class="section-title">Get In Touch</h2>
-        <p class="contact-desc">Have a question or want to work together? Feel free to reach out!</p>
+        <h2 class="section-title" data-i18n="section_contact">Get In Touch</h2>
+        <p class="contact-desc" data-i18n="contact_desc">Have a question or want to work together? Feel free to reach out!</p>
         <div class="contact-links">
           <a href="#" class="contact-card glass-card">
             <span class="contact-icon">&#x1F4E7;</span>
@@ -366,11 +546,6 @@
 
   </main>
 
-  <!-- Background Music -->
-  <audio id="bg-music" loop preload="auto">
-    <source src="https://drive.google.com/uc?export=download&id=10n3Cl7hrIV_QffbHDvsxhYOoA7hv6zXr" type="audio/mpeg">
-  </audio>
-
   <!-- Audio Controls -->
   <div class="audio-controls visible" id="audio-controls">
     <button id="music-toggle" class="music-toggle" title="Toggle Music">
@@ -386,7 +561,7 @@
     <div class="vol-slider-wrap">
       <input type="range" id="vol-slider" min="0" max="100" step="1" value="8">
       <span class="vol-value" id="vol-value">8%</span>
-      <span class="song-name">Gawr Gura cover</span>
+      <span class="song-name" id="song-name">Loading...</span>
     </div>
   </div>
 

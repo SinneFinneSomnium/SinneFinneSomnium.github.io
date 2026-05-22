@@ -17,11 +17,7 @@
 <body>
   <canvas id="particles"></canvas>
   <video class="bg-video" autoplay loop muted playsinline></video>
-  <audio id="bg-music" loop preload="auto">
-    <source
-      src="C:\Users\SinneFinneSomnium\Desktop\web\SinneFinneSomnium-Website\music\VivaLaVida-ElizabethRoseBloodflameCover.mp3"
-      type="audio/mpeg">
-  </audio>
+   <audio id="bg-music" loop preload="auto"></audio>
   <div id="cursor-glow"></div>
 
   <!-- Loading Screen -->
@@ -90,7 +86,9 @@
     <div class="vol-slider-wrap">
       <input type="range" id="vol-slider" min="0" max="100" step="1" value="8">
       <span class="vol-value" id="vol-value">8%</span>
-      <span class="song-name">Viva La Vida -Elizabeth Rose Bloodflame cover</span>
+      <span class="song-name" id="song-name">Loading...</span>
     </div>
   </div>
 </body>
+
+</html>

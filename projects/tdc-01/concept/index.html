@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TDC-01 Swarm — เอกสารแนวคิดหน่วยยิงต่อต้านโดรน">
+  <meta name="theme-color" content="#0a0a1a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../assets/css/base.css">
+  <link rel="stylesheet" href="../../../assets/css/project.css">
+  <link rel="icon" type="image/png" href="../../../assets/img/favicon-64.png">
+  <title>TDC-01 Swarm — เอกสารแนวคิด</title>
+  <style>
+    /* Long-form document styling (exported from Claude Docs) */
+    .doc { max-width: 820px; margin: 0 auto; padding: 48px 24px 32px; font-family: 'Sarabun', 'Inter', system-ui, sans-serif; font-size: 1.02rem; line-height: 1.75; color: rgba(240, 240, 245, 0.86); }
+    .doc h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.25; margin-bottom: 8px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .doc h1 + p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 28px; }
+    .doc h2 { font-size: 1.45rem; margin: 44px 0 14px; color: var(--text-primary); padding-top: 16px; border-top: 1px solid var(--glass-border); }
+    .doc p { margin: 0 0 14px; }
+    .doc strong { color: var(--text-primary); }
+    .doc ul, .doc ol { margin: 0 0 16px; padding-left: 24px; }
+    .doc li { margin-bottom: 6px; }
+    .doc li > p { margin: 0; }
+    .doc li:has(> input[type="checkbox"]) { list-style: none; margin-left: -22px; }
+    .doc input[type="checkbox"] { margin-right: 8px; accent-color: var(--accent-blue); }
+    .doc table { width: 100%; border-collapse: collapse; margin: 6px 0 20px; font-size: 0.9rem; display: block; overflow-x: auto; }
+    .doc th, .doc td { padding: 9px 11px; border: 1px solid var(--glass-border); text-align: left; vertical-align: top; }
+    .doc th { background: rgba(108, 159, 255, 0.08); color: var(--text-primary); white-space: nowrap; }
+    .doc td p { margin: 0; }
+    .doc a { color: var(--accent-blue); word-break: break-word; }
+    .doc time { color: var(--accent-purple); font-weight: 600; }
+    .doc-figure { margin: 18px 0 24px; padding: 16px; border-radius: var(--radius-md); background: var(--glass-bg); border: 1px solid var(--glass-border);
+      --fig-edge: #7c8597; --fig-ink: #f0f0f5; --fig-quiet: rgba(240, 240, 245, 0.62); --fig-accent: #6c9fff; }
+    .doc-figure svg { display: block; width: 100%; height: auto; }
+    .doc-figure figcaption { margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); text-align: center; }
+  </style>
+</head>
+
+<body>
+  <nav class="p-nav">
+    <a class="p-back" href="../index.html">&larr; TDC-01 Swarm</a>
+    <a class="p-brand" href="../../../Home/Homepage.html">
+      <img src="../../../assets/img/avatar-400.webp" alt="" width="30" height="30">
+      <span class="gradient-text">SinneFinneSomnium</span>
+    </a>
+  </nav>
+
+  <article class="doc">
+<h1 id="tdc-01-แมฝูง-เอกสารแนวคิดหนวยยิง">TDC-01 Swarm: เอกสารแนวคิดหน่วยยิง</h1>
+<p><time data-atom="date" datetime="2026-10-27">2026-10-27</time> · SinneFinneSomnium</p>
+<h2 id="ภาพรวม">ภาพรวม</h2>
+<p>TDC-01 Swarm คือหน่วยยิงต่อต้านโดรนแบบเคลื่อนที่ ประกอบด้วยรถสายพานไร้คนขับขนโดรน 3 คัน ศูนย์บังคับการ 1 คัน รถปืน 1 คัน และรถส่งกำลัง 1 คัน ทุกตัวเลขในเอกสารนี้เป็นการประเมินรอบแรก ไม่ใช่ผลออกแบบวิศวกรรม</p>
+<p><strong>ปัญหาที่แก้:</strong> โดรนราคาถูกกลายเป็นภัยหลักต่อทหารและยานพาหนะ ตามที่เห็นในสงครามยูเครนและงาน Eurosatory 2026 ที่โชว์ระบบต่อต้านโดรนคู่กับรถรบแทบทุกคัน</p>
+<p><strong>บทบาทของหน่วย:</strong></p>
+<ul><li><p>ลาดตระเวนด้วยโดรนใช้ซ้ำ ส่งภาพและพิกัดกลับศูนย์บังคับการ</p></li><li><p>ตรวจจับและสกัดกั้นโดรนข้าศึก ด้วยระบบรบกวนสัญญาณ โดรนสกัดกั้น และปืน 30 มม.</p></li><li><p>ประจำการในป่าได้นานราว 1 เดือนต่อรอบส่งกำลัง</p></li></ul>
+<p><strong>ขอบเขต:</strong> บทบาทหลักคือลาดตระเวนและต่อต้านโดรน แท่นท่อออกแบบให้เปลี่ยนเป็นแท่นโดรนโจมตีที่รัฐจัดหาได้ แต่เอกสารนี้ไม่ออกแบบตัวโดรนโจมตี หัวรบ หรือระบบนำวิถีโจมตี</p>
+<p><strong>ป้ายความมั่นใจ:</strong> [Certain] = มีหลักฐานชัด · [Likely] = อนุมานที่หนักแน่น · [Guessing] = ตัวเลขที่ตั้งเพื่อเริ่มออกแบบ</p>
+<p>โมเดล 3 มิติแบบสั่งงานได้: <a href="../models/carrier/index.html">Swarm TDC-01</a></p>
+<h2 id="องคประกอบหนวยยิง">องค์ประกอบหน่วยยิง</h2>
+<p>หน่วยหนึ่งมีรถ 6 คัน คนประจำรวมราว 10 คน เฉพาะในรถล้อยาง รถ Swarm ไม่มีคน [Guessing จำนวนคน]</p>
+<table><thead><tr><th>รถ</th><th>จำนวน</th><th>แชสซี</th><th>น้ำหนัก (ตัน)</th><th>คน</th><th>หน้าที่หลัก</th></tr></thead><tbody><tr><td>Swarm</td><td>3</td><td>สายพานไฮบริดไฟฟ้า 6.2 × 3.0 ม.</td><td>13.95 (ไม่มีกรง)</td><td>0</td><td>ตลับ 10 ช่อง (โดรนสกัดกั้นขึ้นตรง) + ท่อพิเศษ 2 ท่อ (ปล่อยเย็น) โดรนลาดตระเวน เรดาร์ 4 หน้า</td></tr><tr><td>CTOC ศูนย์บังคับการ</td><td>1</td><td>8×8 + ตู้ ISO 20 ฟุต</td><td>21.8</td><td>3–4</td><td>คุมทุกคันผ่านโดรนต่อสาย เสาพับยกไฮดรอลิก ≈10.7 ม.</td></tr><tr><td>รถปืนป้องกันศูนย์</td><td>1</td><td>8×8 + โมดูลรบท้ายแบบ Pantsir</td><td>24.8</td><td>3</td><td>ปืน 30 มม. ยิงระเบิดกลางอากาศ เรดาร์ค้นหา + ควบคุมการยิง</td></tr><tr><td>รถส่งกำลัง</td><td>1</td><td>6×6 + เครนพับ ≥8 ตัน·ม.</td><td>16.5</td><td>2</td><td>แท่นตลับสำรอง 3 แท่น (30 ช่อง + 6 ท่อ) เปลี่ยนทั้งแท่น</td></tr></tbody></table>
+<p>น้ำหนักทุกคันเป็น [Guessing] จากงบน้ำหนักในหัวข้อข้อมูลวิศวกรรมด้านล่าง</p>
+<p><strong>ชุดเสริมที่เลือกได้บน Swarm:</strong> กรงเหล็ก +0.4 ตัน (ยาวขึ้น ≈0.7 ม.) · แผงโซลาร์ปีกข้าง +0.25 ตัน · NERA ด้านข้าง +1.8 ตัน · ERA หน้า +1.2 ตัน (ไม่แนะนำ แรงระเบิดทำของบนหลังคาเสียหาย)</p>
+<h2 id="วิธีทำงาน">วิธีทำงาน</h2>
+<p>ทุกการยิงต้องมีคนกดยืนยัน ระบบไม่ตัดสินใจเอง Swarm อยู่ข้างหน้าจึงเห็นก่อน แล้วส่งพิกัดกลับมาให้รถปืนหันรอล่วงหน้า</p>
+<figure class="doc-figure">
+<svg viewBox="0 0 760 312" role="img" aria-label="หยุดโดรนข้าศึกได้หลายชั้น" font-size="13" font-family="inherit">
+  <defs><marker id="cuas-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--fig-edge)"/></marker></defs>
+  <text x="24" y="32" font-size="15" font-weight="600" fill="var(--fig-ink)">โดรนข้าศึกต้องผ่าน 5 ชั้น พลาดชั้นหนึ่งยังมีชั้นถัดไป</text>
+  <text x="24" y="82" font-size="11.5" fill="var(--fig-quiet)">ชั้นป้องกัน ทำตามลำดับ</text>
+  <g fill="none" stroke="var(--fig-edge)" stroke-width="1.25">
+    <path d="M156 128H172" marker-end="url(#cuas-arrow)"/><path d="M300 128H316" marker-end="url(#cuas-arrow)"/>
+    <path d="M444 128H460" marker-end="url(#cuas-arrow)"/><path d="M588 128H604" marker-end="url(#cuas-arrow)"/>
+  </g>
+  <g text-anchor="middle">
+    <rect x="28" y="96" width="128" height="64" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="92" y="122" font-weight="600" fill="var(--fig-ink)">1 ตรวจจับ</text>
+    <text x="92" y="142" font-size="11" fill="var(--fig-quiet)">เรดาร์ + จับคลื่น</text>
+    <rect x="172" y="96" width="128" height="64" rx="8" fill="var(--fig-accent)" fill-opacity="0.12" stroke="var(--fig-accent)" stroke-width="2"/>
+    <text x="236" y="122" font-weight="600" fill="var(--fig-ink)">2 ยืนยันเป้า</text>
+    <text x="236" y="142" font-size="11" fill="var(--fig-ink)">กล้อง + คนกดยืนยัน</text>
+    <rect x="316" y="96" width="128" height="64" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="380" y="122" font-weight="600" fill="var(--fig-ink)">3 รบกวนสัญญาณ</text>
+    <text x="380" y="142" font-size="11" fill="var(--fig-quiet)">ไม่ได้ผลกับใยแก้ว</text>
+    <rect x="460" y="96" width="128" height="64" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="524" y="122" font-weight="600" fill="var(--fig-ink)">4 โดรนสกัดกั้น</text>
+    <text x="524" y="142" font-size="11" fill="var(--fig-quiet)">ยิงจากท่อ 8 ลำ</text>
+    <rect x="604" y="96" width="128" height="64" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="668" y="122" font-weight="600" fill="var(--fig-ink)">5 ชั้นสุดท้าย</text>
+    <text x="668" y="142" font-size="11" fill="var(--fig-quiet)">ปืน 30 มม. + กรง</text>
+  </g>
+  <text x="24" y="212" font-size="11.5" fill="var(--fig-quiet)">เส้นทางข้อมูลเป้า ส่งต่อให้ป้อมหันรอก่อนเป้าเข้าระยะ</text>
+  <g fill="none" stroke="var(--fig-edge)" stroke-width="1.25">
+    <path d="M184 260H208" marker-end="url(#cuas-arrow)"/><path d="M368 260H392" marker-end="url(#cuas-arrow)"/>
+    <path d="M552 260H576" marker-end="url(#cuas-arrow)"/><path d="M92 160V200" stroke-dasharray="4 4" marker-end="url(#cuas-arrow)"/>
+  </g>
+  <g text-anchor="middle">
+    <rect x="24" y="232" width="160" height="56" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="104" y="255" font-weight="600" fill="var(--fig-ink)">Swarm</text>
+    <text x="104" y="274" font-size="11" fill="var(--fig-quiet)">อยู่หน้า เห็นก่อน</text>
+    <rect x="208" y="232" width="160" height="56" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="288" y="255" font-weight="600" fill="var(--fig-ink)">โดรนต่อสาย</text>
+    <text x="288" y="274" font-size="11" fill="var(--fig-quiet)">ส่งต่อสัญญาณ</text>
+    <rect x="392" y="232" width="160" height="56" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="472" y="255" font-weight="600" fill="var(--fig-ink)">CTOC</text>
+    <text x="472" y="274" font-size="11" fill="var(--fig-quiet)">คนตัดสินใจ</text>
+    <rect x="576" y="232" width="160" height="56" rx="8" fill="none" stroke="var(--fig-edge)" stroke-width="1.25"/>
+    <text x="656" y="255" font-weight="600" fill="var(--fig-ink)">รถปืน</text>
+    <text x="656" y="274" font-size="11" fill="var(--fig-quiet)">หันรอเป้า ใช้เรดาร์ตัวเองยิง</text>
+  </g>
+</svg>
+<figcaption>ชั้นป้องกันโดรน 5 ชั้น · เส้นทางข้อมูลเป้า 4 จุด</figcaption>
+</figure>
+
+<p>ปืน 30 มม. ยิงได้ผลราว 2–3 กม. [Likely] จึงป้องกันเฉพาะ CTOC และรถใกล้เคียง ไม่ได้คุ้ม Swarm ที่อยู่ห่าง 10–20 กม.</p>
+<p><strong>โหมดไฟฟ้าของ Swarm:</strong></p>
+<ul><li><p><strong>จำศีล:</strong> เปิดแค่ตัวจับคลื่นและไมโครโฟน</p></li><li><p><strong>เฝ้าระวัง:</strong> ฟังเงียบเป็นหลัก เรดาร์เปิด 10% ของเวลา โหมดหลักตลอดการประจำการ</p></li><li><p><strong>เตือนภัย:</strong> เรดาร์เต็มเวลา ยกโดรนต่อสาย พับแผงโซลาร์</p></li><li><p><strong>รบ:</strong> ยกแท่นยิง ทุกระบบทำงาน</p></li><li><p><strong>เคลื่อนย้าย:</strong> พับทุกอย่าง ขับด้วยแบตก่อน ติดดีเซลเมื่อพ้นจุดซ่อน</p></li></ul>
+<h2 id="การ-deploy-ลอกแลว">การ deploy (ล็อกแล้ว)</h2>
+<p>ขนบนรถพ่วงชานต่ำระยะไกล แล้วขับเองเฉพาะช่วงสุดท้าย สายพานไม่สึก และถึงหน้างานพร้อมน้ำมันเต็มถัง [Likely]</p>
+<ol><li><p><strong>ระยะไกล (หลายร้อย กม.):</strong> Swarm ขึ้นรถหัวลากพ่วงชานต่ำ 1–2 คันต่อหาง รถล้อยาง 3 คันขับเองบนถนน</p></li><li><p><strong>จุดลงของหลังแนวหน้า:</strong> ลงทางลาด ตรวจระบบ มีรถปืนคุ้มกัน</p></li><li><p><strong>ช่วงสุดท้าย 10–30 กม.:</strong> ขับเองตอนกลางคืน ใช้ดีเซลก่อน เปลี่ยนเป็นแบตตอนใกล้จุดซ่อน ให้โดรนลาดตระเวนบินนำหน้า</p></li></ol>
+<p><strong>ทางเลือกที่ตัดออก:</strong></p>
+<table><thead><tr><th>วิธี</th><th>เหตุผล</th></tr></thead><tbody><tr><td>ตู้คอนเทนเนอร์</td><td>ตู้ ISO กว้างด้านในราว 2.35 ม. Swarm กว้าง ≈3.0 ม. ใส่ไม่ได้</td></tr><tr><td>ขับเองระยะไกล</td><td>สายพานสึก กินน้ำมัน ถนนเสียหาย ถึงหน้างานพร้อมถังเปล่า [Likely]</td></tr><tr><td>รถไฟ</td><td>รางมีเตอร์ของไทยจำกัดขนาดตัวรถ อาจเกิน 3.0 ม. [Guessing] เก็บไว้เป็นทางเลือก</td></tr><tr><td>C-130</td><td>น้ำหนักผ่าน (≈19 ตัน) แต่ช่องกว้าง ≈3.1 ม. ต้องถอดกรงและแผง [Likely] ใช้เฉพาะเร่งด่วน</td></tr></tbody></table>
+<p><strong>ต้องใส่ในแบบ:</strong></p>
+<ul><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> จุดผูกยึด 4–8 จุดบนตัวถัง สำหรับรัดบนรถพ่วง</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> กรงและแผงโซลาร์ถอดหรือพับให้แคบลงตอนขนส่ง</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> เช็กกฎความกว้างขนส่งบนถนนไทย และขั้นตอนขออนุญาตขนส่งเกินขนาด</p></li></ul>
+<h2 id="สงกำลังและการประจำการ">ส่งกำลังและการประจำการ</h2>
+<p>Swarm 1 คันประจำการในป่าได้ราว 39 วันต่อถัง ในโหมดเฝ้าระวัง แดดเต็มและกางแผงปีกข้าง จึงรอบส่งกำลังเดือนละครั้งมีเผื่อ [สูตรจากค่าประเมิน] ใต้ร่มไม้หนาจะสั้นกว่านี้</p>
+<p><strong>กฎน้ำมัน:</strong> ถัง 400 ลิตร ล็อกไว้เป็นสำรองหนี 100 ลิตร (≈53 กม.) ใช้เฝ้าระวังได้ 300 ลิตร การขยับระยะสั้นใช้แบตได้ ≈11 กม. เงียบและไม่มีความร้อนจากเครื่อง</p>
+<table><thead><tr><th>สิ่งที่เติม</th><th>ต่อเดือน</th><th>ทหารราบแบกได้</th><th>ต้องใช้รถส่งกำลัง</th></tr></thead><tbody><tr><td>ดีเซล</td><td>≈226 ลิตร (12 ถัง 20 ลิตร ≈205 กก.)</td><td>ใช่ ทหาร 6 นาย คนละ 2 ถัง</td><td>ไม่จำเป็น</td></tr><tr><td>แบตโดรนลาดตระเวน</td><td>ตามรอบชาร์จ</td><td>ใช่</td><td>ไม่จำเป็น</td></tr><tr><td>แท่นท่อ 8 ท่อ</td><td>เมื่อยิงหมด</td><td>ไม่ได้ หนัก ≈1 ตัน</td><td>ใช่ เครนยกทั้งแท่น</td></tr></tbody></table>
+<p><strong>วิธีเจอรถส่งกำลัง (ทุกเดือน):</strong></p>
+<ol><li><p>เลือกจุดนัดริมทางใหม่ทุกเดือน ใกล้ชายป่าให้มากที่สุด</p></li><li><p>Swarm พับทุกอย่าง ออกจากจุดซ่อนด้วยแบต ติดดีเซลเมื่อพ้นจุดซ่อน</p></li><li><p>เติมน้ำมัน เปลี่ยนแท่นท่อ เปลี่ยนแบตโดรน ตอนกลางคืน</p></li><li><p>กลับไปจุดซ่อนใหม่ ไม่ใช่จุดเดิม เพราะรอยสายพานชี้ทางกลับได้</p></li></ol>
+<p><strong>ความเสี่ยง:</strong> ช่วงเคลื่อนที่คือช่วงที่รถอ่อนแอที่สุด พับทุกอย่างเก็บ และมีเสียง ความร้อน รอยสายพาน [Likely] ถ้ารถส่งกำลังเข้าไม่ถึง Swarm มีโดรนสกัดกั้นแค่ 8 ลำต่อเดือน</p>
+<h2 id="ขอมูลวิศวกรรมประเมิน">ข้อมูลวิศวกรรมประเมิน</h2>
+<p>Swarm กดพื้นเพียงราว 40 kPa ครึ่งหนึ่งของรถถังหลัก แต่ตัวเลขนี้ดีเท่ากับค่าน้ำหนักที่เดาไว้เท่านั้น</p>
+<p><strong>งบน้ำหนัก Swarm (ตัน) [Guessing]</strong></p>
+<table><thead><tr><th>ส่วน</th><th>ตัน</th></tr></thead><tbody><tr><td>ตัวถัง + เกราะพื้นฐาน</td><td>5.0</td></tr><tr><td>ช่วงล่าง + สายพาน</td><td>2.6</td></tr><tr><td>เครื่องปั่นไฟ + มอเตอร์</td><td>2.0</td></tr><tr><td>แท่นตลับ + ท่อพิเศษ + ระบบลมอัด + โดรน 12 ลำ</td><td>1.4</td></tr><tr><td>เซนเซอร์ ปืนกล สื่อสาร</td><td>0.8</td></tr><tr><td>น้ำมัน ของเหลว อื่นๆ</td><td>0.8</td></tr><tr><td>แบตเตอรี่ 100 kWh</td><td>0.7</td></tr><tr><td>โรงเก็บ + โดรนลาดตระเวน</td><td>0.4</td></tr><tr><td>แผงโซลาร์ปีกข้าง</td><td>0.25</td></tr><tr><td><strong>รวม</strong></td><td><strong>13.95</strong></td></tr></tbody></table>
+<p><strong>สูตรหลักที่ใช้:</strong></p>
+<ul><li><p>แรงกดพื้น = m × g ÷ (2 × L × b) = 14,100 × 9.81 ÷ (2 × 4.15 × 0.42) ≈ 40 kPa</p></li><li><p>กำลังต่อน้ำหนัก = 300 kW ÷ 13.9 ตัน ≈ 21.6 kW/ตัน (เครื่อง 300 kW เป็น [Guessing])</p></li><li><p>ขอบฟ้าวิทยุ d ≈ 3.57 × (√h₁ + √h₂) กม. → โดรน 100 ม. ถึงหัวเสา 10.7 ม. ≈ 47 กม. ข้อจำกัดจริงจึงคือการรบกวนสัญญาณ ไม่ใช่ระยะ</p></li><li><p>โซลาร์/วัน = 5 kWh/ม² × 16 ม² × 0.2 ≈ 16 kWh</p></li><li><p>เครน = 1.0 ตัน × 4 ม. = 4 ตัน·ม. → เลือก ≥ 8 ตัน·ม.</p></li></ul>
+<p><strong>งบไฟฟ้า Swarm ตามโหมด (kW) [Guessing]</strong></p>
+<table><thead><tr><th>โหมด</th><th>ใช้ไฟ</th><th>อยู่ได้ (แดดเต็ม + แผงปีก)</th></tr></thead><tbody><tr><td>จำศีล</td><td>0.5</td><td>99+ วัน</td></tr><tr><td>เฝ้าระวัง</td><td>1.8</td><td>≈39 วัน</td></tr><tr><td>เตือนภัย</td><td>6.5</td><td>≈7 วัน (แผงพับเก็บ)</td></tr><tr><td>รบ</td><td>9.5</td><td>≈5 วัน (แผงพับเก็บ)</td></tr><tr><td>เคลื่อนย้าย</td><td>≈50</td><td>แบต ≈11 กม. · สำรอง 100 ลิตร ≈53 กม.</td></tr></tbody></table>
+<p>CTOC ใช้ไฟรวม 11.6 kW ส่วนใหญ่เป็นแอร์ 7 kW เครื่องปั่นไฟ 30 kVA เผื่อราว 2 เท่า [Guessing]</p>
+<h2 id="ตรวจขอสมมติ-3-ขอดวยขอมูลจริง">ตรวจข้อสมมติ 3 ข้อด้วยข้อมูลจริง</h2>
+<p>ข้อสมมติเรื่องชุดกำลังผ่าน เรื่องโดรนสกัดกั้นต้องเปลี่ยนเป็น &quot;ซื้อมาติดตั้ง&quot; ไม่ใช่ &quot;ออกแบบเอง&quot; ส่วนการสื่อสารทนการรบกวนยังเป็นคำอ้างของผู้ผลิต ต้องทดสอบเอง</p>
+<table><thead><tr><th>ข้อสมมติ</th><th>ข้อมูลจริงที่เจอ</th><th>ผล</th></tr></thead><tbody><tr><td>ชุดกำลังไฮบริด ≈300 kW ในรถ ≈14 ตัน</td><td><a href="https://www.edrmagazine.eu/type-x-an-unmanned-direct-fire-support-solution-and-more-by-milrem-robotics" target="_blank" rel="noopener">Milrem Type-X</a> รถสายพานไร้คนขับ 12 ตัน ขนาด 6 × 2.9 × 2.2 ม. ไฮบริดอนุกรม (ดีเซลปั่นไฟ → มอเตอร์) ขับเงียบได้ราว 1 ชม. เฝ้าระวังเงียบได้ถึง 24 ชม. ส่วนกำลังมอเตอร์ 215–240 kW เป็นการประเมินของนิตยสาร ไม่ใช่ตัวเลขทางการ</td><td>ผ่าน ขนาด น้ำหนัก และสถาปัตยกรรมใกล้เคียงของจริง ตัด Cat C18 ออก ใช้ชุดไฮบริดแบบนี้แทน [Likely]</td></tr><tr><td>โดรนสกัดกั้นยิงจากท่อ</td><td>มีขายแล้วหลายรุ่น <a href="https://norskluftvern.com/2025/03/31/coyote-block-2-counter-drone-system-us/" target="_blank" rel="noopener">Coyote Block 2</a> ใช้งานในกองทัพสหรัฐฯ และ<a href="https://janes.com/defence-news/news-detail/us-army-approves-raytheons-coyote-block-2-c-uas-for-foreign-sales" target="_blank" rel="noopener">อนุมัติขายต่างประเทศผ่าน FMS แล้ว</a> ส่วน <a href="https://www.aviation-defence-universe.com/origin-robotics-unveils-blaze-a-cost-effective-drone-interceptor-with-ai-powered-computer-vision" target="_blank" rel="noopener">BLAZE</a> ของลัตเวียใช้เรดาร์กับกล้อง AI และผู้ควบคุมต้องกดยืนยันก่อนสกัด ตัวกล่องเป็นทั้งแท่นยิงและที่ชาร์จ</td><td>เปลี่ยนแผน: ซื้อโดรนสกัดกั้นสำเร็จ งานของเราคือแท่นยิง ระบบเชื่อม และรถ [Likely] ราคาต่อลำไม่มีแหล่งไหนเปิดเผย</td></tr><tr><td>สื่อสารทนการรบกวน ระยะ 10–20 กม.</td><td>วิทยุเครือข่าย MANET มีขาย เช่น <a href="https://militaryembedded.com/unmanned/power-electronics/silvus-technologies-unveils-streamcaster-lite-5200-sl5200" target="_blank" rel="noopener">Silvus StreamCaster Lite 5200</a> หนัก 52 ก. กำลังส่ง 2 W มีชุดซอฟต์แวร์กันการรบกวนและลดการตรวจจับ (LPI/LPD) แต่ไม่บอกระยะ และ<a href="https://shephardmedia.com/news/landwarfareintl/studio-networked-advantage-keeping-unmanned-systems-in-the-loop-with-battlefield-radio-technology/" target="_blank" rel="noopener">บทความเรื่อง MANET บน Shephard</a> เป็นบทความสนับสนุนของผู้ผลิต ไม่มีผลทดสอบภายใต้การรบกวน</td><td>ยังไม่ผ่าน เทคโนโลยีมี แต่ความทนจริงต้องพิสูจน์ด้วยการทดสอบภาคสนาม นี่คือความเสี่ยงใหญ่สุดของระบบ</td></tr></tbody></table>
+<p><strong>สิ่งที่เปลี่ยนในแบบจากผลตรวจ:</strong></p>
+<ul><li><p>โดรนสกัดกั้นที่มีขายส่วนใหญ่มีหัวรบในตัว จึงต้องซื้อผ่านช่องทางรัฐเท่านั้น โปรเจกต์นี้ไม่ออกแบบหัวรบ</p></li><li><p>เพิ่มข้อกำหนด: แท่นท่อต้องรองรับโดรนสกัดกั้นหลายยี่ห้อ ไม่ผูกกับเจ้าเดียว</p></li><li><p>ใช้สถาปัตยกรรมไฮบริดอนุกรมแบบ Type-X เป็นฐาน แทนการเริ่มจากเครื่องรถบรรทุก</p></li><li><p>การสื่อสารต้องมีสำรองหลายทาง (วิทยุเครือข่าย + โดรนต่อสาย + ดาวเทียม) และต้องทำงานต่อได้เองเมื่อสัญญาณขาด</p></li></ul>
+<h2 id="แผนตนแบบยอสวน-15">แผนต้นแบบย่อส่วน 1:5</h2>
+<p>ต้นแบบนี้พิสูจน์กลไกและซอฟต์แวร์ ไม่พิสูจน์การรบ: ขับเองตามจุดนำทาง ยกแท่นจำลอง กางแผงโซลาร์ และให้โดรนลงจอดชาร์จเอง ไม่มีอาวุธหรือการยิงจริง</p>
+<p><strong>ขนาดเป้าหมาย:</strong> ยาว ≈1.25 ม. กว้าง ≈0.6 ม. หนัก 40–60 กก. [Guessing]</p>
+<table><thead><tr><th>ระบบ</th><th>ชิ้นส่วนที่เสนอ</th><th>หมายเหตุ</th></tr></thead><tbody><tr><td>ตัวถัง + สายพาน</td><td>แชสซีสายพานหุ่นยนต์สำเร็จ + มอเตอร์ DC 2 ตัว + ESC</td><td>เริ่มจากของสำเร็จ อย่าสร้างสายพานเอง</td></tr><tr><td>ขับเอง</td><td>บอร์ด Pixhawk + ArduPilot Rover + GPS RTK</td><td>ตามจุดนำทาง กลับจุดนัดเมื่อสัญญาณขาด</td></tr><tr><td>สมอง</td><td>Raspberry Pi 5 หรือ Jetson Orin Nano + ROS 2</td><td>คุมกลไก โหมดไฟ และกล้อง</td></tr><tr><td>แท่นยกจำลอง</td><td>เซอร์โวแรงบิดสูง + กล่องท่อเปล่า</td><td>โชว์กลไกยกแบบ Shturm-S ไม่มีการยิง</td></tr><tr><td>โรงเก็บโดรน</td><td>โดรนเล็ก + แท่นแถบทองแดง + สัญลักษณ์ ArUco</td><td>ลงจอดแม่นด้วยกล้อง ชาร์จผ่านขั้วสัมผัส</td></tr><tr><td>ไฟฟ้า</td><td>แบต LiFePO4 + แผงโซลาร์พับ 2 ปีก + ตัววัดไฟ</td><td>วัดตัวเลขจริงมาแทนค่าเดาในเอกสารนี้</td></tr><tr><td>สื่อสาร</td><td>วิทยุ telemetry หรือ mesh Wi‑Fi ราคาถูก</td><td>ทดสอบพฤติกรรมเมื่อสัญญาณขาด ไม่ใช่ทดสอบการรบกวนสัญญาณ</td></tr></tbody></table>
+<p><strong>ขั้นทดสอบ (เรียงตามลำดับ):</strong></p>
+<ol><li><p>ขับเองตามจุดนำทาง 5 จุดบนสนามหญ้าและดินโคลน</p></li><li><p>ตัดสัญญาณกลางทาง รถต้องกลับจุดนัดเอง</p></li><li><p>ยกแท่นจำลองและกาง/พับแผง 100 รอบไม่ติดขัด</p></li><li><p>โดรนลงจอดบนแท่นชาร์จและเริ่มชาร์จเอง วัดอัตราสำเร็จจาก 20 ครั้ง</p></li><li><p>จอดในโหมดเฝ้าระวัง 72 ชม. บันทึกไฟเข้าออกจริง แล้วเทียบกับงบไฟฟ้าด้านบน</p></li></ol>
+<p><strong>ก่อนเริ่ม:</strong></p>
+<ul><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> ขึ้นทะเบียนโดรนกับ CAAT และ กสทช. ก่อนบิน [Likely]</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> หาพื้นที่ทดสอบที่ได้รับอนุญาต เช่น สนามของมหาวิทยาลัย</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> หาอาจารย์วิศวกรรมหรือชมรมหุ่นยนต์ร่วมทีม</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> ตั้งงบประมาณจากราคาชิ้นส่วนจริง (ยังไม่ได้สำรวจราคา)</p></li></ul>
+<h2 id="ความเสียงและคำถามเปิด">ความเสี่ยงและคำถามเปิด</h2>
+<p>ความเสี่ยงอันดับหนึ่งคือการสื่อสารโดนรบกวนจนทั้งหน่วยตาบอด ตามด้วยโดรนสกัดกั้นหมดก่อนรอบส่งกำลัง</p>
+<table><thead><tr><th>ความเสี่ยง</th><th>ผล</th><th>ทางลด</th></tr></thead><tbody><tr><td>สัญญาณควบคุมโดนรบกวน</td><td>รถและรถปืนตาบอด</td><td>สำรองหลายทาง ระบบทำงานต่อเอง รถปืนมีเรดาร์ของตัวเอง</td></tr><tr><td>โดรนสกัดกั้นหมด 8 ลำ</td><td>เหลือแค่การรบกวนและปืนกล</td><td>จุดนัดใกล้ชายป่า หรือรุ่น 16 ท่อที่ตัดโรงเก็บโดรน</td></tr><tr><td>ตำแหน่งถูกจับทิศ</td><td>โดนยิงกลับ</td><td>ฟังเงียบเป็นหลัก ส่งคลื่นผ่านโดรนต่อสาย ย้ายที่บ่อย</td></tr><tr><td>ช่วงเคลื่อนย้ายไปจุดนัด</td><td>รถอ่อนแอที่สุด</td><td>เส้นทางสั้น ตอนกลางคืน โดรนนำทาง รถปืนคุ้มกัน</td></tr><tr><td>CTOC 8×8 ติดหล่มหน้าฝน</td><td>ศูนย์บังคับการตามหน่วยไม่ทัน</td><td>ตั้งบนถนนแข็ง ใช้ระยะสัญญาณแทนการตามไป</td></tr><tr><td>คนในรถปืน</td><td>รถที่ยิงและปล่อยเรดาร์คือเป้าหลัก</td><td>ห้องควบคุมกันสะเก็ดและโดรนได้</td></tr></tbody></table>
+<p><strong>คำถามที่ต้องตอบก่อนคุยกับ DTI:</strong></p>
+<ul><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> ภัยหลักที่กองทัพไทยต้องการรับมือคือโดรนแบบไหน และในพื้นที่ไหน</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> ชิ้นไหนทำในไทยได้ (ตัวถัง รถบรรทุก ตู้) ชิ้นไหนต้องนำเข้า (โดรนสกัดกั้น วิทยุ เรดาร์)</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> ควรเริ่มจากทั้งหน่วยยิง หรือจาก Swarm คันเดียวที่ต่อเข้าระบบที่มีอยู่แล้ว</p></li><li data-checked="false"><p><input type="checkbox" disabled aria-hidden="true"> เกณฑ์การทดสอบที่ DTI หรือกองทัพใช้ตัดสินว่าต้นแบบผ่านคืออะไร</p></li></ul>
+<h2 id="ตัวรถรอบที-2-แทนตลับ-ชุดชายแดน-และภายในตัวรถ">ตัวรถรอบที่ 2: แท่นตลับ ชุดชายแดน และภายในตัวรถ</h2>
+<p>เปลี่ยนจากท่อ 8 ท่อเป็นตลับ 10 ช่องกับท่อพิเศษ 2 ท่อ เพราะโดรนสกัดกั้นราคาถูกแบบ Sting ขึ้นบินตรงได้เอง ไม่ต้องพึ่งท่อหรือจรวดดัน [Likely]</p>
+<table><thead><tr><th>ส่วน</th><th>สิ่งที่เปลี่ยน</th><th>เหตุผล</th></tr></thead><tbody><tr><td>แท่นยิง</td><td>ตลับ 10 ช่อง ฝาเปิดด้านบน ยกแบบ Shturm-S เหมือนเดิม</td><td>เงียบ ไม่มีแสงวาบ ทหารราบเติมโดรนทีละลำด้วยมือได้</td></tr><tr><td>ท่อพิเศษ 2 ท่อ</td><td>เงยขึ้นบนรางของตัวเอง ปล่อยเย็นด้วยลมอัด มีแผ่นเบี่ยงแรงพ่นท้ายท่อ</td><td>ใช้กับโดรนสกัดกั้นเร็วที่ผู้ผลิตทำมา สำหรับเป้าเร็วและแพง</td></tr><tr><td>ระบบลมอัด</td><td>คอมเพรสเซอร์ + ถังลม 2 ใบใต้แท่นยิง ใช้ไฟจากแบต ≈0.2 ตัน [Guessing]</td><td>ไม่ต้องเก็บจรวดเป็นวัตถุอันตรายตลอดการประจำการ</td></tr><tr><td>ชุดชายแดน (ตัวเลือก)</td><td>ตาข่ายเหนือดาดฟ้าเซนเซอร์ กล้องความร้อนรอบทิศ ไมโครโฟน 4 จุด เครื่องรบกวน ≈0.35 ตัน [Guessing]</td><td>รับ FPV จากด้านบน และตรวจ FPV สายใยแก้วที่ไม่ปล่อยคลื่น</td></tr><tr><td>ชุดกำลัง</td><td>ไฮบริดอนุกรมแบบ Type-X: ดีเซลปั่นไฟท้าย ถังน้ำมัน 2 × 200 ลิตรข้างเครื่อง แบต 100 kWh ใต้พื้น มอเตอร์ 2 ตัวขับเฟืองหน้า</td><td>แทน Cat C18 ตามผลตรวจข้อสมมติ</td></tr><tr><td>ตัวถัง</td><td>ห่วงผูกยึดขนส่ง 4 จุด ฝาซ่อมบำรุงชุดกำลัง แผงเปิดเกราะหน้า</td><td>รัดบนรถพ่วงชานต่ำได้ และซ่อมบำรุงได้โดยไม่ต้องยกแท่นยิง</td></tr></tbody></table>
+<p>น้ำหนักรวมขึ้นเป็นราว 13.95 ตัน (ไม่มีกรง) แรงกดพื้นราว 40 kPa [Guessing] ดูได้ในโมเดล 3 มิติ: ปุ่ม 2 และ 9 สำหรับการปล่อย ปุ่มชุดชายแดน และปุ่มภาพตัดภายใน</p>
+<p><strong>ตลับลึกแบบ TOR:</strong> ช่อง 0.30 × 0.30 × 0.85 ม. ตั้งตรง โดรนสกัดกั้นลำยาว แขนพับแนบลำตัวในช่อง จึงต้องใช้ลมอัดดีดออก (ปล่อยเย็น) แล้วแขนกางกลางอากาศ ช่องแท่นยิงในตัวถังลึกขึ้นเป็นราว 0.9 ม. ถังลมย้ายไปข้างช่อง แบตย้ายไปด้านหน้า [Guessing]</p>
+<p><strong>รถล้อยางในหน่วย (ชุดชายแดนเดียวกัน):</strong></p>
+<ul><li><p><strong>CTOC:</strong> ตาข่ายหลังคาตู้ เว้นร่องตามแนวเสายกให้เสาตั้งผ่านได้ ตาข่ายห้องคนขับ กล้องความร้อน ไมโครโฟน 4 จุด แต่เกราะที่ดีที่สุดคือตั้งให้ห่างแนวหน้าเกินระยะ FPV สายใยแก้ว [Likely]</p></li><li><p><strong>รถปืน:</strong> ตาข่ายคลุมได้แค่ห้องคนขับกับชุดไฟฟ้า เพราะป้อมต้องหมุนรอบตัว บทบาทหลักที่ชายแดนคือยิง FPV สายใยแก้วที่เครื่องรบกวนทำอะไรไม่ได้</p></li><li><p><strong>รถส่งกำลัง:</strong> ตาข่ายห้องคนขับ เครื่องรบกวนพกพา และลังโดรนสกัดกั้น 4 ลังให้ทหารราบแบกไปเติมตลับด้วยมือ เป็นรถที่บางที่สุดในหน่วย</p></li></ul>
+<h2 id="บริบทไทย-ชายแดนไทยกัมพูชาและบทเรียนปี-2025">บริบทไทย: ชายแดนไทย–กัมพูชาและบทเรียนปี 2025</h2>
+<p>บทเรียนที่สำคัญที่สุดคือ เครื่องรบกวนสัญญาณอย่างเดียวรับมือไม่ได้ เพราะ FPV แบบสายใยแก้วนำแสงไม่มีคลื่นวิทยุให้รบกวน และเครื่องตรวจจับคลื่นก็มองไม่เห็นด้วย [Likely]</p>
+<p><strong>สิ่งที่เกิดขึ้น:</strong></p>
+<ul><li><p>ปะทะตั้งแต่ พ.ค. 2025 มีข้อตกลงสันติภาพกัวลาลัมเปอร์ 26 ต.ค. 2025 แต่ ธ.ค. 2025 ยังปะทะและยึดเนินกันต่อ [Certain]</p></li><li><p>กัมพูชาใช้ FPV พลีชีพและ FPV สายใยแก้ว ปล่อยจากเนินสูงฝั่งอุดรมีชัยและพระวิหาร มีป่าบังสายไว้ [Likely: รายงานวิเคราะห์ BISI แหล่งเดียว]</p></li><li><p>เครื่องรบกวนของไทยไม่ได้ผลกับ FPV สายใยแก้ว ไทยจึงแก้ด้วยการยึดเนินเพื่อตัดจุดปล่อย [Likely]</p></li><li><p>กองทัพบกไทยกล่าวหาว่ามีโดรนกว่า 250 ลำบินข้ามแดนหลังหยุดยิง [Certain ว่ามีการกล่าวหา]</p></li><li><p>แผนจัดหาปีงบ 2570 หันมาเน้นโดรน ระบบต่อต้านโดรน และการผลิตในประเทศร่วมกับเอกชนและมหาวิทยาลัย [Certain]</p></li></ul>
+<p><strong>สิ่งที่ต้องเปลี่ยนในแบบ:</strong></p>
+<table><thead><tr><th>บทเรียน</th><th>เปลี่ยนอะไรในแบบ</th></tr></thead><tbody><tr><td>FPV สายใยแก้วไม่ปล่อยคลื่น</td><td>เพิ่มการตรวจจับที่ไม่พึ่งคลื่นวิทยุ (เรดาร์ กล้องความร้อน ไมโครโฟน) และการทำลายจริง (ปืนกลยิงระเบิดกลางอากาศ โดรนสกัดกั้น) เครื่องรบกวนเหลือเป็นชั้นสำหรับ FPV วิทยุ</td></tr><tr><td>FPV โจมตีจากด้านบน</td><td>กรงหรือตาข่ายด้านบนเป็นค่ามาตรฐานในภารกิจชายแดน แม้รถจะยาวขึ้น และคลุมตาข่ายที่จุดซ่อน</td></tr><tr><td>จุดปล่อยอยู่บนเนินฝั่งตรงข้าม</td><td>งานแรกของโดรนลาดตระเวนคือหาจุดปล่อยและผู้บังคับ แล้วส่งพิกัดให้หน่วยยิงของกองทัพ</td></tr><tr><td>ฝั่งไทยเป็นที่ราบ นาข้าว ป่าเป็นแนว</td><td>จุดซ่อนมีน้อย ต้องย้ายบ่อย ชุดพรางสำคัญกว่าเกราะเสริม</td></tr><tr><td>สันเขาบังเรดาร์</td><td>ยกโดรนต่อสายให้มองข้ามสันเขา CTOC ตั้งให้พ้นระยะ FPV สายใยแก้ว ราว 10–20 กม. [Likely]</td></tr><tr><td>ฤดูฝน พ.ค.–ต.ค.</td><td>แรงกดพื้น 39 kPa ของ Swarm เป็นข้อได้เปรียบ ส่วนรถล้อยางอยู่บนถนนแข็ง</td></tr></tbody></table>
+<p><strong>เรื่องโดรน FPV โจมตี:</strong> ผู้ออกแบบต้องการให้ Swarm ใช้ FPV โจมตีได้ ข้อสังเกตคือ FPV ราคาถูกและทหารปล่อยด้วยมือได้ การใช้รถ 13.75 ตันขน FPV แค่ 8 ลำในท่อจึงไม่คุ้ม [Likely] ทางที่คุ้มกว่าคือให้ Swarm เป็นสถานีถ่ายทอดสัญญาณและชาร์จให้ทีม FPV ของทหารราบ ส่วนแท่นท่อเปลี่ยนเป็นแท่นโดรนโจมตีที่รัฐจัดหาได้เมื่อภารกิจต้องการ ตัวโดรนโจมตี หัวรบ และการนำวิถีเป็นงานของหน่วยงานรัฐ ไม่อยู่ในเอกสารนี้</p>
+<p><strong>จังหวะเข้า DTI:</strong> แผนปี 2570 เปิดให้เอกชนและมหาวิทยาลัยร่วมพัฒนาโดรนและระบบต่อต้านโดรน จึงเป็นจังหวะดี แต่แปลว่าคู่แข่งจะเพิ่มเร็ว ไม่ใช่วงการที่ไม่มีคนเข้า [Likely]</p>
+<p>แหล่งของหัวข้อนี้: <a href="https://bisi.org.uk/reports/drone-warfare-and-escalation-risks-on-the-thailand-cambodia-border" target="_blank" rel="noopener">BISI: Drone Warfare on the Thailand–Cambodia Border</a> · <a href="https://www.nationthailand.com/news/general/40060920" target="_blank" rel="noopener">Nation Thailand: แผนจัดหาปี 2027</a> · <a href="https://www.dawn.com/news/1964040" target="_blank" rel="noopener">Dawn: กล่าวหาโดรนกว่า 250 ลำ</a> · <a href="https://euromaidanpress.com/2026/08/22/ukraine-is-buying-jam-proof-fiber-optic-drones-for-first-time-to-single-standard-so-any-maker-can-compete/" target="_blank" rel="noopener">Euromaidan Press: ยูเครนจัดซื้อ FPV สายใยแก้ว</a></p>
+<h2 id="แหลงทีมา">แหล่งที่มา</h2>
+<ul><li><p><a href="https://www.edrmagazine.eu/type-x-an-unmanned-direct-fire-support-solution-and-more-by-milrem-robotics" target="_blank" rel="noopener">Milrem Type-X · EDR Magazine</a></p></li><li><p><a href="https://norskluftvern.com/2025/03/31/coyote-block-2-counter-drone-system-us/" target="_blank" rel="noopener">Coyote Block 2 · Norsk Luftvern</a></p></li><li><p><a href="https://janes.com/defence-news/news-detail/us-army-approves-raytheons-coyote-block-2-c-uas-for-foreign-sales" target="_blank" rel="noopener">Coyote Block 2 อนุมัติ FMS · Janes</a></p></li><li><p><a href="https://www.aviation-defence-universe.com/origin-robotics-unveils-blaze-a-cost-effective-drone-interceptor-with-ai-powered-computer-vision" target="_blank" rel="noopener">BLAZE · Aviation &amp; Defence Universe</a></p></li><li><p><a href="https://militaryembedded.com/unmanned/power-electronics/silvus-technologies-unveils-streamcaster-lite-5200-sl5200" target="_blank" rel="noopener">Silvus StreamCaster Lite 5200 · Military Embedded Systems</a></p></li><li><p><a href="https://shephardmedia.com/news/landwarfareintl/studio-networked-advantage-keeping-unmanned-systems-in-the-loop-with-battlefield-radio-technology/" target="_blank" rel="noopener">MANET สำหรับระบบไร้คนขับ · Shephard (บทความสนับสนุน)</a></p></li><li><p><a href="https://new.diehl.com/defence/en/render-tab-content/2526" target="_blank" rel="noopener">IRIS-T SLM · Diehl Defence</a></p></li></ul>
+
+  </article>
+
+  <footer class="p-footer">
+    <p>&copy; 2569 SinneFinneSomnium &middot; แนวคิดอิสระ ไม่ได้เกี่ยวข้องกับ สทป. &middot; <a href="../index.html">กลับหน้า TDC-01</a></p>
+  </footer>
+</body>
+
+</html>

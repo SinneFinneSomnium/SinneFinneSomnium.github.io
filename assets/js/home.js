@@ -1,3 +1,5 @@
+/* home.js — Home/Homepage.html: language switch, clock, sidebar, quotes, typing tagline,
+   navbar, counters. Background video + music: media.js. Scroll reveal: reveal.js. */
 document.addEventListener("DOMContentLoaded", function () {
 
   // ===== Translations =====
@@ -17,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
       scroll: "Scroll",
       section_about: "About Me",
       about_title: "Who am I?",
-      about_p1: 'Hi! Hello there i\'m SinneFinneSomnium, im Thais and a first years student that are studying in BBA but got so many interests in technology, Ai, Science, Space, Physics, Arts, Poerty, History, Philisophy, Programming , Military equipment like Tanks and Aircraft, weired right?, yeahhh im linda "Jack of all trade" guy but you know what?, Jack of all "jack of all trades, master of none, most of time better than master of one" eh? haha.',
+      about_p1: 'Hi! Hello there i\'m SinneFinneSomnium, im Thais and a first years student that are studying in BBA but got so many interests in technology, Ai, Science, Space, Physics, Arts, Poetry, History, Philosophy, Programming , Military equipment like Tanks and Aircraft, weird right?, yeahhh im kinda "Jack of all trade" guy but you know what?, "jack of all trades, master of none, most of time better than master of one" eh? haha.',
       about_p2: "Soooo That's it, i think, thanks for reading till this Have a good day!",
       stat_projects: "Projects",
       stat_tech: "Technologies",
@@ -26,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
       section_projects: "Projects",
       section_contact: "Get In Touch",
       contact_desc: "Have a question or want to work together? Feel free to reach out!",
+      sidebar_projects: "My Projects",
       sidebar_library: "My Library",
       sidebar_quotes: "Mindful Quotes",
       sidebar_tools: "Tools",
@@ -56,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
       section_projects: "โปรเจกต์",
       section_contact: "ติดต่อมาเยยยย",
       contact_desc: "มีคำถามหรืออยากร่วมงานกัน? ติดต่อได้เลย!",
+      sidebar_projects: "โปรเจกต์ของผม",
       sidebar_library: "ห้องสมุดรวมหยังจื๋อ",
       sidebar_quotes: "คำคมสร้างแรงบันดาลใจ",
       sidebar_tools: "เครื่องมือ",
@@ -68,6 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function applyLanguage(lang) {
     currentLang = lang;
+    document.documentElement.lang = lang;
+    try { localStorage.setItem("sfs-lang", lang); } catch (e) { }
     var elements = document.querySelectorAll("[data-i18n]");
     elements.forEach(function (el) {
       var key = el.getAttribute("data-i18n");
@@ -90,6 +96,12 @@ document.addEventListener("DOMContentLoaded", function () {
       applyLanguage(nextLang);
     });
   }
+
+  // Restore the language chosen on a previous visit
+  try {
+    var savedLang = localStorage.getItem("sfs-lang");
+    if (savedLang === "th" || savedLang === "en") applyLanguage(savedLang);
+  } catch (e) { }
 
   // ===== Bangkok Time Clock =====
   function updateBangkokTime() {
@@ -302,198 +314,9 @@ var quotes = [
   setupToolBtn("instagram-download-btn", "instagram-url", "instagram-status", "Instagram");
   setupToolBtn("facebook-download-btn", "facebook-url", "facebook-status", "Facebook");
 
-  // ===== Random Picker (no consecutive repeat) =====
-  function pickRandom(arr, lastIndex) {
-    if (arr.length === 0) return -1;
-    if (arr.length === 1) return 0;
-    var next;
-    do {
-      next = Math.floor(Math.random() * arr.length);
-    } while (next === lastIndex);
-    return next;
-  }
-
-  // ===== Background Video System (Random + Fade) =====
-  var video = document.querySelector(".bg-video");
-  var bgVideos = [];
-  var currentVideoIndex = -1;
-  var videoFadeTimer = null;
-
-  function startVideoWithFade(idx) {
-    if (!video || bgVideos.length === 0) return;
-    currentVideoIndex = idx;
-    video.src = bgVideos[idx].url;
-    video.load();
-    video.play().catch(function () { });
-
-    // Fade in
-    video.style.opacity = "1";
-
-    // After 10s visible, fade out then swap
-    clearTimeout(videoFadeTimer);
-    videoFadeTimer = setTimeout(function () {
-      video.style.opacity = "0";
-      setTimeout(function () {
-        var nextIdx = pickRandom(bgVideos, currentVideoIndex);
-        startVideoWithFade(nextIdx);
-      }, 4000);
-    }, 15000);
-  }
-
-  // ===== Background Music System (Random Shuffle) =====
-  var bgMusic = document.getElementById("bg-music");
-  var volSlider = document.getElementById("vol-slider");
-  var volValue = document.getElementById("vol-value");
-  var musicToggle = document.getElementById("music-toggle");
-  var musicIcon = document.getElementById("music-icon");
-  var visualizer = document.getElementById("visualizer");
-  var songNameEl = document.getElementById("song-name");
-  var musicPlaying = false;
-  var bgMusicList = [];
-  var currentMusicIndex = -1;
-
-  if (bgMusic && volSlider) {
-    bgMusic.volume = volSlider.value / 100;
-  }
-
-  function startMusic(idx) {
-    if (!bgMusic || bgMusicList.length === 0) return;
-    currentMusicIndex = idx;
-    bgMusic.src = bgMusicList[idx].url;
-    bgMusic.load();
-
-    // Update song name
-    if (songNameEl) {
-      songNameEl.textContent = bgMusicList[idx].name;
-    }
-
-    var targetVol = volSlider ? volSlider.value / 100 : 0.08;
-    bgMusic.volume = 0;
-
-    var playPromise = bgMusic.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function () {
-        musicPlaying = true;
-        updateMusicUI();
-        var fadeInterval = setInterval(function () {
-          if (bgMusic.volume < targetVol) {
-            bgMusic.volume = Math.min(targetVol, bgMusic.volume + 0.005);
-          } else {
-            clearInterval(fadeInterval);
-          }
-        }, 50);
-      }).catch(function () {
-        musicPlaying = false;
-        updateMusicUI();
-        bgMusic.volume = targetVol;
-      });
-    }
-  }
-
-  // When song ends, play next random
-  if (bgMusic) {
-    bgMusic.addEventListener("ended", function () {
-      var nextIdx = pickRandom(bgMusicList, currentMusicIndex);
-      if (nextIdx >= 0) startMusic(nextIdx);
-    });
-  }
-
-  // ===== Load Assets from assets.json =====
-  fetch("../assets.json")
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      bgVideos = data.videos || [];
-      bgMusicList = data.music || [];
-
-      // Start random video
-      if (bgVideos.length > 0) {
-        var firstVideo = pickRandom(bgVideos, -1);
-        startVideoWithFade(firstVideo);
-      }
-
-      // Prepare music
-      if (bgMusicList.length > 0) {
-        var firstMusic = pickRandom(bgMusicList, -1);
-        currentMusicIndex = firstMusic;
-        if (bgMusic) bgMusic.src = bgMusicList[firstMusic].url;
-        if (songNameEl) songNameEl.textContent = bgMusicList[firstMusic].name;
-      }
-    })
-    .catch(function (err) { console.error("Failed to load assets.json", err); });
-
-  // ===== Music UI Functions =====
-  function toggleMusic() {
-    if (!bgMusic) return;
-    if (!musicPlaying) {
-      bgMusic.play().then(function () {
-        musicPlaying = true;
-        updateMusicUI();
-      }).catch(function () {
-        console.log("Music play failed");
-      });
-    } else {
-      bgMusic.pause();
-      musicPlaying = false;
-      updateMusicUI();
-    }
-  }
-
-  function updateMusicUI() {
-    if (!bgMusic || !musicIcon || !visualizer) return;
-    var vol = bgMusic.volume;
-    if (!musicPlaying || vol === 0) {
-      musicIcon.textContent = "\uD83D\uDD07";
-      visualizer.classList.remove("active");
-    } else if (vol < 0.4) {
-      musicIcon.textContent = "\uD83D\uDD09";
-      visualizer.classList.add("active");
-    } else {
-      musicIcon.textContent = "\uD83D\uDD0A";
-      visualizer.classList.add("active");
-    }
-  }
-
-  function tryPlayMusic() {
-    if (!bgMusic || (bgMusicList.length === 0 && !bgMusic.src)) return;
-    startMusic(currentMusicIndex >= 0 ? currentMusicIndex : 0);
-  }
-
-  // Start music on first user interaction
-  function onFirstInteraction() {
-    if (!musicPlaying) tryPlayMusic();
-    document.removeEventListener("click", onFirstInteraction);
-    document.removeEventListener("keydown", onFirstInteraction);
-    document.removeEventListener("touchstart", onFirstInteraction);
-  }
-  document.addEventListener("click", onFirstInteraction);
-  document.addEventListener("keydown", onFirstInteraction);
-  document.addEventListener("touchstart", onFirstInteraction);
-
-  // Volume Control
-  if (volSlider) {
-    volSlider.addEventListener("input", function (e) {
-      e.stopPropagation();
-      var val = volSlider.value;
-      if (bgMusic) bgMusic.volume = val / 100;
-      volSlider.style.background = "linear-gradient(to right, #6c9fff " + val + "%, rgba(255,255,255,0.12) " + val + "%)";
-      if (volValue) volValue.textContent = val + "%";
-      updateMusicUI();
-    });
-
-    volSlider.addEventListener("click", function (e) { e.stopPropagation(); });
-    volSlider.addEventListener("mousedown", function (e) { e.stopPropagation(); });
-
-    var initVal = volSlider.value;
-    volSlider.style.background = "linear-gradient(to right, #6c9fff " + initVal + "%, rgba(255,255,255,0.12) " + initVal + "%)";
-  }
-
-  // Music Toggle Button
-  if (musicToggle) {
-    musicToggle.addEventListener("click", function (e) {
-      e.stopPropagation();
-      toggleMusic();
-    });
-  }
+  // ===== Background video + music (shared, see media.js) =====
+  var media = SFSMedia.create({ assetsUrl: "../assets/media.json" });
+  setTimeout(media.tryPlayMusic, 1000);
 
   // ===== Hero Tagline Typing =====
   var taglines = [
@@ -530,31 +353,27 @@ var quotes = [
   }
   setTimeout(typeTagline, 1500);
 
-  // ===== Navbar Scroll Effect =====
+  // ===== Navbar Scroll Effect (at most once per frame) =====
   var navbar = document.getElementById("navbar");
+  var navSections = Array.prototype.slice.call(document.querySelectorAll(".section"));
+  var navLinks = document.querySelectorAll(".nav-link");
+  var scrollQueued = false;
 
-  window.addEventListener("scroll", function () {
-    if (!navbar) return;
-    if (window.scrollY > 60) {
-      navbar.classList.add("scrolled");
-    } else {
-      navbar.classList.remove("scrolled");
-    }
-
-    // Active nav link
-    var sections = document.querySelectorAll(".section");
-    var links = document.querySelectorAll(".nav-link");
-    sections.forEach(function (sec) {
+  function onScroll() {
+    scrollQueued = false;
+    var y = window.scrollY;
+    navbar.classList.toggle("scrolled", y > 60);
+    navSections.forEach(function (sec) {
       var top = sec.offsetTop - 120;
-      var bottom = top + sec.offsetHeight;
-      if (window.scrollY >= top && window.scrollY < bottom) {
-        var id = sec.getAttribute("id");
-        links.forEach(function (l) { l.classList.remove("active"); });
-        var activeLink = document.querySelector('.nav-link[href="#' + id + '"]');
-        if (activeLink) activeLink.classList.add("active");
+      if (y >= top && y < top + sec.offsetHeight) {
+        var href = "#" + sec.id;
+        navLinks.forEach(function (l) { l.classList.toggle("active", l.getAttribute("href") === href); });
       }
     });
-  });
+  }
+  window.addEventListener("scroll", function () {
+    if (!scrollQueued) { scrollQueued = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
 
   // ===== Mobile Menu =====
   var hamburger = document.getElementById("nav-hamburger");
@@ -571,20 +390,6 @@ var quotes = [
       });
     });
   }
-
-  // ===== Scroll Animations (Intersection Observer) =====
-  var fadeElements = document.querySelectorAll(".glass-card, .section-title, .scroll-indicator");
-  fadeElements.forEach(function (el) { el.classList.add("fade-in"); });
-
-  var observer = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
-    });
-  }, { threshold: 0.15 });
-
-  fadeElements.forEach(function (el) { observer.observe(el); });
 
   // ===== Animated Stat Counters =====
   var statNums = document.querySelectorAll(".stat-num");
@@ -623,19 +428,5 @@ var quotes = [
   }, { threshold: 0.3 });
 
   skillFills.forEach(function (el) { skillObserver.observe(el); });
-
-  // ===== Smooth scroll for nav links =====
-  document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      var target = document.querySelector(this.getAttribute("href"));
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth" });
-      }
-    });
-  });
-
-  // Try music after 1 second
-  setTimeout(tryPlayMusic, 1000);
 
 });

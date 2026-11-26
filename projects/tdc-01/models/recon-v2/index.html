@@ -1,0 +1,806 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<a href="../../index.html" style="position:fixed;left:14px;bottom:14px;z-index:2147483647;padding:8px 14px;border-radius:999px;background:rgba(10,10,26,.82);color:#f0f0f5;font:600 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)">&larr; TDC-01 Swarm</a>
+
+<title>TDC-01 Swarm — รุ่น 2 ลาดตระเวน</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: drafting-sheet page. Viewer first (full width), then findings, calculators, tables in one 1100px column. */
+:root{
+  --bg:#edf0ec; --surface:#f8faf6; --ink:#18211d; --muted:#56635c; --line:#c7d0ca;
+  --accent:#a8641a; --accent-ink:#ffffff; --link:#0d6767;
+  --scene:#dde4df; --ground:#9fae8f;
+  --c-bg:#d9efe0; --c-fg:#1d5b34; --l-bg:#f6e8c8; --l-fg:#7a4b06; --g-bg:#f6dcdc; --g-fg:#8a2424;
+  --bad:#b42318; --ok:#1d6b3c;
+  --f-display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111614; --surface:#18201c; --ink:#e3eae5; --muted:#97a69e; --line:#2d3833;
+  --accent:#e3a548; --accent-ink:#1a1206; --link:#5cc4c0;
+  --scene:#1a221e; --ground:#2d3a2c;
+  --c-bg:#163a24; --c-fg:#9fe0b4; --l-bg:#3d2e0e; --l-fg:#f1c76d; --g-bg:#3e1a1a; --g-fg:#f2a7a7;
+  --bad:#ff7a6b; --ok:#7fd69c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111614; --surface:#18201c; --ink:#e3eae5; --muted:#97a69e; --line:#2d3833;
+  --accent:#e3a548; --accent-ink:#1a1206; --link:#5cc4c0;
+  --scene:#1a221e; --ground:#2d3a2c;
+  --c-bg:#163a24; --c-fg:#9fe0b4; --l-bg:#3d2e0e; --l-fg:#f1c76d; --g-bg:#3e1a1a; --g-fg:#f2a7a7;
+  --bad:#ff7a6b; --ok:#7fd69c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:22px 14px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.15;margin:4px 0 6px;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0 0 10px;text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .num{font-family:var(--f-mono);font-size:13px;color:var(--accent);font-weight:500}
+h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 6px}
+p{margin:0 0 10px;max-width:72ch}
+a{color:var(--link)}
+.lede{color:var(--muted);max-width:75ch}
+.t{display:inline-block;font-family:var(--f-mono);font-size:10.5px;font-weight:500;padding:0 5px;border-radius:3px;line-height:17px;vertical-align:1px;white-space:nowrap}
+.t.c{background:var(--c-bg);color:var(--c-fg)} .t.l{background:var(--l-bg);color:var(--l-fg)} .t.g{background:var(--g-bg);color:var(--g-fg)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* viewer */
+.viewer{position:relative;width:100%;height:min(68vh,620px);min-height:380px;background:var(--scene);border-block:1px solid var(--line);overflow:hidden}
+.viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lab{position:absolute;transform:translate(10px,-50%);font-size:11.5px;line-height:1.3;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--line);border-radius:4px;padding:3px 6px;white-space:nowrap;color:var(--ink)}
+.lab::before{content:"";position:absolute;left:-10px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+.lab b{font-weight:600;display:block}
+.lab .mono{font-size:10.5px;color:var(--muted)}
+.hud{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:12px;font-family:var(--f-mono);font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:6px 9px;max-width:calc(100% - 24px)}
+.hud .stage{font-family:var(--f-display);font-size:15px;font-weight:600;display:block}
+.scalenote{position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:10px;font-size:11px;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-block:12px}
+.controls .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+button,.seg label{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 11px;border-radius:5px;cursor:pointer}
+button:hover,.seg label:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;min-width:96px}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips button{font-size:12.5px;padding:4px 8px}
+.chips button.on{border-color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+#scrub{width:100%;accent-color:var(--accent)}
+.seg{display:inline-flex}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border-radius:0;margin-left:-1px}
+.seg label:first-of-type{border-radius:5px 0 0 5px;margin-left:0}
+.seg label:last-of-type{border-radius:0 5px 5px 0}
+.seg input:checked+label{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+section{padding-block:26px;border-top:1px solid var(--line)}
+.flaws{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
+.flaw{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:4px;padding:12px 14px;min-width:0}
+.flaw.mid{border-left-color:var(--accent)}
+.flaw h3{font-size:16px}
+.flaw p{font-size:14px;margin:0 0 6px}
+.flaw .fix{font-size:13.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;min-width:0}
+.card.rec{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pill{display:inline-block;font-size:11px;font-family:var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:2px}
+.card ul{margin:4px 0 8px;padding-left:18px}
+.card li{margin-bottom:3px;font-size:14px}
+.card .lbl{font-size:12px;font-family:var(--f-mono);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;font-size:12.5px;color:var(--muted);background:var(--bg);white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.grp td{background:var(--bg);font-weight:600;font-size:12.5px;color:var(--muted)}
+tfoot td{font-weight:600;background:var(--bg)}
+td small{color:var(--muted);display:block;font-size:12.5px;line-height:1.4}
+input[type=number],input[type=text]{font:inherit;font-family:var(--f-mono);font-size:13.5px;width:7.5em;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);text-align:right}
+input.sm{width:4.5em}
+.bar{height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-top:8px;position:relative}
+.bar i{display:block;height:100%;background:var(--ok)}
+.bar.over i{background:var(--bad)}
+.status{font-family:var(--f-mono);font-weight:500}
+.status.bad{color:var(--bad)} .status.ok{color:var(--ok)}
+
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:18px}
+@media (max-width:760px){.calc{grid-template-columns:1fr}}
+.inputs{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;font-size:14px}
+.inputs label small{display:block;color:var(--muted);font-size:12px}
+.out{font-family:var(--f-mono);font-size:13.5px;line-height:1.75;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto}
+.out .eq{color:var(--muted)}
+.out b{color:var(--ink)}
+.big{font-family:var(--f-display);font-size:26px;font-weight:700;line-height:1.1}
+.kpis{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:10px}
+.kpis div{min-width:120px}
+.kpis small{display:block;color:var(--muted);font-size:12px}
+
+ol.plan{list-style:none;padding:0;margin:0;display:grid;gap:10px;counter-reset:s}
+ol.plan li{counter-increment:s;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px}
+ol.plan li::before{content:counter(s);font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--accent);text-align:center}
+ol.plan li.added{border-style:dashed}
+.tagadd{font-size:11px;font-family:var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px}
+.legal li{margin-bottom:8px;max-width:80ch}
+.src{font-size:13px;color:var(--muted)}
+footer{padding-block:24px 40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+@media (max-width:520px){.lab{font-size:10.5px;padding:2px 5px}.lab .mono{display:none}.hud{font-size:11px}}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">TDC-01 Swarm · รุ่น 2 · โดรนลาดตระเวนปีกตรึง ใช้ซ้ำ · ไม่มีอาวุธ ไม่มีวัตถุระเบิด</div>
+  <h1>โดรนลาดตระเวนปล่อยจากท่อ รุ่น 2</h1>
+  <p class="lede">โมเดลแนวคิด ไม่ใช่แบบวิศวกรรม งานของเครื่องคือหาตำแหน่งและส่งภาพกลับเท่านั้น <b>ล็อกลำตัว 1.10 ม. แล้ว (30 ต.ค. 2569)</b> ปุ่มด้านล่างยังเปิดดูสเปกเดิม 1.40 ม. ไว้เทียบได้ แต่ไม่ใช้เป็นแบบหลัก ป้าย <span class="t c">Certain</span> = ตรวจจากแหล่งหรือคำนวณแล้ว · <span class="t l">Likely</span> = อนุมานหนักแน่น · <span class="t g">Guessing</span> = เดาเติมช่องว่าง</p>
+</header>
+</div>
+
+<div class="viewer" id="viewer">
+  <div id="labels"></div>
+  <div class="hud"><span class="stage" id="stageName">อยู่ในท่อ (ปีกพับ)</span><span id="hudInfo">t = 0.0 วิ</span></div>
+  <div class="scalenote">ตัวโดรนตามมาตราส่วน · ระยะบินและเวลาย่อลง</div>
+</div>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="grp">
+      <button class="primary" id="play" type="button">▶ เล่น</button>
+      <button id="restart" type="button">↺ เริ่มใหม่</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <input type="range" id="scrub" min="0" max="26" step="0.01" value="0" aria-label="เลื่อนเวลาลำดับการปล่อย">
+  <div class="controls">
+    <div class="grp">
+      <button id="cut" type="button" aria-pressed="false">ภาพตัดภายใน</button>
+      <button id="labs" type="button" aria-pressed="true">ป้ายชื่อ</button>
+      <button id="frame" type="button">จัดมุมกล้อง</button>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="รุ่นที่แสดง">
+      <input type="radio" name="variant" id="v-prop" value="prop" checked><label for="v-prop">แบบหลัก · ลำตัว 1.10 ม.</label>
+      <input type="radio" name="variant" id="v-spec" value="spec"><label for="v-spec">เทียบสเปกเดิม 1.40 ม. (เลิกใช้)</label>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+
+<section id="pack">
+  <h2><span class="num">00a</span>ลำตัว 1.10 ม. ใส่ของครบไหม</h2>
+  <p><b>ใส่ครบ แต่ผังเดิมของผมมีจุดศูนย์ถ่วงค้างท้าย ต้องย้ายแบตไปไว้หน้าสุด</b> ปริมาตรไม่ใช่ปัญหา ของทั้งหมดกินที่แค่ ≈1.6 ลิตรจาก ≈9.4 ลิตร (≈17%) <span class="t l">Likely</span> ข้อจำกัดจริงมีสองข้อ คือจุดศูนย์ถ่วง กับขนาดลูกกล้อง</p>
+  <div class="tbl"><table>
+    <thead><tr><th class="n">มม. จากหัว</th><th>ชิ้นส่วน</th><th>ขนาด</th><th>ใส่ได้ไหม</th></tr></thead>
+    <tbody>
+      <tr><td class="n">50–120</td><td>ป้อมกล้องลูกบอล 2 แกน</td><td class="mono">⌀64 มม.</td><td><span class="status bad">คับที่สุด</span> ลูกโตได้ไม่เกิน ≈70 มม. ไม่งั้นชนผนังท่อ (ใต้ลำเหลือ 8 มม.) <span class="t l">Likely</span> ต้องหาโมดูลซูม 10× ที่ใส่ลูกขนาดนี้ได้ <span class="t g">Guessing</span></td></tr>
+      <tr><td class="n">150–290</td><td>แบต 6S2P 21700 (สำหรับ 60 นาที)</td><td class="mono">140×64×43 มม. · 0.39 ล.</td><td><span class="status ok">ได้</span> หน้าตัดภายใน ⌀114 มม. เส้นทแยงแบต 77 มม. <span class="t c">Certain</span> (เรขาคณิต)</td></tr>
+      <tr><td class="n">300–370</td><td>วิทยุส่งภาพ/ควบคุม + ตัวรับ RC</td><td class="mono">70×50×22 มม.</td><td><span class="status ok">ได้</span> <span class="t g">Guessing</span> (ขนาดโมดูล)</td></tr>
+      <tr><td class="n">363–513</td><td>โคนปีก (บนหลัง) · เฟืองซิงก์ที่ 400</td><td class="mono">คอร์ด 150 มม.</td><td><span class="status ok">ได้</span> เฟืองกินที่ด้านบน ≈30 มม.</td></tr>
+      <tr><td class="n">440–500</td><td>บอร์ดคุมบิน + GPS/เข็มทิศ</td><td class="mono">54×36 มม.</td><td><span class="status ok">ได้</span> <span class="t l">Likely</span></td></tr>
+      <tr><td class="n">520–680</td><td>ร่มชูชีพ ⌀1.3 ม. ในกระบอก</td><td class="mono">⌀80×160 มม. · 0.8 ล.</td><td><span class="status ok">ได้</span> ฝาเปิดด้านบนอยู่หลังปีก ไม่ติดปีก <span class="t g">Guessing</span> (ปริมาตรร่มพับ)</td></tr>
+      <tr><td class="n">740–800</td><td>ESC</td><td class="mono">60×28×12 มม.</td><td><span class="status ok">ได้</span></td></tr>
+      <tr><td class="n">850–1,100</td><td>เซอร์โวหาง · มอเตอร์ท้าย</td><td class="mono">มอเตอร์ ⌀34 มม.</td><td><span class="status ok">ได้</span> ลำตัวเรียวเหลือ ⌀36 มม. ที่ท้าย</td></tr>
+    </tbody>
+  </table></div>
+  <div class="out" style="margin-top:12px">
+    <span class="eq">x<sub>CG</sub> = Σ(m·x) / Σm</span> · ปีกคอร์ด 0.15 ม. ขอบหน้าอยู่ที่ 362.5 มม. เป้าหมาย 25–30% ของคอร์ด = 400–408 มม. <span class="t l">Likely</span><br>
+    ผังเดิม (แบตที่ 325 มม.): x<sub>CG</sub> = <b>433 มม. = 47% ของคอร์ด</b> <span class="status bad">ค้างท้ายเกิน เครื่องจะไม่เสถียรด้านก้มเงย</span><br>
+    ผังใหม่ (แบตที่ 220 มม. วิทยุย้ายไป 335 มม.): x<sub>CG</sub> = <b>405 มม. = 28% ของคอร์ด</b> <span class="status ok">อยู่ในช่วง</span> <span class="t l">Likely</span> (คำนวณจากตารางน้ำหนัก ตำแหน่งชิ้นส่วนเป็นค่าประมาณ)
+  </div>
+  <p class="src" style="margin-top:8px">ถ้าโครงจริงหนักท้ายกว่าที่ประมาณ เลื่อนแบตไปหน้าได้อีก ≈20 มม. ก่อนชนกล้อง ห้ามแก้ด้วยการถ่วงตะกั่ว เพราะส่วนเผื่อน้ำหนักเหลือแค่ ≈230 ก.</p>
+</section>
+
+<section id="flaws">
+  <h2><span class="num">00b</span>ตัวเลขที่ไม่เข้ากันในสเปกตั้งต้น (ที่มาของการเปลี่ยนเป็น 1.10 ม.)</h2>
+  <p>สเปกส่วนใหญ่สร้างได้ แต่มี 4 จุดที่ตัวเลขชนกันเอง จุดแรกร้ายแรงที่สุด และแก้ได้ด้วยการเปลี่ยนตัวเลขตัวเดียว คือความยาวลำตัว</p>
+  <div class="flaws">
+    <div class="flaw">
+      <h3>1 · ระยะชัก 0.15 ม. ทำให้แรงดีดสูงเกิน</h3>
+      <p>ถ้าจะให้ออกท่อที่ 12 ม./วิ ด้วยระยะชัก 0.15 ม. ความเร่ง = v²/2s = 144/0.30 = 480 ม./วิ² ≈ <b>49 g</b> <span class="t c">Certain</span> (คำนวณ) กล้องบนกิมบอล บานพับปีก และขั้วแบตต้องทนแรงระดับนี้ ซึ่งชิ้นส่วนงานอดิเรกส่วนใหญ่ไม่ได้ออกแบบมาให้ทน <span class="t l">Likely</span></p>
+      <p class="fix">แก้: ลดลำตัวเหลือ 1.10 ม. ระยะชักจะได้ 0.45 ม. แรงเหลือ ≈16 g ที่ความเร็วเท่ากัน <span class="t c">Certain</span> (คำนวณ)</p>
+    </div>
+    <div class="flaw">
+      <h3>2 · บิน 90 นาทีที่ 3 กก. ไม่เหลือส่วนเผื่อ</h3>
+      <p>บินเดินทาง 65 กม./ชม. ใช้ไฟรวม ≈120 W <span class="t g">Guessing</span> บิน 90 นาทีต้องใช้แบต ≈240 Wh เช่น 5S3P 21700 หนัก ≈1.12 กก. ยอดรวมจะเป็น ≈2.99 กก. ส่วนเผื่อเป็นศูนย์ <span class="t l">Likely</span> ถ้า L/D จริงต่ำกว่าที่เดาไว้นิดเดียว 90 นาทีก็หลุดทันที</p>
+      <p class="fix">แก้: ตั้งเป้า 60 นาที ใช้แบต 6S2P (194 Wh, ≈0.9 กก.) จะได้ประมาณ 75 นาทีบนกระดาษ และเหลือน้ำหนักเผื่อ ≈230 ก. <span class="t l">Likely</span></p>
+    </div>
+    <div class="flaw">
+      <h3>3 · กล้องซูมสำเร็จรูปใหญ่เกินท่อ</h3>
+      <p>SIYI ZR10 ซึ่งเป็นกล้องซูม 10× ยอดนิยม หนัก 381 ก. ขนาด 121×101×78 มม. <span class="t c">Certain</span> (หน้าร้าน) เมื่อพับปีกไว้บนหลังลำตัว ⌀0.12 ม. จะเหลือที่ใต้คางในท่อเพียง ≈15 มม. <span class="t l">Likely</span> (เรขาคณิต)</p>
+      <p class="fix">แก้: ทำป้อมกล้องลูกบอล ⌀≈64 มม. ฝังครึ่งลูกในหัว ใช้โมดูลกล้องซูมกับกิมบอล 2 แกนที่ประกอบเอง <span class="t g">Guessing</span></p>
+    </div>
+    <div class="flaw mid">
+      <h3>4 · บินที่ 60 กม./ชม. ใกล้ความเร็วร่วงหล่น</h3>
+      <p>ที่ 2.8 กก. ปีก 1.40×0.15 ม. ความเร็วร่วงหล่น (stall) ≈ 52 กม./ชม. <span class="t l">Likely</span> ทำให้ปลายล่างของช่วง 60–80 มีส่วนเผื่อแค่ 15% และความเร็วออกท่อ 12 ม./วิ (43 กม./ชม.) ยังต่ำกว่า stall</p>
+      <p class="fix">แก้: บินเดินทาง 65–75 กม./ชม. ปล่อยท่อเงย ≥40° แล้วให้มอเตอร์เร่งทันทีที่ปีกล็อก ยอมเสียความสูงไม่กี่เมตร <span class="t g">Guessing</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="launch">
+  <h2><span class="num">01</span>ความเร็วออกท่อ เทียบกับระยะชัก</h2>
+  <div class="calc">
+    <div class="inputs">
+      <label for="lv">ความเร็วออกท่อ (ม./วิ)<small>ต่ำกว่า stall ได้ ถ้าท่อเงยและมอเตอร์ช่วย</small></label>
+      <input type="number" id="lv" value="12" min="4" max="25" step="0.5">
+      <label for="ls">ระยะชัก (ม.)<small>สเปกตั้งต้น 0.15 · ข้อเสนอ 0.45</small></label>
+      <input type="number" id="ls" value="0.45" min="0.05" max="1.2" step="0.01">
+      <label for="lm">มวลโดรน (กก.)<small>ดึงจากตารางน้ำหนักอัตโนมัติ</small></label>
+      <input type="number" id="lm" value="2.77" step="0.01">
+      <label for="ld">เส้นผ่านศูนย์กลางลูกสูบ (ม.)<small>เท่าท่อภายใน</small></label>
+      <input type="number" id="ld" value="0.20" step="0.01">
+    </div>
+    <div>
+      <div class="kpis">
+        <div><small>ความเร่งเฉลี่ย</small><span class="big" id="lg">—</span></div>
+        <div><small>แรงดันเฉลี่ยบนลูกสูบ</small><span class="big" id="lp">—</span></div>
+        <div><small>พลังงานจลน์</small><span class="big" id="le">—</span></div>
+      </div>
+      <div class="out" id="lout"></div>
+    </div>
+  </div>
+  <p class="src" style="margin-top:10px">แรงดันเฉลี่ยต่ำมาก (ระดับ 0.1–0.5 บาร์) เพราะลูกสูบใหญ่ ปัญหาจริงคือความเร่ง ไม่ใช่แรงลม ส่วนชิ้นส่วนจะทนได้กี่ g ยังไม่มีข้อมูล ต้องทดสอบตามข้อ 3 ในแผนทดสอบ <span class="t g">Guessing</span>: อิเล็กทรอนิกส์ที่ยึดดีและแบตที่หุ้มแน่นน่าจะรอดที่ 15–20 g กิมบอลกล้องเป็นชิ้นที่น่าห่วงที่สุด</p>
+</section>
+
+<section id="weight">
+  <h2><span class="num">02</span>งบน้ำหนัก (เพดาน 3.00 กก.)</h2>
+  <p>แก้ตัวเลขกรัมได้ทุกช่อง ยอดรวมและส่วนเผื่อคำนวณใหม่ทันที ค่าเริ่มต้นเป็นของรุ่นข้อเสนอ</p>
+  <div class="tbl"><table id="wt">
+    <thead><tr><th>ชิ้นส่วน</th><th class="n">กรัม</th><th>ป้าย</th><th>ที่มา / หมายเหตุ</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr><td>รวม</td><td class="n" id="wsum">—</td><td></td><td id="wstat"></td></tr></tfoot>
+  </table></div>
+  <div class="bar" id="wbar"><i id="wfill"></i></div>
+</section>
+
+<section id="power">
+  <h2><span class="num">03</span>งบไฟฟ้าและขนาดแบต</h2>
+  <div class="calc">
+    <div class="inputs">
+      <label for="pm">มวล m (กก.)<small>จากตารางน้ำหนัก</small></label><input type="number" id="pm" value="2.77" step="0.01">
+      <label for="pv">ความเร็วเดินทาง (กม./ชม.)</label><input type="number" id="pv" value="65" step="1">
+      <label for="pld">อัตราส่วนแรงยกต่อแรงต้าน L/D<small>มีกิมบอลห้อยและลำตัวอ้วน <span class="t g">Guessing</span></small></label><input type="number" id="pld" value="9" step="0.5">
+      <label for="peta">ประสิทธิภาพรวม η<small>ใบพัด 0.65 × มอเตอร์ 0.85 × ESC 0.95 <span class="t g">Guessing</span></small></label><input type="number" id="peta" value="0.52" step="0.01">
+      <label for="pav">ไฟระบบอื่น (W)<small>กล้อง+กิมบอล ≈4, ลิงก์ภาพ ≈8, คุมบิน+GPS ≈2, เซอร์โว ≈1 <span class="t g">Guessing</span></small></label><input type="number" id="pav" value="15" step="1">
+      <label for="pt">เวลาบินที่ต้องการ (นาที)</label><input type="number" id="pt" value="60" step="5">
+      <label for="pdod">สัดส่วนที่ใช้ได้จริง<small>เผื่อสำรองกลับฐานและแบตเสื่อม</small></label><input type="number" id="pdod" value="0.8" step="0.05">
+      <label for="pwhkg">ความจุพลังงานแพ็ก (Wh/กก.)<small>P45B เซลล์ 231 Wh/กก. หักสาย/แผ่นนิกเกิล <span class="t l">Likely</span></small></label><input type="number" id="pwhkg" value="210" step="5">
+      <label for="pS">ปีก กาง × คอร์ด (ม.)</label><span><input type="number" class="sm" id="pb" value="1.40" step="0.05"> × <input type="number" class="sm" id="pc" value="0.15" step="0.01"></span>
+      <label for="pcl">C<sub>L,max</sub> ปีก (ไม่มีแฟลป)<small>เลข Reynolds ต่ำ <span class="t g">Guessing</span></small></label><input type="number" id="pcl" value="1.1" step="0.05">
+    </div>
+    <div>
+      <div class="kpis">
+        <div><small>ไฟรวมขณะเดินทาง</small><span class="big" id="pP">—</span></div>
+        <div><small>แบตที่ต้องใช้</small><span class="big" id="pE">—</span></div>
+        <div><small>มวลแบต</small><span class="big" id="pBm">—</span></div>
+      </div>
+      <div class="out" id="pout"></div>
+      <p class="src" style="margin-top:8px" id="pcheck"></p>
+    </div>
+  </div>
+  <p class="src" style="margin-top:10px">สูตรนี้สมมติว่า L/D คงที่ ซึ่งง่ายเกินจริง ที่ 80 กม./ชม. แรงต้านรูปทรงโตเร็วกว่านี้ ค่าจริงต้องได้จากการบินทดสอบ (ข้อ 5 ในแผน) แล้วกรอกกลับมาในช่องด้านบน <span class="t l">Likely</span></p>
+</section>
+
+<section id="mech">
+  <h2><span class="num">04</span>กลไกกางปีก 3 แบบ</h2>
+  <p>จุดเสี่ยงที่สุดของทั้งเครื่อง ถ้าปีกสองข้างกางไม่พร้อมกันหลังออกท่อ เครื่องจะหมุนควงก่อนระบบบินจะแก้ทัน ทุกแบบใช้ผนังท่อเป็นตัวกดปีกไว้ ปีกจึงปลดเองเมื่อพ้นปากท่อ ไม่ต้องมีตัวสั่งปลด</p>
+  <div class="cols">
+    <div class="card">
+      <h3>ก · ปีกชิ้นเดียวหมุนบนแกนกลาง</h3>
+      <div class="lbl">ข้อดี</div>
+      <ul><li>บานพับเดียว ปีกซ้ายขวาสมมาตรเสมอ ไม่มีปัญหากางไม่พร้อมกัน</li><li>คานปีกต่อเนื่อง แข็งแรง เบาที่สุด (กลไก ≈40 ก. <span class="t g">Guessing</span>)</li></ul>
+      <div class="lbl">ข้อเสีย</div>
+      <ul><li>ปีกกาง 1.40 ม. บังคับให้ช่องในท่อยาว ≥1.40 ม. กลับไปเจอปัญหาระยะชัก 0.15 ม.</li><li>ระหว่างหมุน ปีกเฉียง ทำให้เกิดแรงหันชั่วขณะ</li></ul>
+      <p class="src">เหมาะเมื่อยอมลดปีกกางเหลือ ≈1.0 ม.</p>
+    </div>
+    <div class="card">
+      <h3>ข · ปีกสองชิ้น สปริงบิดแยกข้าง</h3>
+      <div class="lbl">ข้อดี</div>
+      <ul><li>สร้างง่ายที่สุด ใช้บานพับ สปริงบิด และสลักล็อกที่หาได้ทั่วไป</li><li>ปีกกางได้ 1.40 ม. ในลำตัว 1.10 ม.</li><li>ซ่อมทีละข้างได้</li></ul>
+      <div class="lbl">ข้อเสีย</div>
+      <ul><li>สองข้างกางไม่พร้อมกัน ห่างกันแค่ 30–50 มิลลิวินาทีก็พอให้เครื่องเอียงแรง <span class="t g">Guessing</span></li><li>สปริงล้าไม่เท่ากันเมื่อใช้ซ้ำ</li></ul>
+    </div>
+    <div class="card rec">
+      <h3>ค · สองชิ้นซิงก์ด้วยเฟือง<span class="pill">แนะนำ</span></h3>
+      <div class="lbl">ข้อดี</div>
+      <ul><li>เฟืองตรงคู่ที่โคนปีกขบกัน ปีกสองข้างหมุนพร้อมกันด้วยกลไก</li><li>สปริงบิดตัวเดียวขับ สลักสปริงล็อกปลายทาง</li><li>ใส่สวิตช์ยืนยันการล็อกเข้าบอร์ด ArduPilot ให้มอเตอร์หมุนได้ต่อเมื่อปีกล็อกแล้ว</li></ul>
+      <div class="lbl">ข้อเสีย</div>
+      <ul><li>หนักกว่าแบบ ข ≈40–60 ก. <span class="t g">Guessing</span></li><li>ระยะคลอนเฟืองต้องต่ำ ต้องใช้เฟืองโลหะหรือ CNC</li><li>ปีกซ้ายขวาสูงต่างกัน ≈15 มม. (ซ้อนกันตอนพับ)</li></ul>
+      <p class="src">โมเดลด้านบนแสดงแบบนี้</p>
+    </div>
+  </div>
+</section>
+
+<section id="bom">
+  <h2><span class="num">05</span>รายการชิ้นส่วนและราคา (บาท)</h2>
+  <p>ราคาประเมินส่วนใหญ่เป็น <span class="t g">Guessing</span> จากราคาร้านงานอดิเรกทั่วไป กรอกราคาจริงในช่องขวา ยอด "ผสม" ใช้ราคาจริงถ้ากรอกแล้ว ไม่งั้นใช้ราคาประเมิน ตัวเลขที่กรอกจำไว้ในเบราว์เซอร์นี้เท่านั้น วิทยุ mesh ตั้งจำนวนไว้ 0 เพราะแพงกว่าที่เหลือทั้งหมดรวมกัน ใส่ 1 ถ้าจะซื้อ</p>
+  <div class="tbl"><table id="bt">
+    <thead><tr><th>รายการ</th><th class="n">จำนวน</th><th class="n">ประเมิน/หน่วย</th><th>ป้าย</th><th class="n">รวมประเมิน</th><th class="n">ราคาจริง/หน่วย</th><th class="n">รวมจริง</th></tr></thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr><td colspan="4">ยอดประเมิน</td><td class="n" id="bEst">—</td><td></td><td></td></tr>
+      <tr><td colspan="4">ยอดจริง (เฉพาะรายการที่กรอก) · ยอดผสม</td><td></td><td class="n" id="bAct">—</td><td class="n" id="bMix">—</td></tr>
+    </tfoot>
+  </table></div>
+  <p style="margin-top:8px"><button id="bReset" type="button">ล้างราคาจริงที่กรอก</button></p>
+</section>
+
+<section id="tests">
+  <h2><span class="num">06</span>แผนทดสอบเรียงลำดับ</h2>
+  <p>ลำดับหลักตามที่วางไว้ยังถูก ผมเพิ่ม 5 ขั้น (กรอบเส้นประ) ขั้นที่สำคัญที่สุดคือข้อ 5 บินด้วยการโยนมือก่อนใช้ท่อ เพื่อแยกปัญหาการบินออกจากปัญหาการปล่อย ถ้าเครื่องตกในเที่ยวแรกที่ปล่อยจากท่อ จะไม่รู้ว่าผิดที่ไหน</p>
+  <ol class="plan">
+    <li class="added"><div><h3>ลองใส่ท่อแบบแห้ง<span class="tagadd">เพิ่ม</span></h3><p>เลื่อนเข้าออก 10 ครั้ง ปีก หาง ใบพัดพับครบ ผ่านเมื่อไม่ติด ไม่ขูด ช่องว่างรอบตัวไม่น้อยกว่า 3 มม. <span class="t g">Guessing</span></p></div></li>
+    <li><div><h3>กางปีกบนโต๊ะ 50 ครั้ง</h3><p>ถ่ายวิดีโอ 240 เฟรม/วิ ผ่านเมื่อล็อกครบ 50/50 กางเสร็จใน 0.3 วิ ปีกซ้ายขวาต่างกันไม่เกิน 20 มิลลิวินาที ไม่มีรอยร้าวหรือคลอน <span class="t g">Guessing</span> พลาดครั้งเดียวให้แก้แล้วนับใหม่จาก 0 ทำแบบเดียวกันกับหางและใบพัดอย่างละ 50 ครั้ง</p></div></li>
+    <li class="added"><div><h3>ทดสอบแรงกระแทก<span class="tagadd">เพิ่ม</span></h3><p>ดีดหุ่นน้ำหนักเท่าจริงที่ติดบอร์ดบันทึกความเร่ง เพิ่มแรงดันทีละขั้น จากนั้นยึดกล้อง แบต และบานพับจริงเข้ากับหุ่น ผ่านเมื่อทุกชิ้นทำงานได้ที่ 1.5 เท่าของ g ที่คาดไว้ (≈24 g สำหรับรุ่นข้อเสนอ) <span class="t l">Likely</span></p></div></li>
+    <li><div><h3>ดีดออกจากท่อโดยไม่บิน</h3><p>หุ่นก่อน แล้วค่อยใช้โครงจริงที่ไม่ใส่แบตและกล้อง ลงตาข่ายหรือพื้นนุ่ม 10 นัด ผ่านเมื่อความเร็วออกท่อแกว่งไม่เกิน ±10% และปีกล็อกทุกนัดก่อนแตะพื้น <span class="t g">Guessing</span></p></div></li>
+    <li class="added"><div><h3>บินแบบโยนมือ ปีกตรึงกาง<span class="tagadd">เพิ่ม</span></h3><p>ตั้งจุดศูนย์ถ่วง จูนด้วย AUTOTUNE ของ ArduPilot วัดกระแสจริงที่ 65 กม./ชม. แล้วกรอกกลับในตารางไฟฟ้า ทำก่อนปล่อยจากท่อ</p></div></li>
+    <li><div><h3>บินในระยะสายตา ต่ำกว่า 90 ม.</h3><p>ปล่อยจากท่อ เริ่มที่ 30 ม. โหมด FBWA แล้วค่อยใช้ AUTO ตั้งจุดกลับบ้าน (RTL) และขอบเขตบิน (geofence) ไว้ทุกเที่ยว บิน 10 เที่ยวก่อนขยับขั้นต่อไป เพดาน 90 ม. เป็นข้อกำหนดของ กพท. ดูข้อ 07</p></div></li>
+    <li class="added"><div><h3>ทดสอบร่มชูชีพ<span class="tagadd">เพิ่ม</span></h3><p>ทิ้งหุ่นจากที่สูงก่อน แล้วค่อยเปิดร่มจากตัวจริงที่ 60 ม. ผ่านเมื่อตกไม่เกิน 6 ม./วิ และสายร่มไม่พันใบพัด (ตั้งให้มอเตอร์ดับก่อนเปิดร่ม) <span class="t l">Likely</span></p></div></li>
+    <li><div><h3>ทดสอบกล้อง</h3><p>บนพื้นก่อน วางแผ่นทดสอบลายตาราง 1×1 ม. แล้วหาระยะที่ยังอ่านลายได้ที่ซูม 10× จากนั้นทำซ้ำขณะบิน ผ่านเมื่อภาพนิ่งพอใช้ที่ซูมสุด และดีเลย์ภาพไม่เกิน 300 มิลลิวินาที <span class="t g">Guessing</span></p></div></li>
+    <li class="added"><div><h3>ทดสอบเวลาบิน 20 → 40 → 60 นาที<span class="tagadd">เพิ่ม</span></h3><p>บันทึก Wh ที่ใช้จริงเทียบกับตารางไฟฟ้า ถ้าต่างเกิน 15% ให้แก้ L/D กับ η ในตารางแล้วตัดสินขนาดแบตใหม่</p></div></li>
+  </ol>
+</section>
+
+<section id="legal">
+  <h2><span class="num">07</span>กฎหมายไทย (ตรวจ 30 ต.ค. 2569)</h2>
+  <p>ข้อความด้านล่างสรุปจากแหล่งที่ค้นได้วันนี้ ไม่ใช่คำแนะนำทางกฎหมาย ประกาศชั่วคราวช่วงความตึงเครียดชายแดนเปลี่ยนบ่อย ให้เช็กเว็บ กพท. ก่อนบินทุกครั้ง</p>
+  <ul class="legal">
+    <li><b>ขึ้นทะเบียน 2 หน่วยงาน</b> กสทช. (ทะเบียนเครื่องและคลื่นวิทยุ ที่ anyregis.nbtc.go.th) และ กพท. (ทะเบียนเครื่องกับผู้บังคับ ที่ uasportal.caat.or.th) ลงแค่ที่เดียวไม่พอ โดรนที่มีกล้องต้องขึ้นทะเบียน กพท. ไม่ว่าจะหนักเท่าไร <span class="t c">Certain</span></li>
+    <li><b>ประกันภัยบุคคลที่สาม</b> วงเงินไม่ต่ำกว่า 1,000,000 บาท <span class="t c">Certain</span> · ใบอนุญาตผู้บังคับอายุ 2 ปี ติดเลขทะเบียนบนเครื่องตัวอักษรสูง ≥3 มม. (เครื่องต่ำกว่า 25 กก.) <span class="t c">Certain</span></li>
+    <li><b>เพดานความสูง</b> บินเกิน 90 ม. ต้องได้รับอนุญาตเป็นหนังสือจาก กพท. ก่อน <span class="t c">Certain</span></li>
+    <li><b>ระยะสายตา</b> ต้องบินในระยะสายตา กลางวัน อากาศดี ห้ามใช้ภาพจากกล้องบนเครื่องเป็นทางนำทางอย่างเดียว <span class="t c">Certain</span> การบินนอกระยะสายตา (BVLOS) ไม่มีในเงื่อนไขทั่วไป ต้องขออนุญาตเฉพาะกรณีจาก กพท. พร้อมการประเมินความเสี่ยง <span class="t l">Likely</span> (แหล่งที่ตรวจไม่ได้ระบุขั้นตอน BVLOS โดยตรง) ภารกิจลาดตระเวน 60 นาทีที่ 65 กม./ชม. เป็น BVLOS โดยธรรมชาติ จึงทดสอบเต็มรูปแบบไม่ได้ถ้าไม่มีใบอนุญาตนี้</li>
+    <li><b>ระยะห่าง</b> ห้ามบินภายใน 9 กม. จากสนามบิน ห้ามบินเหนือชุมชน สถานที่ราชการ โรงพยาบาล เขตทหาร เครื่อง 2–25 กก. ต้องห่างคน/สิ่งปลูกสร้าง 50 ม. <span class="t c">Certain</span> · ยื่นแผนการบินใน UAS Portal ล่วงหน้า 3 วัน และแจ้งศูนย์ต่อต้านโดรนก่อนบิน <span class="t c">Certain</span></li>
+    <li><b>เขตห้ามบินชายแดน</b> ตั้งแต่ 9 ธ.ค. 2568 ห้ามบินพลเรือนในจันทบุรี ตราด สระแก้ว บุรีรัมย์ ศรีสะเกษ สุรินทร์ อุบลราชธานี และ อ.สัตหีบ อ.บ้านฉาง "จนกว่าจะมีประกาศเปลี่ยนแปลง" <span class="t c">Certain</span> ประกาศ กพท. ฉบับที่ 16 (มีผล 26 มิ.ย. 2569) ยังคงข้อจำกัดในพื้นที่เหล่านี้ <span class="t l">Likely</span> (อ้างผ่าน ททท. ยังไม่ได้อ่านต้นฉบับ) เจ้าหน้าที่มีอำนาจใช้ระบบต่อต้านโดรนกับเครื่องที่ฝ่าฝืน</li>
+    <li><b>วิทยุ</b> ลิงก์ภาพและควบคุมต้องใช้อุปกรณ์ที่ผ่านการรับรองของ กสทช. ในย่านที่อนุญาต (เช่น 2.4/5.8 GHz ตามกำลังส่งที่กำหนด) วิทยุ mesh ย่านอื่นต้องขอใบอนุญาตคลื่น <span class="t l">Likely</span></li>
+    <li><b>บทลงโทษ</b> จำคุกไม่เกิน 1 ปี ปรับไม่เกิน 40,000 บาท หรือทั้งจำทั้งปรับ <span class="t c">Certain</span></li>
+  </ul>
+  <p class="src">แหล่ง: <a href="https://www.tatnews.org/2025/11/flying-a-drone-in-thailand-updated-guide-for-tourists/" target="_blank" rel="noopener">ททท. คู่มือบินโดรน (อัปเดตถึงประกาศ กพท. ฉบับที่ 16)</a> · <a href="https://www.nationthailand.com/news/general/40059428" target="_blank" rel="noopener">The Nation: ห้ามบิน 7 จังหวัดชายแดน 9 ธ.ค. 2568</a> · <a href="https://www.thaipbs.or.th/news/content/355195" target="_blank" rel="noopener">Thai PBS: เงื่อนไขโดรนเกษตร ส.ค. 2568</a> · <a href="https://www.caat.or.th/wp-content/uploads/2017/11/เงื่อนไขการบังคับหรือปล่อยอากาศยานซึ่งไม่มีนักบิน-ระหว่างบิน-drone-during-flight.pdf" target="_blank" rel="noopener">กพท. เงื่อนไขการบังคับหรือปล่อยอากาศยานซึ่งไม่มีนักบิน</a></p>
+</section>
+
+<section id="change">
+  <h2><span class="num">08</span>สิ่งที่จะทำให้ผมเปลี่ยนความเห็น</h2>
+  <ul class="legal">
+    <li>ถ้าทดสอบแรงกระแทกแล้วกล้องและบานพับรอดที่ 50 g ระยะชัก 0.15 ม. กับลำตัว 1.40 ม. ก็ใช้ได้ และปีกแบบ ก (ชิ้นเดียว) จะกลายเป็นตัวเลือกที่ดีที่สุด</li>
+    <li>ถ้าบินจริงแล้ววัดได้ L/D ≥ 12 และ η ≥ 0.6 การบิน 90 นาทีในงบ 3 กก. จะเป็นไปได้ ลองใส่ค่าในตารางไฟฟ้าดู</li>
+    <li>ถ้าหาโมดูลกล้องซูม 10× ที่กว้างไม่เกิน 60 มม. ได้ กิมบอลใต้คางแบบที่ตั้งใจไว้จะใส่ได้โดยไม่ต้องฝังในหัว</li>
+  </ul>
+</section>
+</div>
+
+<footer><div class="wrap">TDC-01 รุ่น 2 · โมเดลแนวคิดเพื่อวางแผนงานต้นแบบ ไม่มีระบบอาวุธ ไม่มีวัตถุระเบิด ไม่มีระบบกำหนดเป้า · ปรับปรุง 30 ต.ค. 2569</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const fmt=(x,d=0)=>Number(x).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const TAG={c:'<span class="t c">Certain</span>',l:'<span class="t l">Likely</span>',g:'<span class="t g">Guessing</span>'};
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ================= weight table ================= */
+const W=[
+ ['โครงลำตัว หัว ท้าย (ไฟเบอร์กลาส/คาร์บอน ⌀0.12 ม.)',450,'g','ผิวไฟเบอร์กลาสบริเวณเสาอากาศเพื่อให้คลื่นผ่าน'],
+ ['ปีกสองชิ้น 1.40 ม. (โฟมหุ้ม + คานคาร์บอน)',300,'g','พื้นที่ 0.21 ม.² ≈1.4 กก./ม.² ของผิวปีก'],
+ ['กลไกกางปีก (เฟืองซิงก์ สปริงบิด สลักล็อก สวิตช์)',90,'g','แบบ ค'],
+ ['หาง V พับได้ 2 แพน + บานพับ',70,'g',''],
+ ['เซอร์โว 4 ตัว (เอเลอรอน 2, หาง 2)',48,'l','เซอร์โวดิจิทัล ≈12 ก./ตัว'],
+ ['มอเตอร์ไร้แปรงถ่าน + ESC',160,'g','มอเตอร์ ≈120 ก. ESC ≈40 ก.'],
+ ['ใบพัดพับ + ฮับ',30,'l',''],
+ ['แบต Li-ion 6S2P (Molicel P45B 12 ก้อน) + สาย',900,'c','เซลล์ ≤70 ก. × 12 = 840 ก. จากดาต้าชีต + สาย 60 ก. · วางหน้าสุดหลังกล้อง เพื่อถ่วงจุดศูนย์ถ่วง'],
+ ['กล้องซูม 10× + กิมบอล 2 แกน (ประกอบเอง)',300,'g','อ้างอิง SIYI ZR10 3 แกน 381 ก. ⟶ แบบ 2 แกนน่าจะเบากว่า'],
+ ['บอร์ดคุมบิน + GPS/เข็มทิศ + ตัววัดความเร็วลม',90,'l',''],
+ ['ชุดวิทยุส่งภาพ/ควบคุม + ตัวรับ RC + เสาอากาศ',90,'g',''],
+ ['ร่มชูชีพ ⌀1.3 ม. + กระบอก + กลไกปล่อย',160,'l','ร่มผ้าริปสต็อปขนาดนี้ ≈100–120 ก.'],
+ ['สายไฟ ขั้วต่อ น็อต กาว',80,'g',''],
+];
+function buildWeight(){
+  const tb=$('#wt tbody'); const saved=store.get('tdc2-w')||{};
+  tb.innerHTML=W.map((r,i)=>`<tr><td>${r[0]}</td><td class="n"><input type="number" id="w${i}" value="${saved[i]??r[1]}" step="5" aria-label="น้ำหนัก ${r[0]}"></td><td>${TAG[r[2]]}</td><td><small>${r[3]}</small></td></tr>`).join('');
+  tb.addEventListener('input',()=>{const s={};W.forEach((r,i)=>s[i]=+$('#w'+i).value);store.set('tdc2-w',s);calcWeight()});
+}
+function weightTotal(){return W.reduce((a,r,i)=>a+(+$('#w'+i).value||0),0)}
+function calcWeight(){
+  const t=weightTotal(); $('#wsum').textContent=fmt(t)+' ก.';
+  const m=3000-t; const st=$('#wstat');
+  st.innerHTML=m>=0?`<span class="status ok">เหลือส่วนเผื่อ ${fmt(m)} ก. (${fmt(m/30,1)}%)</span> ${TAG.g} เป้าหมายควรเผื่อ ≥10% สำหรับรุ่นแรก`:`<span class="status bad">เกินเพดาน ${fmt(-m)} ก.</span>`;
+  $('#wbar').classList.toggle('over',m<0); $('#wfill').style.width=Math.min(100,t/30)+'%';
+  const kg=(t/1000).toFixed(2); $('#lm').value=kg; $('#pm').value=kg; calcLaunch(); calcPower();
+}
+
+/* ================= launch calc ================= */
+function calcLaunch(){
+  const v=+$('#lv').value, s=+$('#ls').value, m=+$('#lm').value, d=+$('#ld').value;
+  if(!(v>0&&s>0&&m>0&&d>0))return;
+  const a=v*v/(2*s), g=a/9.81, F=m*a, A=Math.PI*d*d/4, p=F/A, E=0.5*m*v*v, tt=2*s/v;
+  $('#lg').textContent=fmt(g,0)+' g'; $('#lp').textContent=fmt(p/1000,0)+' kPa'; $('#le').textContent=fmt(E,0)+' J';
+  const rows=[0.15,0.45].map(ss=>`ระยะชัก ${ss.toFixed(2)} ม.: `+[8,10,12,15].map(vv=>`${vv} ม./วิ → <b>${fmt(vv*vv/(2*ss)/9.81,0)} g</b>`).join(' · ')).join('<br>');
+  $('#lout').innerHTML=
+   `<span class="eq">a = v² / (2·s)</span> = ${v}² / (2 × ${s}) = <b>${fmt(a,0)} ม./วิ²</b> = ${fmt(g,1)} g ${TAG.c}<br>`+
+   `<span class="eq">F = m·a</span> = ${m} × ${fmt(a,0)} = <b>${fmt(F,0)} N</b><br>`+
+   `<span class="eq">p = F / (π·d²/4)</span> = ${fmt(F,0)} / ${A.toFixed(4)} = <b>${fmt(p/1000,1)} kPa</b> (${(p/1e5).toFixed(2)} บาร์ เฉลี่ย)<br>`+
+   `<span class="eq">E = ½·m·v²</span> = <b>${fmt(E,0)} J</b> · เวลาในช่วงชัก ≈ ${fmt(tt*1000,0)} มิลลิวินาที<br><br>`+
+   `<span class="eq">ตารางเทียบ (ไม่นับแรงโน้มถ่วงและแรงเสียดทาน)</span><br>${rows}`;
+}
+
+/* ================= power calc ================= */
+function calcPower(){
+  const g0=9.81,rho=1.16;
+  const m=+$('#pm').value,V=+$('#pv').value/3.6,LD=+$('#pld').value,eta=+$('#peta').value,Pav=+$('#pav').value,
+        tmin=+$('#pt').value,dod=+$('#pdod').value,whkg=+$('#pwhkg').value,b=+$('#pb').value,c=+$('#pc').value,clm=+$('#pcl').value;
+  if(!(m>0&&V>0&&LD>0&&eta>0&&dod>0&&whkg>0&&b>0&&c>0))return;
+  const Wn=m*g0, Pa=Wn*V/LD, Pp=Pa/eta, P=Pp+Pav, Eu=P*tmin/60, En=Eu/dod, Bm=En/whkg, S=b*c,
+        Vs=Math.sqrt(2*Wn/(rho*S*clm)), CL=2*Wn/(rho*V*V*S), ref=194.4, endur=ref*dod/P*60;
+  $('#pP').textContent=fmt(P,0)+' W'; $('#pE').textContent=fmt(En,0)+' Wh'; $('#pBm').textContent=fmt(Bm,2)+' กก.';
+  $('#pout').innerHTML=
+   `<span class="eq">W = m·g</span> = ${m} × 9.81 = <b>${fmt(Wn,1)} N</b><br>`+
+   `<span class="eq">P<sub>อากาศ</sub> = W·V / (L/D)</span> = ${fmt(Wn,1)} × ${fmt(V,1)} / ${LD} = <b>${fmt(Pa,0)} W</b><br>`+
+   `<span class="eq">P<sub>มอเตอร์</sub> = P<sub>อากาศ</sub> / η</span> = ${fmt(Pa,0)} / ${eta} = <b>${fmt(Pp,0)} W</b><br>`+
+   `<span class="eq">P<sub>รวม</sub> = P<sub>มอเตอร์</sub> + P<sub>ระบบอื่น</sub></span> = ${fmt(Pp,0)} + ${Pav} = <b>${fmt(P,0)} W</b><br>`+
+   `<span class="eq">E<sub>ใช้</sub> = P<sub>รวม</sub> × t</span> = ${fmt(P,0)} × ${tmin}/60 = <b>${fmt(Eu,0)} Wh</b><br>`+
+   `<span class="eq">E<sub>แบต</sub> = E<sub>ใช้</sub> / สัดส่วนใช้ได้</span> = ${fmt(Eu,0)} / ${dod} = <b>${fmt(En,0)} Wh</b><br>`+
+   `<span class="eq">m<sub>แบต</sub> = E<sub>แบต</sub> / (Wh/กก.)</span> = ${fmt(En,0)} / ${whkg} = <b>${fmt(Bm,2)} กก.</b><br><br>`+
+   `<span class="eq">V<sub>stall</sub> = √(2W / (ρ·S·C<sub>L,max</sub>))</span>, ρ = 1.16 กก./ม.³ (30 °C) ${TAG.l}<br>`+
+   `= √(2 × ${fmt(Wn,1)} / (1.16 × ${S.toFixed(3)} × ${clm})) = <b>${fmt(Vs,1)} ม./วิ = ${fmt(Vs*3.6,0)} กม./ชม.</b><br>`+
+   `<span class="eq">C<sub>L</sub> ขณะเดินทาง</span> = ${CL.toFixed(2)} · ส่วนเผื่อเหนือ stall = ${fmt((V/Vs-1)*100,0)}%<br><br>`+
+   `<span class="eq">แบตอ้างอิง 6S2P P45B: 12 × 3.6 V × 4.5 Ah</span> = <b>194 Wh</b> ${TAG.c} → บินได้ ≈ <b>${fmt(endur,0)} นาที</b> ที่ค่าข้างบน`;
+  const row=+$('#w7').value/1000;
+  $('#pcheck').innerHTML = Bm<=row+0.0005 ? `<span class="status ok">แบตในตารางน้ำหนัก (${row.toFixed(2)} กก.) พอสำหรับ ${tmin} นาที</span>` :
+   `<span class="status bad">แบตในตารางน้ำหนัก (${row.toFixed(2)} กก.) ไม่พอ ต้องเพิ่มอีก ${fmt((Bm-row)*1000,0)} ก.</span> ถ้าเพิ่มแล้วยอดรวมจะเป็น ${fmt(weightTotal()+(Bm-row)*1000,0)} ก. ซึ่งจะทำให้กำลังที่ต้องใช้เพิ่มขึ้นอีกรอบ`;
+}
+
+/* ================= BOM ================= */
+const B=[
+ ['โครงและกลไก'],
+ ['ผ้าคาร์บอน/ไฟเบอร์กลาส เรซิน วัสดุทำโมลด์ลำตัว',1,4500,'g'],
+ ['โฟม XPS/EPP + คานคาร์บอน ⌀8 มม. (ปีก หาง)',1,1800,'g'],
+ ['ชุดกลไกกางปีก: เฟือง CNC สปริงบิด ลูกปืน สลัก ไมโครสวิตช์',1,2500,'g'],
+ ['เส้นพิมพ์ 3 มิติ PETG / ไนลอนผสมคาร์บอน 1 กก.',1,1200,'l'],
+ ['ขับเคลื่อนและพลังงาน'],
+ ['มอเตอร์ไร้แปรงถ่าน ขนาด 35xx',1,1800,'g'],
+ ['ESC 50–60 A',1,1500,'g'],
+ ['ใบพัดพับ 10–11 นิ้ว + ฮับ (สำรอง 1)',2,450,'g'],
+ ['เซลล์ Molicel P45B 21700',12,320,'g'],
+ ['แผ่นนิกเกิล สายบาลานซ์ ขั้วต่อ XT60/XT90 ฉนวน',1,900,'g'],
+ ['เครื่องชาร์จบาลานซ์ 6S',1,2500,'g'],
+ ['ระบบบิน'],
+ ['บอร์ดคุมบินที่รองรับ ArduPilot Plane (คลาส H743 สำหรับเครื่องปีก)',1,3000,'g'],
+ ['GPS + เข็มทิศ (M10)',1,1200,'g'],
+ ['ตัววัดความเร็วลมดิจิทัล + ท่อพิโต',1,1500,'g'],
+ ['เซอร์โวดิจิทัล เฟืองโลหะ',4,450,'g'],
+ ['วิทยุบังคับ ELRS ตัวส่ง + ตัวรับ',1,4000,'g'],
+ ['กล้องและลิงก์'],
+ ['โมดูลกล้องซูม 10× + มอเตอร์กิมบอล 2 ตัว + บอร์ดกิมบอล (ประกอบเอง)',1,15000,'g'],
+ ['ลิงก์ภาพ/ควบคุมแบบจุดต่อจุด เฟส 1 (คลาส SIYI HM30)',1,14000,'g'],
+ ['วิทยุเครือข่าย mesh 2 โหนด เฟส 2',0,120000,'g'],
+ ['กู้คืนและภาคพื้น'],
+ ['ร่มชูชีพ ⌀1.3 ม. + ถุง + สาย',1,1800,'g'],
+ ['กลไกปล่อยร่ม (เซอร์โวสลัก + สปริงดันฝา)',1,500,'g'],
+ ['ท่อปล่อย ลูกสูบ ถังลม วาล์ว (ประเมินคร่าว ดูงานแท่นทดสอบ)',1,6000,'g'],
+ ['สายไฟซิลิโคน ขั้วต่อ น็อต กาว',1,1200,'g'],
+ ['ประกันภัยบุคคลที่สาม ≥1 ล้านบาท ต่อปี',1,2500,'g'],
+ ['ค่าขึ้นทะเบียน กสทช./กพท.',1,0,'g'],
+];
+function buildBom(){
+  const tb=$('#bt tbody'); const saved=store.get('tdc2-b')||{};
+  let i=0;
+  tb.innerHTML=B.map(r=>{
+    if(r.length===1) return `<tr class="grp"><td colspan="7">${r[0]}</td></tr>`;
+    const k=i++; const s=saved[k]||{};
+    return `<tr><td>${r[0]}</td><td class="n"><input class="sm" type="number" id="bq${k}" value="${s.q??r[1]}" min="0" step="1" aria-label="จำนวน"></td><td class="n">${fmt(r[2])}</td><td>${TAG[r[3]]}</td><td class="n" id="be${k}"></td><td class="n"><input type="number" id="ba${k}" value="${s.a??''}" min="0" step="10" placeholder="—" aria-label="ราคาจริงต่อหน่วย"></td><td class="n" id="bt${k}"></td></tr>`;
+  }).join('');
+  tb.addEventListener('input',calcBom);
+  $('#bReset').addEventListener('click',()=>{items().forEach((r,k)=>{$('#ba'+k).value=''});calcBom()});
+}
+const items=()=>B.filter(r=>r.length>1);
+function calcBom(){
+  let est=0,act=0,mix=0; const s={};
+  items().forEach((r,k)=>{
+    const q=+$('#bq'+k).value||0, a=$('#ba'+k).value, e=q*r[2]; est+=e;
+    $('#be'+k).textContent=fmt(e);
+    if(a!==''){const t=q*(+a);act+=t;mix+=t;$('#bt'+k).textContent=fmt(t)}else{mix+=e;$('#bt'+k).textContent='—'}
+    s[k]={q, a};
+  });
+  store.set('tdc2-b',s);
+  $('#bEst').textContent=fmt(est)+' ฿'; $('#bAct').textContent=fmt(act)+' ฿'; $('#bMix').textContent=fmt(mix)+' ฿';
+}
+
+/* ================= 3D ================= */
+const STAGES=[[0,'อยู่ในท่อ (ปีกพับ)'],[1,'ลมดันออก'],[2,'ปีกกาง'],[2.4,'หางกาง'],[2.7,'ใบพัดกางและหมุน'],[3,'บินไต่ระดับ'],[7,'บินวนลาดตระเวน']];
+const TEND=26, TILT=40*Math.PI/180, TUBE_L=1.6, TUBE_R=0.10, PISTON_T=0.05, BODY_R=0.06, BODY_DY=-0.025;
+const VAR={prop:{L:1.10},spec:{L:1.40}};
+let L=1.10, stroke=TUBE_L-L-PISTON_T;
+const viewer=$('#viewer'), labelsEl=$('#labels');
+if(!window.THREE){viewer.insertAdjacentHTML('beforeend','<p style="padding:60px 20px;text-align:center">โหลดตัวแสดงผล 3 มิติไม่สำเร็จ ตารางด้านล่างยังใช้งานได้</p>');initTables();return}
+const css=getComputedStyle(document.documentElement);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.localClippingEnabled=true;
+viewer.prepend(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,1,0.02,400);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.12; controls.minDistance=0.4; controls.maxDistance=60;
+scene.add(new THREE.HemisphereLight(0xffffff,0x5a6658,0.6));
+const sun=new THREE.DirectionalLight(0xffffff,0.75); sun.position.set(4,8,6); scene.add(sun);
+
+function themeColors(){
+  const c=getComputedStyle(document.documentElement);
+  scene.background=new THREE.Color(c.getPropertyValue('--scene').trim()||'#dfe5df');
+  scene.fog=new THREE.Fog(scene.background,30,120);
+  groundMat.color.set(c.getPropertyValue('--ground').trim()||'#c9d3c6');
+}
+// ground
+const groundMat=new THREE.MeshLambertMaterial({color:0xc9d3c6});
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(400,400),groundMat); ground.rotation.x=-Math.PI/2; scene.add(ground);
+const grid=new THREE.GridHelper(200,100,0x7d8b83,0x9aa79f); grid.material.opacity=0.25; grid.material.transparent=true; grid.position.y=0.005; scene.add(grid);
+// scenery: trees, a field road, a small shed under the orbit
+const treeMat=new THREE.MeshLambertMaterial({color:0x5b7a52}), trunkMat=new THREE.MeshLambertMaterial({color:0x6d5a45});
+const rnd=(()=>{let s=7;return()=>{s=(s*16807)%2147483647;return s/2147483647}})();
+for(let i=0;i<70;i++){const x=rnd()*80-25,z=rnd()*80-50; if(Math.hypot(x,z)<12||Math.hypot(x-17,z+12)<6)continue;
+  const h=1.5+rnd()*2.5; const t=new THREE.Mesh(new THREE.ConeGeometry(h*0.35,h,7),treeMat); t.position.set(x,h/2+0.6,z);
+  const tr=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.6,6),trunkMat); tr.position.set(x,0.3,z); scene.add(t,tr)}
+const road=new THREE.Mesh(new THREE.PlaneGeometry(3,120),new THREE.MeshLambertMaterial({color:0xa79a83})); road.rotation.x=-Math.PI/2; road.position.set(-3,0.01,-20); scene.add(road);
+const shed=new THREE.Mesh(new THREE.BoxGeometry(3,2,4),new THREE.MeshLambertMaterial({color:0x9c8f7a})); scene.add(shed);
+
+// launcher
+const launcher=new THREE.Group(); launcher.position.set(0,1.35,0); launcher.rotation.z=TILT; scene.add(launcher);
+const stand=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.22,0.5),new THREE.MeshLambertMaterial({color:0x6f7b73})); stand.position.set(-1.2,0.11,0); scene.add(stand);
+const legMat=new THREE.MeshLambertMaterial({color:0x48524c});
+const tubeMat=new THREE.MeshStandardMaterial({color:0x7f958b,transparent:true,opacity:0.2,side:THREE.DoubleSide,depthWrite:false,roughness:0.4});
+const tube=new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R+0.006,TUBE_R+0.006,TUBE_L,40,1,true),tubeMat);
+tube.rotation.z=-Math.PI/2; tube.position.x=-TUBE_L/2; launcher.add(tube);
+const ringMat=new THREE.MeshStandardMaterial({color:0x56645d,roughness:0.5});
+[0,-TUBE_L].forEach(x=>{const r=new THREE.Mesh(new THREE.TorusGeometry(TUBE_R+0.008,0.008,8,40),ringMat); r.rotation.y=Math.PI/2; r.position.x=x; launcher.add(r)});
+const breech=new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R+0.01,TUBE_R+0.01,0.03,40),ringMat); breech.rotation.z=Math.PI/2; breech.position.x=-TUBE_L-0.015; launcher.add(breech);
+const tank=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.5,20),new THREE.MeshStandardMaterial({color:0x2e5f7a})); tank.rotation.z=Math.PI/2; tank.position.set(-TUBE_L+0.25,-TUBE_R-0.06,0); launcher.add(tank);
+const piston=new THREE.Mesh(new THREE.CylinderGeometry(TUBE_R-0.002,TUBE_R-0.002,PISTON_T,40),new THREE.MeshStandardMaterial({color:0xb08a3e,metalness:0.4,roughness:0.4}));
+piston.rotation.z=Math.PI/2; launcher.add(piston);
+const pistonAnchor=new THREE.Object3D(); launcher.add(pistonAnchor);
+const tubeAnchor=new THREE.Object3D(); tubeAnchor.position.set(-0.8,TUBE_R+0.01,0); launcher.add(tubeAnchor);
+// legs from stand to tube
+[[-0.85,0.52],[-0.45,0.86]].forEach(([x,h])=>{[-0.16].forEach(z=>{const lg=new THREE.Mesh(new THREE.BoxGeometry(0.035,h,0.035),legMat); lg.position.set(x,h/2,z); scene.add(lg)})});
+
+// drone
+const shellMat=new THREE.MeshStandardMaterial({color:0xdadfd6,roughness:0.55,metalness:0.05,side:THREE.DoubleSide});
+const wingMat=new THREE.MeshStandardMaterial({color:0xeef0ea,roughness:0.6,side:THREE.DoubleSide});
+const dark=new THREE.MeshStandardMaterial({color:0x26302b,roughness:0.5});
+const accentMat=new THREE.MeshStandardMaterial({color:0xc77b25,roughness:0.5});
+const glass=new THREE.MeshStandardMaterial({color:0x10202a,roughness:0.1,metalness:0.6});
+const M=c=>new THREE.MeshStandardMaterial({color:c,roughness:0.6});
+let drone, parts={}, anchors=[];
+const clipPlane=new THREE.Plane(new THREE.Vector3(0,0,-1),0);
+
+function airfoil(chord,thick,le){
+  const s=new THREE.Shape(); const te=le-chord;
+  s.moveTo(le,0); s.bezierCurveTo(le,thick*0.9,le-chord*0.25,thick*1.0,le-chord*0.45,thick*0.95);
+  s.quadraticCurveTo(te+chord*0.2,thick*0.35,te,0.0005); s.lineTo(te,-0.0005);
+  s.quadraticCurveTo(le-chord*0.4,-thick*0.35,le,0); return s;
+}
+function buildDrone(len){
+  if(drone){scene.remove(drone)} parts={}; anchors=[];
+  L=len; stroke=TUBE_L-L-PISTON_T; const d=new THREE.Group(); drone=d; scene.add(d);
+  const dL=L-1.10; // extra length in spec variant
+  // fuselage lathe (profile y = local x; nose at 0, tail at -L)
+  const pts=[];
+  for(let k=0;k<=12;k++){const a=k/12*Math.PI/2; pts.push(new THREE.Vector2(BODY_R*Math.sin(a),-0.13*(1-Math.cos(a))))}
+  pts.push(new THREE.Vector2(BODY_R,-(L-0.25)),new THREE.Vector2(0.040,-(L-0.12)),new THREE.Vector2(0.024,-(L-0.03)),new THREE.Vector2(0.018,-L),new THREE.Vector2(0,-L));
+  const lg=new THREE.LatheGeometry(pts,40); lg.rotateZ(-Math.PI/2);
+  const shellM=shellMat.clone(); parts.shellMat=shellM;
+  const shell=new THREE.Mesh(lg,shellM); d.add(shell);
+  // chute hatch outline & registration stripe
+  const pivotX=-(L-0.70);
+  const hatch=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.004,0.06),accentMat); hatch.position.set(pivotX-0.20,BODY_R-0.001,0); d.add(hatch); parts.hatch=hatch;
+  // chin turret
+  const turret=new THREE.Group(); turret.position.set(-0.085,-0.035,0); d.add(turret); parts.turret=turret;
+  const yoke=new THREE.Group(); turret.add(yoke); parts.yoke=yoke;
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(0.032,24,18),dark); yoke.add(ball);
+  const lens=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.012,20),glass); lens.rotation.z=Math.PI/2; lens.position.x=0.028; yoke.add(lens);
+  const ymotor=new THREE.Mesh(new THREE.CylinderGeometry(0.018,0.018,0.012,20),M(0x444c48)); ymotor.position.set(-0.085,0.006,0); d.add(ymotor); ymotor.userData.internal=true;
+  // pitot
+  const pit=new THREE.Mesh(new THREE.CylinderGeometry(0.0025,0.0025,0.09,8),M(0x8a8f8b)); pit.rotation.z=Math.PI/2; pit.position.set(-0.04,0.03,0.028); d.add(pit);
+  // internals
+  const internal=new THREE.Group(); d.add(internal); parts.internal=internal;
+  const radio=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.022,0.05),M(0x6a55b8)); radio.position.set(-0.335,-0.02,0); internal.add(radio);
+  const ant=new THREE.Mesh(new THREE.BoxGeometry(0.004,0.07,0.012),M(0x6a55b8)); ant.position.set(-0.30,-0.02,0.025); internal.add(ant);
+  const pack=new THREE.Group(); pack.position.set(-0.22,-0.005,0); internal.add(pack);
+  const cellM=M(0x2f6fb3);
+  for(let ix=0;ix<2;ix++)for(let iy=0;iy<2;iy++)for(let iz=0;iz<3;iz++){const c=new THREE.Mesh(new THREE.CylinderGeometry(0.0105,0.0105,0.068,14),cellM);c.rotation.z=Math.PI/2;c.position.set((ix-0.5)*0.071,(iy-0.5)*0.0215,(iz-1)*0.0215);pack.add(c)}
+  const gearbox=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,0.03,16),M(0x9a7b3c)); gearbox.position.set(pivotX,BODY_R-0.02,0); internal.add(gearbox);
+  const fc=new THREE.Mesh(new THREE.BoxGeometry(0.054,0.008,0.036),M(0x1f7a4d)); fc.position.set(pivotX-0.07,-0.015,0); internal.add(fc);
+  const gps=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.008,16),M(0x2a2f2c)); gps.position.set(pivotX-0.07,BODY_R-0.012,0); internal.add(gps);
+  const chute=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.16,20),M(0xd8792a)); chute.rotation.z=Math.PI/2; chute.position.set(pivotX-0.20,0.012,0); internal.add(chute);
+  const esc=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.012,0.028),M(0x59615c)); esc.position.set(-(L-0.33),-0.01,0); internal.add(esc);
+  const motor=new THREE.Mesh(new THREE.CylinderGeometry(0.017,0.017,0.035,18),M(0xa8aeaa)); motor.rotation.z=Math.PI/2; motor.position.set(-(L-0.025),0,0); internal.add(motor);
+  [-1,1].forEach(sz=>{const sv=new THREE.Mesh(new THREE.BoxGeometry(0.023,0.012,0.012),M(0x3b4440)); sv.position.set(-(L-0.17),0.0,sz*0.018); internal.add(sv)});
+  if(dL>0){const gap=new THREE.Mesh(new THREE.BoxGeometry(dL*0.9,0.002,0.08),new THREE.MeshBasicMaterial({color:0xb42318,transparent:true,opacity:0.35})); gap.position.set(-0.42-dL/2-0.02,-0.03,0); internal.add(gap); parts.gap=gap}
+  internal.traverse(o=>o.userData.internal=true);
+
+  // wings: right (+z, lower), left (-z, upper), pivot on top
+  const wgeo=new THREE.ExtrudeGeometry(airfoil(0.15,0.0125,0.0375),{depth:0.70,bevelEnabled:false,curveSegments:10});
+  const ail=new THREE.BoxGeometry(0.035,0.004,0.27);
+  function wing(side,y){
+    const g=new THREE.Group(); g.position.set(pivotX,BODY_R+y,0); d.add(g);
+    const m=new THREE.Mesh(wgeo,wingMat); if(side<0)m.scale.z=-1; g.add(m);
+    const a=new THREE.Mesh(ail,M(0xc9cdc5)); a.position.set(-0.095,0.002,side*0.52); g.add(a);
+    const tip=new THREE.Object3D(); tip.position.set(-0.02,0,side*0.70); g.add(tip);
+    return {g,tip};
+  }
+  const wr=wing(1,0.0075), wl=wing(-1,0.0225); parts.wr=wr.g; parts.wl=wl.g;
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.035,12),M(0x9a7b3c)); post.position.set(pivotX,BODY_R+0.012,0); d.add(post);
+  // V-tail fins
+  const finGeo=new THREE.BoxGeometry(0.07,0.18,0.006); finGeo.translate(0,0.09,0);
+  parts.fins=[1,-1].map(sd=>{
+    const outer=new THREE.Group(); outer.position.set(-(L-0.10),0,0); outer.rotation.x=sd*55*Math.PI/180; d.add(outer);
+    const hinge=new THREE.Group(); hinge.position.y=0.042; outer.add(hinge);
+    const f=new THREE.Mesh(finGeo,wingMat); hinge.add(f);
+    const rud=new THREE.Mesh(new THREE.BoxGeometry(0.022,0.15,0.0065),M(0xc9cdc5)); rud.position.set(-0.03,0.095,0); hinge.add(rud);
+    const tip=new THREE.Object3D(); tip.position.set(0,0.18,0); hinge.add(tip);
+    return {hinge,tip};
+  });
+  // prop
+  const hub=new THREE.Group(); hub.position.set(-L-0.008,0,0); d.add(hub); parts.hub=hub;
+  const sp=new THREE.Mesh(new THREE.ConeGeometry(0.019,0.035,16),dark); sp.rotation.z=Math.PI/2; sp.position.x=-0.016; hub.add(sp);
+  const bladeGeo=new THREE.BoxGeometry(0.006,0.13,0.022); bladeGeo.translate(0,0.065,0);
+  parts.blades=[1,-1].map(sd=>{const g=new THREE.Group(); g.position.y=sd*0.012; hub.add(g); const b=new THREE.Mesh(bladeGeo,dark); if(sd<0)b.rotation.z=Math.PI; g.add(b); const tip=new THREE.Object3D(); tip.position.y=sd*0.13; g.add(tip); return g});
+  parts.bladeTip=new THREE.Object3D(); parts.bladeTip.position.set(0,0.135,0); parts.blades[0].add(parts.bladeTip);
+  // anchors for labels
+  const A=(obj,pos)=>{const o=new THREE.Object3D(); if(pos)o.position.copy(pos); obj.add(o); return o};
+  anchors=[
+    {o:A(turret,new THREE.Vector3(0,-0.03,0)),n:'กล้องซูม 10× + กิมบอล 2 แกน',d:'ลูก ⌀64 มม. · ยื่นใต้ลำ ≤15 มม.',t:'l',cam:true},
+    {o:A(d,new THREE.Vector3(-0.55*L,BODY_R,0)),n:'ลำตัว',d:`ยาว ${L.toFixed(2)} ม. · ⌀0.12 ม.`,t:L>1.2?'g':'l',body:true},
+    {o:wr.tip,n:'ปีกหลัก (เฟืองซิงก์)',d:'กาง 1.40 ม. · คอร์ด 0.15 ม.',t:'g'},
+    {o:parts.fins[0].tip,n:'หาง V พับได้',d:'แพน 0.18 ม. · มุม 35°',t:'g'},
+    {o:parts.bladeTip,n:'ใบพัดดันพับได้',d:'⌀≈0.27 ม. (10.5 นิ้ว)',t:'g'},
+    {o:pistonAnchor,n:'ลูกสูบลมอัด',d:`ระยะชัก ${stroke.toFixed(2)} ม.`,t:'c',tube:true},
+    {o:tubeAnchor,n:'ท่อปล่อย',d:'ภายใน ⌀0.20 × 1.60 ม. · เงย 40°',t:'c',tube:true},
+    {o:A(pack),n:'แบต 6S2P 21700',d:'194 Wh · ≈0.90 กก.',t:'l',internal:true},
+    {o:A(fc),n:'บอร์ดคุมการบิน',d:'ArduPilot Plane · 54×36 มม.',t:'l',internal:true},
+    {o:A(radio),n:'วิทยุส่งภาพ/ควบคุม',d:'เสาอยู่ใต้ผิวไฟเบอร์กลาส',t:'g',internal:true},
+    {o:A(chute),n:'ร่มชูชีพ',d:'⌀1.3 ม. · ตก ≈5 ม./วิ',t:'l',internal:true},
+    {o:A(gps),n:'GPS + เข็มทิศ',d:'',t:'l',internal:true},
+    {o:A(motor),n:'มอเตอร์ไร้แปรงถ่าน',d:'≈110 W ขณะเดินทาง',t:'g',internal:true},
+  ];
+  if(parts.gap)anchors.push({o:A(parts.gap),n:'ที่ว่างเปล่า',d:`ลำตัวเกินมา ${dL.toFixed(2)} ม.`,t:'c',internal:true});
+  labelsEl.innerHTML=''; anchors.forEach(a=>{const el=document.createElement('div'); el.className='lab'; el.innerHTML=`<b>${a.n}</b><span class="mono">${a.d}</span> ${a.d?TAG[a.t]:''}`; labelsEl.appendChild(el); a.el=el});
+  computePath(); setCut(cut);
+}
+
+// ---- path ----
+const tubeDir=new THREE.Vector3(Math.cos(TILT),Math.sin(TILT),0);
+let P3,V3,E,C,ctrl1,ctrl2,R=12,OMEGA=4/12,ta,vb,D;
+const v3=()=>new THREE.Vector3();
+function tubeLocalToWorld(x){return new THREE.Vector3(x,BODY_DY,0).applyEuler(launcher.rotation).add(launcher.position)}
+function pushProfile(){D=L+0.2; ta=1/(1+(D-stroke)/(2*stroke)); vb=2*stroke/ta}
+function travel(tau){ // tau in [0,1]
+  if(tau<=ta){const a=vb/ta; return 0.5*a*tau*tau} return stroke+vb*(tau-ta)}
+const GV=1.4;
+function freePos(tau){const p=tubeLocalToWorld(-0.01+travel(1)); return p.add(tubeDir.clone().multiplyScalar(vb*tau)).add(new THREE.Vector3(0,-0.5*GV*tau*tau,0))}
+function freeVel(tau){return tubeDir.clone().multiplyScalar(vb).add(new THREE.Vector3(0,-GV*tau,0))}
+function computePath(){
+  pushProfile();
+  P3=freePos(1); V3=freeVel(1);
+  E=new THREE.Vector3(P3.x+16,13,P3.z); C=E.clone().add(new THREE.Vector3(0,0,-R));
+  ctrl1=P3.clone().add(V3.clone().normalize().multiplyScalar(4)); ctrl2=E.clone().add(new THREE.Vector3(-5,0,0));
+  shed.position.set(C.x,1,C.z);
+}
+function bez(t,a,b,c,d){const u=1-t;return a.clone().multiplyScalar(u*u*u).add(b.clone().multiplyScalar(3*u*u*t)).add(c.clone().multiplyScalar(3*u*t*t)).add(d.clone().multiplyScalar(t*t*t))}
+function bezD(t,a,b,c,d){const u=1-t;return b.clone().sub(a).multiplyScalar(3*u*u).add(c.clone().sub(b).multiplyScalar(6*u*t)).add(d.clone().sub(c).multiplyScalar(3*t*t))}
+const ease=(x)=>x<=0?0:x>=1?1:x*x*(3-2*x);
+const easeBack=(x)=>{if(x<=0)return 0;if(x>=1)return 1;const c1=1.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const clamp01=x=>Math.max(0,Math.min(1,x));
+const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _qr=new THREE.Quaternion(), X=new THREE.Vector3(1,0,0);
+function orient(fwd,roll){
+  const f=fwd.clone().normalize(); const r=new THREE.Vector3().crossVectors(f,new THREE.Vector3(0,1,0)).normalize(); const u=new THREE.Vector3().crossVectors(r,f);
+  _m.makeBasis(f,u,r); _q.setFromRotationMatrix(_m); _qr.setFromAxisAngle(X,roll); return _q.clone().multiply(_qr);
+}
+function stageAt(t){let s=0;STAGES.forEach((st,i)=>{if(t>=st[0])s=i});return s}
+let curT=0;
+function applyTime(t){
+  curT=t; let pos,q,pistonX;
+  const pistonRest=-TUBE_L+PISTON_T/2;
+  if(t<2){
+    const tau=clamp01(t-1); const s=travel(tau);
+    pos=tubeLocalToWorld(-0.01+s); q=launcher.quaternion.clone();
+    pistonX=pistonRest+Math.min(s,stroke);
+  } else {
+    pistonX=pistonRest+stroke;
+    if(t<3){const tau=t-2; pos=freePos(tau); q=orient(freeVel(tau),0)}
+    else if(t<7){const u=(t-3)/4; pos=bez(u,P3,ctrl1,ctrl2,E); const roll=-25*Math.PI/180*ease((t-6.2)/0.8); q=orient(bezD(u,P3,ctrl1,ctrl2,E),roll)}
+    else {const ph=OMEGA*(t-7); pos=C.clone().add(new THREE.Vector3(R*Math.sin(ph),0,R*Math.cos(ph))); q=orient(new THREE.Vector3(Math.cos(ph),0,-Math.sin(ph)),-25*Math.PI/180)}
+  }
+  drone.position.copy(pos); drone.quaternion.copy(q);
+  piston.position.x=pistonX; pistonAnchor.position.set(pistonX,-TUBE_R+0.02,0);
+  // deploy
+  const w=easeBack(clamp01((t-2.0)/0.4)); parts.wr.rotation.y=-Math.PI/2*(1-w); parts.wl.rotation.y=Math.PI/2*(1-w);
+  const f=easeBack(clamp01((t-2.4)/0.35)); parts.fins.forEach(fn=>fn.hinge.rotation.z=-Math.PI/2*(1-f));
+  const pr=ease(clamp01((t-2.7)/0.15));
+  parts.blades[0].rotation.z=-Math.PI/2*(1-pr); parts.blades[1].rotation.z=Math.PI/2*(1-pr);
+  parts.hub.rotation.x=Math.PI/2 + (t>2.85? Math.min(1,(t-2.85)/0.3)*(t-2.85)*55 : 0);
+  // gimbal
+  let yaw=0,pitch=-0.6;
+  if(t>3&&t<7){pitch=-0.25; yaw=0} if(t>=6.2){const k=ease((t-6.2)/1.2); yaw=1.2*k; pitch=-0.25-0.45*k}
+  parts.yoke.rotation.set(0,yaw,pitch,'YZX');
+  const si=stageAt(t); $('#stageName').textContent=STAGES[si][1];
+  const spd = t<1?0 : t<2? (travel(clamp01(t-1)+0.001)-travel(clamp01(t-1)))/0.001 : null;
+  $('#hudInfo').textContent=`t = ${t.toFixed(1)} วิ · `+(t<2?`ระยะชัก ${stroke.toFixed(2)} ม. · ${fmt((12*12/(2*stroke))/9.81,0)} g ที่ 12 ม./วิ`: t<7?'ภาพช้าลง ≈5 เท่า':'วงโคจรย่อขนาด · กล้องชี้เข้าศูนย์กลาง');
+  document.querySelectorAll('#chips button').forEach((b,i)=>b.classList.toggle('on',i===si));
+  $('#scrub').value=t;
+}
+
+// ---- camera follow ----
+const lastTarget=new THREE.Vector3(); const center=new THREE.Vector3();
+function droneCenter(){return center.set(-L/2,0,0).applyQuaternion(drone.quaternion).add(drone.position)}
+function frameView(){
+  const c=droneCenter().clone();
+  const k=cut?0.65:1;
+  const off= curT<2.2 ? new THREE.Vector3(-0.35,0.55,2.3).multiplyScalar(k*(L/1.1)) : new THREE.Vector3(-1.5,0.9,2.4).multiplyScalar(k);
+  camera.position.copy(c).add(off); controls.target.copy(c); lastTarget.copy(c);
+}
+// ---- cutaway ----
+let cut=false;
+function setCut(on){cut=on; $('#cut').setAttribute('aria-pressed',on); if(parts.shellMat){parts.shellMat.clippingPlanes=on?[clipPlane]:[]; parts.shellMat.needsUpdate=true}
+  if(parts.internal)parts.internal.visible=on; if(parts.hatch)parts.hatch.visible=!on;
+  tubeMat.opacity=on?0.12:0.2;}
+let showLabels=true;
+const tmp=new THREE.Vector3();
+function updateLabels(){
+  const w=viewer.clientWidth,h=viewer.clientHeight;
+  anchors.forEach(a=>{
+    let vis=showLabels && (cut ? (a.internal||a.body) : !a.internal);
+    if(!cut && curT<2 && !(a.tube||a.body||a.cam)) vis=false;
+    if(a.tube && (curT>3.2||cut)) vis=false;
+    if(vis){a.o.getWorldPosition(tmp); tmp.project(camera); if(tmp.z>1||tmp.x<-1.1||tmp.x>1.1||tmp.y<-1.1||tmp.y>1.1)vis=false;
+      else{a.el.style.left=((tmp.x+1)/2*w)+'px'; a.el.style.top=((1-tmp.y)/2*h)+'px'}}
+    a.el.hidden=!vis;
+  });
+}
+// ---- loop ----
+let playing=false,last=performance.now();
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tick(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(playing){let t=curT+dt; if(t>TEND)t=7+(t-TEND); applyTime(t)}
+  const c=droneCenter(); const delta=c.clone().sub(lastTarget);
+  camera.position.add(delta); controls.target.add(delta); lastTarget.copy(c);
+  // clipping plane: remove +z half of drone
+  const n=new THREE.Vector3(0,0,-1).applyQuaternion(drone.quaternion); clipPlane.setFromNormalAndCoplanarPoint(n,drone.position);
+  controls.update(); renderer.render(scene,camera); updateLabels();
+  requestAnimationFrame(tick);
+}
+function resize(){const w=viewer.clientWidth,h=viewer.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix()}
+window.addEventListener('resize',resize);
+
+// UI
+$('#chips').innerHTML=STAGES.map((s,i)=>`<button type="button" data-t="${s[0]}">${i+1}. ${s[1]}</button>`).join('');
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; const t=+b.dataset.t; applyTime(t===0?0:t+0.001); if(t<=2.4||t===0)frameView()});
+function setPlay(p){playing=p; $('#play').textContent=p?'❚❚ หยุด':'▶ เล่น'}
+$('#play').addEventListener('click',()=>{if(!playing&&curT>=TEND-0.01)applyTime(0); setPlay(!playing)});
+$('#restart').addEventListener('click',()=>{applyTime(0);frameView();setPlay(true)});
+$('#scrub').addEventListener('input',e=>{setPlay(false);applyTime(+e.target.value)});
+$('#cut').addEventListener('click',()=>{setCut(!cut);frameView()});
+$('#labs').addEventListener('click',()=>{showLabels=!showLabels; $('#labs').setAttribute('aria-pressed',showLabels)});
+$('#frame').addEventListener('click',frameView);
+document.querySelectorAll('input[name=variant]').forEach(r=>r.addEventListener('change',()=>{
+  const v=VAR[r.value]; buildDrone(v.L); applyTime(curT); frameView();
+  $('#ls').value=(TUBE_L-v.L-PISTON_T).toFixed(2); calcLaunch();
+}));
+const mq=window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener&&mq.addEventListener('change',themeColors);
+new MutationObserver(themeColors).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+function initTables(){
+  buildWeight(); buildBom();
+  ['lv','ls','lm','ld'].forEach(id=>$('#'+id).addEventListener('input',calcLaunch));
+  ['pm','pv','pld','peta','pav','pt','pdod','pwhkg','pb','pc','pcl'].forEach(id=>$('#'+id).addEventListener('input',calcPower));
+  calcWeight(); calcBom();
+}
+themeColors(); initTables();
+buildDrone(1.10); applyTime(0); resize(); frameView();
+requestAnimationFrame(tick);
+})();
+</script>
+
+</body></html>

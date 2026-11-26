@@ -1,0 +1,902 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<a href="../../index.html" style="position:fixed;left:14px;bottom:14px;z-index:2147483647;padding:8px 14px;border-radius:999px;background:rgba(10,10,26,.82);color:#f0f0f5;font:600 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)">&larr; TDC-01 Swarm</a>
+
+<title>TDC-01 Swarm — แท่นทดสอบช่องปล่อย</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: test-bench sheet. Viewer + live readout side by side, then findings, then the BOM ledger. */
+:root{
+  --bg:#e9eeec; --surface:#f8faf9; --sunk:#dfe6e3; --fg:#14201d; --muted:#56635f; --line:#c3cfcb;
+  --accent:#0d6b6f; --accent-ink:#ffffff; --stage:#d5dedb;
+  --warn:#a86b00; --warn-bg:#fbefd2; --danger:#bf2f25; --danger-bg:#fbe1de; --ok:#2a7444; --ok-bg:#dcefe2;
+  --c:#2a7444; --l:#3b5fa8; --g:#a86b00;
+  --f-display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1514; --surface:#151f1d; --sunk:#0b1110; --fg:#e2eae7; --muted:#92a19d; --line:#2a3836;
+  --accent:#4cb8bb; --accent-ink:#06201f; --stage:#0f1a19;
+  --warn:#e5b54a; --warn-bg:#2e2611; --danger:#ff7468; --danger-bg:#361814; --ok:#62c98a; --ok-bg:#132a1d;
+  --c:#62c98a; --l:#86a8f0; --g:#e5b54a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1514; --surface:#151f1d; --sunk:#0b1110; --fg:#e2eae7; --muted:#92a19d; --line:#2a3836;
+  --accent:#4cb8bb; --accent-ink:#06201f; --stage:#0f1a19;
+  --warn:#e5b54a; --warn-bg:#2e2611; --danger:#ff7468; --danger-bg:#361814; --ok:#62c98a; --ok-bg:#132a1d;
+  --c:#62c98a; --l:#86a8f0; --g:#e5b54a; color-scheme:dark}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(24px,3.4vw,34px);font-weight:700}
+h2{font-size:21px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-direction:column;gap:8px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.badge{font-size:13px;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:999px}
+.badge.safe{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.tg{display:inline-block;font-family:var(--f-mono);font-size:10.5px;line-height:1;padding:3px 5px 2px;border-radius:3px;border:1px solid currentColor;vertical-align:1px;margin-left:3px;white-space:nowrap}
+.tg-C{color:var(--c)}.tg-L{color:var(--l)}.tg-G{color:var(--g)}
+
+/* bench */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+@media (max-width:980px){.bench{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:var(--stage);border:1px solid var(--line);border-radius:6px;overflow:hidden;height:min(68vh,620px);min-height:380px}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;will-change:transform;font-size:11.5px;line-height:1.35}
+.lbl .dot{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+.lbl .card{position:absolute;white-space:nowrap;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-left:3px solid var(--accent);padding:3px 7px;border-radius:3px}
+.lbl .card b{font-weight:600;display:block}
+.lbl .card span{color:var(--muted)}
+.lbl.safety .dot{background:var(--danger)}.lbl.safety .card{border-left-color:var(--danger)}
+.lbl.safety .card b{color:var(--danger)}
+.lbl.warn .dot{background:var(--warn)}.lbl.warn .card{border-left-color:var(--warn);background:var(--warn-bg)}
+.lbl.tick .card{border:none;background:transparent;padding:0;color:var(--muted);font-family:var(--f-mono);font-size:10.5px}
+.lbl.tick .dot{display:none}
+.lbl .lead{position:absolute;left:0;top:0;height:1px;background:var(--line);transform-origin:0 0}
+@media (max-width:640px){.lbl:not(.tick) .card span{display:none}}
+.stage-msg{position:absolute;inset:auto 12px 12px 12px;font-size:12.5px;color:var(--muted);pointer-events:none;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stage-msg span{background:var(--surface);padding:2px 8px;border-radius:3px;border:1px solid var(--line)}
+#nogl{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+button,select,input{font:inherit}
+.btn{font-family:var(--f-body);font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 13px;border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn[aria-pressed="true"]{background:var(--sunk);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--fg);padding:7px 12px;cursor:pointer;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.seg button+button{border-left:1px solid var(--line)}
+.ctl{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.ctl select{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 8px}
+.sep{flex:1 1 0}
+
+.phases{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:12px;list-style:none;padding:0}
+.phases li{border-top:3px solid var(--line);padding-top:6px;font-size:13px;color:var(--muted)}
+.phases li .n{font-family:var(--f-mono);font-size:11px;display:block}
+.phases li.done{border-color:var(--accent);color:var(--fg)}
+.phases li.now{border-color:var(--warn);color:var(--fg);font-weight:600}
+@media (max-width:520px){.phases li{font-size:11.5px}}
+
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:13.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-family:var(--f-body);font-size:12px;padding:1px 8px;border-radius:999px;background:var(--sunk)}
+.pill.red{background:var(--danger-bg);color:var(--danger)}
+.pill.amb{background:var(--warn-bg);color:var(--warn)}
+.pill.grn{background:var(--ok-bg);color:var(--ok)}
+.calc{font-size:13.5px;display:flex;flex-direction:column;gap:7px}
+.calc .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.calc .row span:first-child{color:var(--muted)}
+.calc .row span:last-child{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.calc .verdict{padding:8px 10px;border-radius:4px;font-size:13px;line-height:1.5}
+.calc .verdict.bad{background:var(--danger-bg);color:var(--fg);border-left:3px solid var(--danger)}
+.calc .verdict.okv{background:var(--ok-bg);color:var(--fg);border-left:3px solid var(--ok)}
+.kin{display:flex;align-items:center;gap:8px;font-size:13px}
+.kin input{width:84px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;font-family:var(--f-mono)}
+.note{font-size:12.5px;color:var(--muted)}
+
+/* findings */
+.findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px;counter-reset:f}
+.finding{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--danger);border-radius:5px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:0}
+.finding.mid{border-top-color:var(--warn)}
+.finding.okf{border-top-color:var(--ok)}
+.finding h3{display:flex;gap:8px;align-items:baseline}
+.finding h3::before{counter-increment:f;content:counter(f);font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.finding .fix{color:var(--muted);font-size:13.5px}
+.finding .fix b{color:var(--fg);font-weight:600}
+
+/* BOM */
+.bomhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.tot{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:10px 14px}
+.tot .k{font-size:12.5px;color:var(--muted)}
+.tot .v{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.tot .s{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.tot.grand{border-color:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-weight:600;font-size:12.5px;color:var(--muted);background:var(--sunk);position:sticky;top:0}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.grp td{background:var(--sunk);font-family:var(--f-display);font-weight:600;font-size:14px}
+tr.sub td{font-weight:600;border-bottom:2px solid var(--line)}
+tr.off td:not(.inc){opacity:.45}
+td .spec{display:block;color:var(--muted);font-size:12.5px}
+.add{font-size:11px;font-family:var(--f-mono);color:var(--accent);border:1px solid var(--accent);padding:0 4px;border-radius:3px;margin-left:4px;white-space:nowrap}
+td input[type=number]{width:104px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;font-family:var(--f-mono);text-align:right}
+td input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+.diff-pos{color:var(--danger)}.diff-neg{color:var(--ok)}
+.foot{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+[hidden]{display:none!important}
+.banner{position:absolute;left:12px;top:12px;font-weight:600;font-size:14px;padding:6px 12px;border-radius:4px;border:1px solid var(--line);background:var(--surface);max-width:calc(100% - 24px)}
+.banner.bad{border-left:4px solid var(--danger);color:var(--danger)}
+.banner.okb{border-left:4px solid var(--ok);color:var(--ok)}
+.phases li.bad{border-color:var(--danger);color:var(--danger);font-weight:600}
+.inputs{display:flex;flex-direction:column;gap:6px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.inputs .kin{justify-content:space-between}
+.inputs select{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;font:inherit;font-size:13px}
+table.cmp{min-width:560px}
+table.cmp td:first-child{color:var(--muted);white-space:nowrap}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">TDC-01 · รุ่น 1 · แท่นทดสอบช่องปล่อย · ปีกตรึงทรงกระสุนแบบรุ่น 2</div>
+  <h1>แท่นทดสอบการดีดออกและกางปีก</h1>
+  <div class="badges">
+    <span class="badge safe">ไม่มีอาวุธ · ไม่มีวัตถุระเบิด · ไม่มีน้ำหนักบรรทุก</span>
+    <span class="badge">ทดสอบ: ดีดออกจากช่อง → ปีกกาง → หางกาง → ใบพัดหมุน → ไต่ระดับ</span>
+    <span class="badge">แบบที่เลือก 30 ต.ค.: เอียง 45° · ชัก 0.4 ม. · ดัน 12 ม./วิ</span>
+  </div>
+  <div class="legend">
+    <span>ป้ายความมั่นใจ:</span>
+    <span><span class="tg tg-C">Certain</span> คำนวณตรวจแล้ว หรือเป็นขนาดตามสเปกของคุณ</span>
+    <span><span class="tg tg-L">Likely</span> อนุมานจากข้อมูลทั่วไป</span>
+    <span><span class="tg tg-G">Guessing</span> เดา ต้องวัดของจริง</span>
+  </div>
+</header>
+
+<section class="bench">
+  <div>
+    <div class="stage" id="stage">
+      <div id="labels" aria-hidden="true"></div>
+      <div class="banner" id="banner" hidden></div>
+      <div class="stage-msg"><span>ลากเพื่อหมุน · ล้อ/บีบเพื่อซูม · คลิกขวาลากเพื่อเลื่อน</span><span id="modeTag">แบบลม</span></div>
+    </div>
+    <div class="toolbar" role="toolbar" aria-label="ควบคุมโมเดล">
+      <button class="btn primary" id="play" type="button">▶ เล่นลำดับ</button>
+      <button class="btn" id="reset" type="button">↺ เริ่มใหม่</button>
+      <button class="btn" id="cut" type="button" aria-pressed="false">ภาพตัด</button>
+      <div class="seg" role="group" aria-label="ระบบดีด">
+        <button type="button" id="mAir" aria-pressed="true">แบบลม</button>
+        <button type="button" id="mSpring" aria-pressed="false">แบบสปริง</button>
+      </div>
+      <div class="seg" role="group" aria-label="ชุดค่า">
+        <button type="button" id="pSpec" aria-pressed="false">สเปกเดิม</button>
+        <button type="button" id="pProp" aria-pressed="true">แบบที่เลือก (บินได้)</button>
+      </div>
+      <span class="sep"></span>
+      <label class="ctl" for="lblMode">ป้าย
+        <select id="lblMode"><option value="all">ทั้งหมด</option><option value="safety">เฉพาะจุดป้องกัน</option><option value="off">ปิด</option></select>
+      </label>
+      <label class="ctl" for="speed">ความเร็ว
+        <select id="speed"><option value="1">จริง 1×</option><option value="0.4" selected>ช้า 0.4×</option><option value="0.1">ช้ามาก 0.1×</option></select>
+      </label>
+      <label class="ctl" for="view">มุมกล้อง
+        <select id="view"><option value="rig">ตัวแท่น</option><option value="follow">ตามโดรน</option><option value="side">ด้านข้าง ทั้งเส้นทาง</option></select>
+      </label>
+    </div>
+    <ol class="phases" id="phases">
+      <li><span class="n">1</span>เปิดฝา</li>
+      <li><span class="n">2</span>ดีดออก</li>
+      <li><span class="n">3</span>ปีกกาง</li>
+      <li><span class="n">4</span>หางกาง + ใบพัดหมุน</li>
+      <li id="ph5"><span class="n">5</span>ไต่ระดับ</li>
+    </ol>
+  </div>
+
+  <aside class="side">
+    <div class="panel">
+      <h3>ค่าระหว่างจำลอง</h3>
+      <dl class="kv">
+        <dt>เวลา (นับจากกดปุ่ม)</dt><dd id="tT">0.000 วิ</dd>
+        <dt>ระยะชักแผ่นดัน</dt><dd id="tS">0 มม.</dd>
+        <dt>ความสูงหางจากพื้น</dt><dd id="tH">—</dd>
+        <dt>ความเร็วอากาศ</dt><dd id="tV">0.0 ม./วิ</dd>
+        <dt>เทียบความเร็วร่วงหล่น</dt><dd id="tR">—</dd>
+        <dt>มุมปีก</dt><dd id="tA">0°</dd>
+        <dt>สวิตช์ปลายก้นช่อง</dt><dd id="tSw"></dd>
+        <dt>มอเตอร์</dt><dd id="tM"></dd>
+      </dl>
+      <p class="note">จำลองแบบจุดมวล 2 มิติ ไม่คิดลม คิดว่าระบบบินคุมท่าได้แม้ความเร็วต่ำ ซึ่งดีกว่าความจริง <span class="tg tg-L">Likely</span></p>
+    </div>
+    <div class="panel">
+      <h3 id="calcTitle">ตรวจฟิสิกส์</h3>
+      <div class="inputs">
+        <label class="kin" for="tiltIn">มุมเอียงช่อง <select id="tiltIn"><option value="12">12° (สเปกเดิม)</option><option value="30">30°</option><option value="45">45° (ใช้แบบนี้)</option></select></label>
+        <label class="kin" for="strokeIn">ระยะชัก <select id="strokeIn"><option value="0.2">0.2 ม. (สเปกเดิม)</option><option value="0.4">0.4 ม. (ใช้แบบนี้)</option></select></label>
+        <label class="kin" for="vIn" id="vWrap">ความเร็วตอนแผ่นดันหยุด <input id="vIn" type="number" min="3" max="15" step="0.5" value="12"> ม./วิ</label>
+        <label class="kin" for="kIn" id="kWrap" hidden>ค่าคงที่สปริง <input id="kIn" type="number" min="0.2" max="6" step="0.05" value="0.8"> N/มม.</label>
+        <label class="kin" for="tIn">แรงขับสถิตของใบพัด <input id="tIn" type="number" min="3" max="15" step="0.5" value="8"> N</label>
+      </div>
+      <div class="calc" id="calc"></div>
+    </div>
+  </aside>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:12px">
+  <h2>ต้องแก้ก่อนตัดไม้</h2>
+  <p class="note">เรียงจากจุดที่ทำให้ทดสอบล้มเหลวได้มากที่สุด ตัวเลขสดอยู่ในแผงตรวจฟิสิกส์ด้านบน</p>
+  <div class="findings">
+    <article class="finding">
+      <h3>ที่สเปกเดิม โดรนปีกตรึงจะตกก่อนบินได้</h3>
+      <p>ดันที่ 7 ม./วิ ในช่องลึก 0.85 ม. โดรนออกปากช่องที่ ≈6.1 ม./วิ <span class="tg tg-C">Certain</span> แต่ความเร็วร่วงหล่นของปีก 0.054 ตร.ม. ที่ 650 ก. คือ ≈13.6 ม./วิ <span class="tg tg-L">Likely</span> (C<sub>L,max</sub> 1.1 <span class="tg tg-G">Guessing</span>) ในแบบจำลองโดรนตกภายใน ≈1.3 วิ ทุกมุมเอียงและทุกแรงขับที่ลอง</p>
+      <p class="fix"><b>แก้:</b> ดันให้ถึง ≈12 ม./วิ เอียงช่อง 45° (รุ่น 2 ใช้ 40°) และใช้ใบพัดที่ให้แรงขับ ≥8 N (แรงขับต่อน้ำหนัก ≥1.25) <span class="tg tg-L">Likely</span> ปุ่ม "ข้อเสนอที่บินได้" ใช้ค่านี้</p>
+    </article>
+    <article class="finding">
+      <h3>12 ม./วิ ในระยะชัก 0.2 ม. = 37 g</h3>
+      <p>v²/2s = 144/0.4 = 360 ม./วิ² ≈36.7 g <span class="tg tg-C">Certain</span> บานพับปีก เฟือง และใบพัดพับรุ่นงานอดิเรกไม่ได้ออกแบบมาให้รับแรงขนาดนี้ <span class="tg tg-L">Likely</span></p>
+      <p class="fix"><b>แก้:</b> ใช้กระบอกระยะชัก 0.4 ม. แรงเหลือ ≈18.3 g <span class="tg tg-C">Certain</span> ใกล้รุ่น 2 (≈16 g) ช่องลึก 0.85 ม. มีที่พอ (โดรน 0.45 + ฐานรอง 0.045 + ชัก 0.4 = 0.895 ม. หางยังพ้นปากช่องเพราะโดรนไถลต่อ)</p>
+    </article>
+    <article class="finding">
+      <h3>ต้องย้ายแบตไปไว้หัว</h3>
+      <p>ปีกตรึงต้องมีจุดศูนย์ถ่วงอยู่ราว 25% ของคอร์ดปีก คือ ≈0.27 ม. จากท้าย <span class="tg tg-C">Certain</span> ลำดับช่องเดิม (แบตอยู่ 0.08–0.23 ม. มอเตอร์อยู่ท้าย) ทำให้จุดศูนย์ถ่วงอยู่ราว 0.17–0.20 ม. หางหนัก บินไม่ได้ <span class="tg tg-L">Likely</span></p>
+      <p class="fix"><b>แก้:</b> เรียงช่องใหม่จากหัว: หัว + แบต 0.15 / บอร์ด 0.12 / เซอร์โว + ESC 0.10 / ท้าย + มอเตอร์ 0.08 ม. รวม 0.45 ม. <span class="tg tg-C">Certain</span> ตามที่แสดงในโมเดล ชั่งหาจุดศูนย์ถ่วงจริงก่อนบิน</p>
+    </article>
+    <article class="finding">
+      <h3>ปีกกางได้แค่ 0.54 ม. เพราะลำตัวสั้น</h3>
+      <p>ปีกสองชิ้นพับไปทางท้ายจากแกนเดียว แต่ละชิ้นจึงยาวได้ไม่เกินระยะจากแกนถึงท้าย 0.28 ม. ใช้ 0.27 ม. ได้ปีกกาง 0.54 ม. พื้นที่ 0.054 ตร.ม. ภาระปีก ≈12 กก./ตร.ม. <span class="tg tg-C">Certain</span> นี่คือเหตุผลที่รุ่น 2 ต้องยาว 1.10 ม.</p>
+      <p class="fix"><b>ถ้าอยากได้ความเร็วร่วงหล่นต่ำกว่านี้:</b> ต้องยืดลำตัว หรือขยายคอร์ดปีก (ท่อนำ ⌀170 รับคอร์ดได้ถึง ≈0.14 ม. <span class="tg tg-L">Likely</span>)</p>
+    </article>
+    <article class="finding mid">
+      <h3>แบบจำลองนี้มองโลกในแง่ดี</h3>
+      <p>สมมติว่าคุมท่าได้แม้ความเร็วต่ำ แต่ใบพัดดันอยู่ท้าย ลมจากใบพัดไม่ผ่านหาง ที่ความเร็วต่ำกว่า ≈0.7 เท่าของความเร็วร่วงหล่น หางกับปีกเกือบไม่มีแรงคุม <span class="tg tg-L">Likely</span> แม้ในชุดข้อเสนอ ความเร็วยังตกเหลือ ≈64% ของความเร็วร่วงหล่นตอนพลิกหัว ถ้าเอียงแค่ 12° จะตกเหลือ ≈32% ตลอดเกือบ 2 วิ <span class="tg tg-L">Likely</span> ผล "บินได้" ในโมเดลจึงเป็นเงื่อนไขที่จำเป็น ยังไม่พอ</p>
+      <p class="fix"><b>แก้:</b> บินร่อนโยนมือก่อน (ปีกตรึงกาง) แล้วดีดด้วยหุ่นน้ำหนักเท่าจริงลงตาข่าย ก่อนดีดตัวจริง</p>
+    </article>
+    <article class="finding mid">
+      <h3>สปริง 0.8 N/มม. และกระบอกลมทั่วไป</h3>
+      <p>สปริง 0.8 N/มม. × 0.2 ม. ได้ 16 J ดันได้แค่ ≈5.8 ม./วิ <span class="tg tg-L">Likely</span> แต่ถ้าชัก 0.4 ม. สปริงตัวเดิมได้ 64 J ดันได้ ≈12 ม./วิ พอดีเป้า <span class="tg tg-L">Likely</span> ส่วนกระบอกลมมาตรฐานพิกัดราว 1 ม./วิ <span class="tg tg-L">Likely</span> ก้านกับแผ่นดันจะกระแทกปลายช่วงชักด้วย ≈10 J ทุกนัด <span class="tg tg-C">Certain</span></p>
+      <p class="fix"><b>แก้:</b> ใส่ยาง/โช้คหยุดปลายช่วงชัก วาล์วรู ≥3/8" ต่อชิดกระบอก วัดความเร็วจริงด้วยวิดีโอ 240 fps</p>
+    </article>
+    <article class="finding okf">
+      <h3>ท่อนำกลม ⌀170 มม. ใส่แล้ว</h3>
+      <p>ปีกที่พับซ้อนบนหลังกับหาง V ที่พับรอบลำ กินพื้นที่วงกลม ≈⌀136 มม. <span class="tg tg-C">Certain</span> เหลือช่องว่างรอบละ ≈17 มม. ท่อนำยาว 0.83 ม. กดปีกไว้จนหางโดรนพ้นปากท่อ</p>
+      <p class="fix"><b>ระวัง:</b> ใบพัดดันอยู่ติดฐานรอง ต้องมีทั้งสวิตช์ก้นช่องฝั่งพื้นและสวิตช์กดท้ายลำบนโดรน มอเตอร์เริ่มได้หลังหางกางและหน่วงอีก 0.25 วิ</p>
+    </article>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:12px">
+  <h2>รุ่น 1 ต่างจากรุ่น 2 ตรงไหน</h2>
+  <p class="note">ทรงและลำดับกางเหมือนกัน แต่ช่องปล่อยและขนาดต่างกันมาก ผลทดสอบรุ่น 1 จึงพิสูจน์กลไกกางได้ แต่ยังใช้ทำนายการปล่อยของรุ่น 2 ไม่ได้ตรงๆ</p>
+  <div class="tablewrap">
+    <table class="cmp">
+      <thead><tr><th></th><th>รุ่น 1 (หน้านี้)</th><th>รุ่น 2</th></tr></thead>
+      <tbody>
+        <tr><td>ช่องปล่อย</td><td>กล่องเหลี่ยม 0.30 × 0.30 × 0.85 ม. + ท่อนำกลม ⌀170 มม. เอียง 12° (สเปก) / 45° (ข้อเสนอ)</td><td>ท่อกลม ⌀0.20 × 1.6 ม. เงย 40°</td></tr>
+        <tr><td>ระยะชัก</td><td>0.2 ม. (สเปก) / 0.4 ม. (ข้อเสนอ)</td><td>0.45 ม. (ข้อเสนอ)</td></tr>
+        <tr><td>ลำตัว</td><td>⌀60 × 450 มม. 650 ก. <span class="tg tg-L">Likely</span></td><td>⌀120 × 1,100 มม. ≈2.77 กก.</td></tr>
+        <tr><td>ปีกกาง</td><td>0.54 ม. คอร์ด 0.10 ม.</td><td>1.40 ม. คอร์ด 0.15 ม.</td></tr>
+        <tr><td>ความเร็วร่วงหล่น</td><td>≈13.6 ม./วิ <span class="tg tg-L">Likely</span></td><td>≈14.4 ม./วิ (52 กม./ชม.)</td></tr>
+        <tr><td>ความเร็วดีดที่ต้องใช้</td><td>≈12 ม./วิ ที่ ≈18 g (ชัก 0.4 ม. เอียง 45°)</td><td>12 ม./วิ ที่ ≈16 g</td></tr>
+        <tr><td>ใช้พิสูจน์อะไรได้</td><td>กลไกปีกซิงก์ หางพับ ใบพัดพับ สวิตช์ป้องกัน การดีดในช่องลึก</td><td>ระบบเต็ม: กล้อง ลิงก์ เวลาบิน</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">ตัวเลขรุ่น 2 อ้างจากหน้ารุ่น 2 ในโปรเจกต์นี้</p>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:14px">
+  <div class="bomhead">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <h2>รายการชิ้นส่วนและราคา</h2>
+      <p class="note">ราคาประเมินเป็นราคารวมของแถว (บาท) จากความรู้ทั่วไปเรื่องราคาร้านออนไลน์ไทย ยังไม่ได้เช็กราคาวันนี้ ใส่ราคาจริงที่ซื้อได้ ระบบจะรวมยอดให้ ค่าที่ใส่เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น</p>
+    </div>
+    <button class="btn" id="clearBom" type="button">ล้างราคาจริง</button>
+  </div>
+  <div class="totals" id="totals"></div>
+  <div class="tablewrap">
+    <table id="bom">
+      <thead><tr><th>นับ</th><th>รายการ</th><th class="num">จำนวน</th><th class="num">ราคาประเมิน (บาท)</th><th>ความมั่นใจ</th><th class="num">ราคาจริง (บาท)</th><th class="num">ต่าง</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="foot">
+    <span><span class="add">ข้อเสนอ</span> คือชิ้นที่ไม่อยู่ในสเปกเดิม เพิ่มเพื่อแก้จุดในหัวข้อ "ต้องแก้ก่อนตัดไม้"</span>
+    <span>แถวที่ติ๊ก "นับ" ออกจะไม่รวมในยอด (เช่นชุดสปริงทางเลือก หรือของที่มีอยู่แล้ว)</span>
+  </div>
+</section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* Shared launch + flight physics (point mass, 2D in the launch plane). */
+const PHYS={g:9.81,rho:1.16,STROKE:0.2,DEPTH:0.85,CRADLE:0.045,M_DRONE:0.65,M_PLATE:0.20,
+  SPAN:0.54,CHORD:0.10,CLMAX:1.1,CD0:0.05,E:0.8,VPITCH:30,
+  T_WING:0.15,T_FIN:0.10,T_MOTOR:0.50,T_RAMP:0.15,GCMD:10*Math.PI/180};
+PHYS.S=PHYS.SPAN*PHYS.CHORD; PHYS.AR=PHYS.SPAN*PHYS.SPAN/PHYS.S;
+PHYS.VS=Math.sqrt(2*PHYS.M_DRONE*PHYS.g/(PHYS.rho*PHYS.S*PHYS.CLMAX));
+function launchCalc(o){ // o: {mode,vAir,k,tilt(rad)}
+  const P=PHYS,ST=o.stroke||P.STROKE,m=P.M_DRONE+P.M_PLATE,c=Math.cos(o.tilt),lift=m*P.g*ST*c;
+  let v,E=null;
+  if(o.mode==='air')v=o.vAir; else {E=0.5*o.k*1000*ST*ST;v=Math.sqrt(Math.max(0,2*(E-lift)/m));}
+  const coast=P.DEPTH-ST-P.CRADLE, a=P.g*c;
+  const vm2=v*v-2*a*coast, vMuzzle=Math.sqrt(Math.max(0,vm2));
+  const tClear=vm2>0?(v-vMuzzle)/a:Infinity;
+  return {v,E,lift,m,vMuzzle,tClear,coast,acc:v*v/(2*ST),tStroke:v>0?2*ST/v:1e9,stroke:ST,
+    need:(0.5*m*v*v+lift)*1.1};
+}
+function flightSim(o){ // o: {vMuzzle,tilt,T0,x0,h0}
+  const P=PHYS,m=P.M_DRONE,dt=0.002,out=[];
+  let v=Math.max(0.01,o.vMuzzle),gam=Math.PI/2-o.tilt,x=o.x0,h=o.h0,t=0;
+  let crash=false,tFly=null,hmin=h,tCrash=null;
+  while(t<10){
+    const wf=Math.min(1,t/P.T_WING), q=0.5*P.rho*v*v;
+    const ramp=t<P.T_MOTOR?0:Math.min(1,(t-P.T_MOTOR)/P.T_RAMP);
+    const T=o.T0*Math.max(0,1-v/P.VPITCH)*ramp;
+    const Lmax=q*P.S*P.CLMAX*wf;
+    const Lreq=m*(P.g*Math.cos(gam)+v*3.0*(P.GCMD-gam));
+    const L=Math.max(-0.6*Lmax,Math.min(Lmax,Lreq));
+    const CL=(q>1e-6&&wf>0)?L/(q*P.S*wf):0;
+    const D=q*P.S*wf*(P.CD0+CL*CL/(Math.PI*P.E*P.AR))+q*0.003;
+    const dv=(T-D)/m-P.g*Math.sin(gam), dg=(L/m-P.g*Math.cos(gam))/Math.max(v,0.5);
+    v=Math.max(0.01,v+dv*dt); gam+=dg*dt; x+=v*Math.cos(gam)*dt; h+=v*Math.sin(gam)*dt; t+=dt;
+    hmin=Math.min(hmin,h);
+    if(out.length===0||t-out[out.length-1].t>=0.0099)out.push({t,x,h,gam,v,CL,T});
+    if(tFly===null&&wf>=1&&v>=1.15*P.VS&&Math.abs(gam-P.GCMD)<8*Math.PI/180)tFly=t;
+    if(h<=0.03){crash=true;tCrash=t;out.push({t,x,h:0.03,gam,v,CL:0,T:0});break;}
+  }
+  return {pts:out,crash,tFly,hmin,tCrash};
+}
+
+</script>
+<script>
+(function(){
+"use strict";
+const TAG={C:'Certain',L:'Likely',G:'Guessing'};
+const tg=c=>`<span class="tg tg-${c}">${TAG[c]}</span>`;
+const $=id=>document.getElementById(id);
+const P=PHYS, g=P.g, D=P.DEPTH, CRADLE=P.CRADLE;
+const PRESETS={spec:{tilt:12,stroke:0.2,vAir:7,k:0.8,T0:8},prop:{tilt:45,stroke:0.4,vAir:12,k:0.8,T0:8}};
+const state={mode:'air',preset:'prop',tilt:45*Math.PI/180,stroke:0.4,vAir:12,k:0.8,T0:8,cut:false,lbl:'all',speed:0.4,playing:false,started:false,t:0};
+let L=null, F=null, TL=null;
+
+function recompute(){
+  L=launchCalc({mode:state.mode,vAir:state.vAir,k:state.k,tilt:state.tilt,stroke:state.stroke});
+  const T1=0.8+L.tStroke, TC=T1+L.tClear;
+  TL={T_LID:0.6,T_FIRE:0.8,T1,TC};
+  if(window.__scene){F=__scene.flight();}
+  renderCalc();
+}
+function renderCalc(){
+  const f=(x,d=1)=>Number.isFinite(x)?x.toFixed(d):'—';
+  const r=L.vMuzzle/P.VS, kg=state.k;
+  const ok=F&&!F.crash&&isFinite(L.tClear);
+  let rows=`
+  <div class="row"><span>ช่องลึก / ระยะชัก / เอียง</span><span>0.85 / ${state.stroke} ม. / ${Math.round(state.tilt*180/Math.PI)}° ${tg('C')}</span></div>`;
+  if(state.mode==='spring') rows+=`
+  <div class="row"><span>พลังงานสปริง ½kx²</span><span>${f(L.E,1)} J ${tg('C')}</span></div>
+  <div class="row"><span>ความเร็วตอนแผ่นดันหยุด</span><span>${f(L.v)} ม./วิ ${tg('L')}</span></div>`;
+  rows+=`
+  <div class="row"><span>โดรนไถลในช่องหลังแผ่นดันหยุด</span><span>${f(L.coast,2)} ม. ${tg('C')}</span></div>
+  <div class="row"><span>ความเร็วตอนหางพ้นปากช่อง</span><span>${isFinite(L.tClear)?f(L.vMuzzle)+' ม./วิ':'ออกไม่พ้น'} ${tg('C')}</span></div>
+  <div class="row"><span>ความเร็วร่วงหล่นของปีก</span><span>${f(P.VS)} ม./วิ ${tg('L')}</span></div>
+  <div class="row"><span>ออกปากช่องที่</span><span>${f(r*100,0)}% ของความเร็วร่วงหล่น ${tg('L')}</span></div>
+  <div class="row"><span>ความเร่งเฉลี่ยในช่วงชัก</span><span>${f(L.acc/g)} g ${tg('C')}</span></div>
+  <div class="row"><span>เวลาชัก</span><span>${f(L.tStroke*1000,0)} ms ${tg('C')}</span></div>
+  <div class="row"><span>พลังงานที่ต้องใช้ (รวมแผ่นดัน, เสียดทาน 10%)</span><span>≈${f(L.need,0)} J ${tg('L')}</span></div>`;
+  if(state.mode==='air'){
+    const vol=Math.PI*0.016*0.016*state.stroke;
+    rows+=`
+  <div class="row"><span>ปริมาตรกระบอก ⌀32</span><span>${f(vol*1000,2)} ลิตร ${tg('C')}</span></div>
+  <div class="row"><span>แรงดันตามทฤษฎี (คงที่)</span><span>≈${f(L.need/vol/1e5)} บาร์ ${tg('C')}</span></div>
+  <div class="row"><span>แรงดันที่น่าจะต้องตั้งจริง</span><span>${L.need/vol/1e5<2?'3–5':'4–7'} บาร์ ${tg('G')}</span></div>`;
+  } else {
+    rows+=`<div class="row"><span>แรงสูงสุดต้นช่วงชัก kx</span><span>${f(kg*state.stroke*1000,0)} N ≈ ${f(kg*state.stroke*1000/L.m/g,0)} g ${tg('C')}</span></div>`;
+  }
+  rows+=`
+  <div class="row"><span>แรงขับต่อน้ำหนัก</span><span>${f(state.T0/(P.M_DRONE*g),2)} ${tg('G')}</span></div>`;
+  let verdict;
+  if(!isFinite(L.tClear)) verdict=`<div class="verdict bad">แรงดีดไม่พอให้โดรนไถลพ้นปากช่อง 0.85 ม.</div>`;
+  else if(!F) verdict='';
+  else if(F.crash) verdict=`<div class="verdict bad">ตก ${f(F.tCrash,2)} วิหลังพ้นปากช่อง ห่างแท่น ${f(F.pts[F.pts.length-1].x-F.pts[0].x,1)} ม. ปีกไม่เคยได้ความเร็วพอ ${tg('L')}</div>`;
+  else verdict=`<div class="verdict okv">ถึงความเร็วบิน ${f(1.15*P.VS)} ม./วิ ที่ ${f(F.tFly,2)} วิหลังพ้นปากช่อง ต่ำสุด ${f(F.hmin,2)} ม. จากพื้น ${tg('L')} ยังต้องพิสูจน์ด้วยการทดสอบ เพราะแบบจำลองคิดว่าคุมท่าได้ที่ความเร็วต่ำ</div>`;
+  $('calc').innerHTML=rows+verdict;
+  $('calcTitle').textContent='ตรวจฟิสิกส์: '+(state.mode==='air'?'แบบลม':'แบบสปริง');
+}
+function syncInputs(){
+  $('tiltIn').value=String(Math.round(state.tilt*180/Math.PI)); $('strokeIn').value=String(state.stroke);
+  $('vIn').value=state.vAir; $('kIn').value=state.k; $('tIn').value=state.T0;
+  $('vWrap').hidden=state.mode!=='air'; $('kWrap').hidden=state.mode==='air';
+  $('pSpec').setAttribute('aria-pressed',state.preset==='spec'); $('pProp').setAttribute('aria-pressed',state.preset==='prop');
+}
+function applyPreset(name){const p=PRESETS[name];state.preset=name;state.tilt=p.tilt*Math.PI/180;state.stroke=p.stroke;state.vAir=p.vAir;state.k=p.k;state.T0=p.T0;syncInputs();changed(true);}
+function changed(geom){ if(window.__scene&&geom)__scene.rebuild(); recompute(); if(window.__scene)__scene.reset(); }
+$('tiltIn').onchange=e=>{state.tilt=parseFloat(e.target.value)*Math.PI/180;state.preset='';syncInputs();changed(true);};
+$('strokeIn').onchange=e=>{state.stroke=parseFloat(e.target.value);state.preset='';syncInputs();changed(true);};
+$('vIn').onchange=e=>{const v=parseFloat(e.target.value);if(v>=3&&v<=15){state.vAir=v;state.preset='';syncInputs();changed(false);}};
+$('kIn').onchange=e=>{const v=parseFloat(e.target.value);if(v>0.1&&v<=6){state.k=v;state.preset='';syncInputs();changed(false);}};
+$('tIn').onchange=e=>{const v=parseFloat(e.target.value);if(v>=3&&v<=15){state.T0=v;state.preset='';syncInputs();changed(false);}};
+$('pSpec').onclick=()=>applyPreset('spec');
+$('pProp').onclick=()=>applyPreset('prop');
+syncInputs(); recompute();
+
+/* ================= 3D ================= */
+const stage=$('stage');
+function noGL(msg){stage.insertAdjacentHTML('beforeend',`<div id="nogl">${msg}</div>`);}
+if(!window.THREE){noGL('โหลดไลบรารี 3 มิติไม่สำเร็จ ตัวเลขในแผงด้านข้างและตารางด้านล่างยังใช้ได้');return;}
+let renderer;
+try{renderer=new THREE.WebGLRenderer({antialias:true});}catch(e){noGL('เบราว์เซอร์นี้แสดงโมเดล 3 มิติไม่ได้ ตัวเลขและรายการชิ้นส่วนยังใช้ได้ตามปกติ');return;}
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+stage.prepend(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,0.02,200);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.08;controls.minDistance=0.3;controls.maxDistance=60;controls.maxPolarAngle=Math.PI*0.495;
+scene.add(new THREE.HemisphereLight(0xf2f6f5,0x55605c,0.85));
+const sun=new THREE.DirectionalLight(0xffffff,0.85);sun.position.set(3,6,4);scene.add(sun);
+const fill=new THREE.DirectionalLight(0xcfe3ff,0.3);fill.position.set(-4,2,-3);scene.add(fill);
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const mat=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:0.65,metalness:0.05},o));
+const M={
+  ply:mat(0xcaa36c,{roughness:0.85}),plyEdge:new THREE.LineBasicMaterial({color:0x6b5232}),base:mat(0xb8955f,{roughness:0.9}),
+  steel:mat(0x9aa3a8,{metalness:0.6,roughness:0.35}),alu:mat(0xc5ccd1,{metalness:0.5,roughness:0.35}),dark:mat(0x2b3034),
+  red:mat(0xd2382c),yellow:mat(0xf2c230),blue:mat(0x2f6fb0),brass:mat(0xb58a3a,{metalness:0.6,roughness:0.35}),
+  shell:mat(0xdadfd6,{roughness:0.5}),wing:mat(0xeef0ea,{roughness:0.6}),ctrl:mat(0xc9cdc5),motor:mat(0x8e9aa5,{metalness:0.55,roughness:0.3}),
+  prop:mat(0x2a2f33),disc:new THREE.MeshBasicMaterial({color:0x7f8b92,transparent:true,opacity:0.2,side:THREE.DoubleSide,depthWrite:false}),
+  glass:new THREE.MeshStandardMaterial({color:0x9fb6c0,transparent:true,opacity:0.85,roughness:0.2,metalness:0.1,depthWrite:false}),
+  sleeve:new THREE.MeshStandardMaterial({color:0xe3e9ec,transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false,roughness:0.4}),
+  hose:mat(0x2d7fc1,{roughness:0.5}),wire:mat(0x222222),
+  path:new THREE.LineDashedMaterial({color:0x2f8f8a,dashSize:0.25,gapSize:0.15}),pathBad:new THREE.LineDashedMaterial({color:0xd2382c,dashSize:0.25,gapSize:0.15})
+};
+const cutPly=M.ply.clone();cutPly.transparent=true;cutPly.opacity=0.45;cutPly.depthWrite=false;
+const box=(w,h,d,m)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+const cyl=(rt,rb,h,m,seg=24,open=false)=>new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg,1,open),m);
+function between(a,b,r,m){const d=b.clone().sub(a),len=d.length();const c=cyl(r,r,len,m,10);c.position.copy(a).add(b).multiplyScalar(0.5);c.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());return c;}
+function edged(mesh){mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry),M.plyEdge));return mesh;}
+function tube(pts,r,m){return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,r,6,false),m);}
+function disposeGroup(gr){while(gr.children.length){const c=gr.children.pop();c.traverse(o=>{if(o.geometry)o.geometry.dispose();});}}
+
+/* ground */
+const grid=new THREE.GridHelper(80,80,0x8c9a96,0x8c9a96);grid.material.transparent=true;grid.material.opacity=0.18;grid.position.x=20;scene.add(grid);
+const base=edged(box(1.2,0.03,0.9,M.base));base.position.set(0,0.015,0);scene.add(base);
+
+/* cell */
+const H0=0.85, W=0.30, T=0.012;
+const cell=new THREE.Group();cell.position.set(-0.1,H0,0);scene.add(cell);
+const wallXn=edged(box(T,D+T,W+2*T,M.ply));wallXn.position.set(-(W/2+T/2),(D-T)/2,0);
+const wallXp=edged(box(T,D+T,W+2*T,M.ply));wallXp.position.set(W/2+T/2,(D-T)/2,0);
+const wallZn=edged(box(W,D+T,T,M.ply));wallZn.position.set(0,(D-T)/2,-(W/2+T/2));
+const wallZp=edged(box(W,D+T,T,M.ply));wallZp.position.set(0,(D-T)/2,W/2+T/2);
+const floor=edged(box(W,T,W,M.ply));floor.position.set(0,-T/2,0);
+[wallXn,wallXp,wallZn,wallZp,floor].forEach(m=>cell.add(m));
+const lidPivot=new THREE.Group();lidPivot.position.set(-(W/2+T),D,0);cell.add(lidPivot);
+const lid=edged(box(W+2*T,T,W+2*T,M.ply));lid.position.set(W/2+T,T/2,0);lidPivot.add(lid);
+const servo=box(0.022,0.042,0.042,M.blue);servo.position.set(-(W/2+T+0.012),D-0.07,0.11);cell.add(servo);
+const servoArm=new THREE.Group();servoArm.position.set(-(W/2+T+0.026),D-0.055,0.11);cell.add(servoArm);
+const horn=box(0.004,0.05,0.008,M.dark);horn.position.y=0.022;servoArm.add(horn);
+/* round guide tube (user asked to include) */
+const SLEEVE_R=0.085;
+const sleeve=new THREE.Mesh(new THREE.CylinderGeometry(SLEEVE_R,SLEEVE_R,D-0.02,48,1,true),M.sleeve);sleeve.position.y=(D-0.02)/2;cell.add(sleeve);
+const sleeveRing=new THREE.Mesh(new THREE.TorusGeometry(SLEEVE_R,0.004,6,48),M.alu);sleeveRing.rotation.x=Math.PI/2;sleeveRing.position.y=D-0.02;cell.add(sleeveRing);
+for(const yy of [0.04,D*0.5]){for(const a of [0,1,2,3]){const ang=Math.PI/4+a*Math.PI/2;const br=between(V(SLEEVE_R*Math.cos(ang),yy,SLEEVE_R*Math.sin(ang)),V((W/2)*Math.SQRT2*0.98*Math.cos(ang),yy,(W/2)*Math.SQRT2*0.98*Math.sin(ang)),0.006,M.ply);cell.add(br);}}
+/* plate + cradle + bottom limit switch */
+const plateG=new THREE.Group();cell.add(plateG);
+plateG.add(Object.assign(cyl(0.08,0.08,0.012,M.alu,36),{}));plateG.children[0].position.y=0.006;
+const cup=new THREE.Mesh(new THREE.CylinderGeometry(0.036,0.036,CRADLE-0.012,24,1,true),M.dark);cup.position.y=0.012+(CRADLE-0.012)/2;plateG.add(cup);
+const limitSw=box(0.02,0.012,0.012,M.red);limitSw.position.set(0.05,0.018,0.04);plateG.add(limitSw);
+const limitLever=box(0.026,0.002,0.006,M.steel);limitLever.position.set(0.04,0.026,0.04);limitLever.rotation.z=0.25;plateG.add(limitLever);
+const bumper=new THREE.Mesh(new THREE.TorusGeometry(0.014,0.005,8,20),M.yellow);bumper.rotation.x=Math.PI/2;bumper.position.y=-0.015;cell.add(bumper);
+/* ejector (rebuilt when the stroke changes) */
+const airG=new THREE.Group(), pistonG=new THREE.Group(), springG=new THREE.Group();cell.add(airG,pistonG,springG);
+let cylBody,sTube,spring,pusher,latchPin,springSeat,piston,portLocal;
+function buildEjector(){
+  [airG,pistonG,springG].forEach(disposeGroup);
+  const S=state.stroke, len=S+0.1;
+  cylBody=box(0.045,len,0.045,M.glass.clone());cylBody.position.y=-0.03-len/2;airG.add(cylBody);
+  const capA=box(0.048,0.02,0.048,M.alu);capA.position.y=-0.04;airG.add(capA);
+  const capB=box(0.048,0.02,0.048,M.alu);capB.position.y=-0.03-len;airG.add(capB);
+  for(const sx of [-1,1])for(const sz of [-1,1]){const tr=cyl(0.003,0.003,len,M.steel,6);tr.position.set(sx*0.02,-0.03-len/2,sz*0.02);airG.add(tr);}
+  portLocal=V(0.042,-0.03-len+0.02,0);
+  const port=cyl(0.005,0.005,0.02,M.brass,8);port.rotation.z=Math.PI/2;port.position.set(0.032,portLocal.y,0);airG.add(port);
+  piston=cyl(0.016,0.016,0.02,M.red);piston.position.y=-(S+0.1);pistonG.add(piston);
+  const rod=cyl(0.006,0.006,S+0.1,M.steel,12);rod.position.y=-(S+0.1)/2;pistonG.add(rod);
+  const seatY=-(S+0.1)-0.13;
+  sTube=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,-seatY-0.03,24,1,true),M.glass.clone());sTube.position.y=(seatY-0.03)/2;springG.add(sTube);
+  springSeat=cyl(0.032,0.032,0.012,M.alu);springSeat.position.y=seatY;springG.add(springSeat);
+  const hp=[];for(let i=0;i<=480;i++){const a=i/480*14*Math.PI*2;hp.push(V(0.022*Math.cos(a),i/480,0.022*Math.sin(a)));}
+  spring=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp),480,0.0028,6,false),M.steel);springG.add(spring);spring.userData.seat=seatY;
+  const latch=box(0.03,0.04,0.03,M.blue);latch.position.set(0.05,-(S+0.1)+0.01,0);springG.add(latch);latch.name='latch';
+  latchPin=cyl(0.003,0.003,0.03,M.steel,8);latchPin.rotation.z=Math.PI/2;latchPin.position.set(0.025,-(S+0.1)+0.01,0);springG.add(latchPin);
+  pusher=cyl(0.028,0.028,0.01,M.red);springG.add(pusher);
+  applyCut();
+}
+
+/* stand + hoses + ground gear */
+const standG=new THREE.Group();scene.add(standG);
+const gnd=new THREE.Group();scene.add(gnd);const pneu=new THREE.Group();gnd.add(pneu);const lastHoseG=new THREE.Group();pneu.add(lastHoseG);
+const tank=cyl(0.065,0.065,0.30,M.red,28);tank.rotation.z=Math.PI/2;tank.position.set(-0.32,0.095,0.32);pneu.add(tank);
+for(const x of [-0.47,-0.17]){const c=new THREE.Mesh(new THREE.SphereGeometry(0.065,20,12,0,Math.PI*2,0,Math.PI/2),M.red);c.rotation.z=x<-0.3?Math.PI/2:-Math.PI/2;c.position.set(x,0.095,0.32);pneu.add(c);}
+const relief=new THREE.Group();relief.position.set(-0.24,0.165,0.32);pneu.add(relief);
+relief.add(cyl(0.008,0.008,0.02,M.brass,10));const reliefCap=cyl(0.004,0.004,0.016,M.red,8);reliefCap.position.y=0.024;relief.add(reliefCap);
+const rr=cyl(0.012,0.012,0.006,M.brass,12);rr.position.y=0.014;relief.add(rr);
+const pump=box(0.16,0.10,0.11,M.dark);pump.position.set(-0.42,0.08,-0.30);pneu.add(pump);
+const regBody=box(0.05,0.07,0.05,M.alu);regBody.position.set(0.02,0.065,0.33);pneu.add(regBody);
+const regKnob=cyl(0.02,0.02,0.02,M.dark,16);regKnob.position.set(0.02,0.11,0.33);pneu.add(regKnob);
+const gauge=cyl(0.03,0.03,0.015,M.alu,28);gauge.rotation.x=Math.PI/2;gauge.position.set(0.02,0.075,0.365);pneu.add(gauge);
+const gaugeFace=new THREE.Mesh(new THREE.CircleGeometry(0.026,28),mat(0xf6f6f2));gaugeFace.position.set(0.02,0.075,0.3735);pneu.add(gaugeFace);
+const needle=box(0.002,0.022,0.001,M.red);needle.geometry.translate(0,0.009,0);needle.position.set(0.02,0.075,0.375);pneu.add(needle);
+const valve=box(0.05,0.035,0.035,M.alu);valve.position.set(0.22,0.06,-0.08);pneu.add(valve);
+const coil=box(0.032,0.04,0.032,M.dark);coil.position.set(0.22,0.098,-0.08);pneu.add(coil);
+[[V(-0.34,0.09,-0.24),V(-0.36,0.06,0.0),V(-0.49,0.09,0.24),V(-0.50,0.095,0.32)],[V(-0.15,0.095,0.32),V(-0.06,0.06,0.33),V(-0.005,0.065,0.33)],[V(0.045,0.065,0.33),V(0.17,0.05,0.2),V(0.195,0.06,-0.08)]].forEach(p=>pneu.add(tube(p,0.004,M.hose)));
+const ardu=box(0.15,0.06,0.10,mat(0x2c6c8f));ardu.position.set(0.42,0.06,-0.30);gnd.add(ardu);
+const armKey=cyl(0.008,0.008,0.012,M.yellow,12);armKey.position.set(0.38,0.096,-0.27);gnd.add(armKey);
+const batt12=box(0.15,0.095,0.065,M.dark);batt12.position.set(0.46,0.078,0.06);gnd.add(batt12);
+const estopBox=box(0.08,0.07,0.08,M.yellow);estopBox.position.set(0.50,0.065,0.33);gnd.add(estopBox);
+const estopBtn=cyl(0.03,0.026,0.022,M.red,24);estopBtn.position.set(0.50,0.112,0.33);gnd.add(estopBtn);
+[[V(0.50,0.06,0.29),V(0.50,0.035,0.0),V(0.44,0.04,-0.25)],[V(0.39,0.06,0.06),V(0.40,0.04,-0.1),V(0.40,0.05,-0.25)],[V(0.35,0.06,-0.30),V(0.27,0.04,-0.18),V(0.23,0.11,-0.08)]].forEach(p=>gnd.add(tube(p,0.0025,M.wire)));
+function buildStand(){
+  disposeGroup(standG);disposeGroup(lastHoseG);
+  cell.rotation.z=-state.tilt;cell.updateMatrixWorld(true);
+  for(const sx of [-1,1])for(const sz of [-1,1]){const top=cell.localToWorld(V(sx*(W/2+T),-T,sz*(W/2+T)));standG.add(between(V(top.x,0.03,top.z),top,0.012,M.steel));}
+  const pw=cell.localToWorld(portLocal.clone());
+  lastHoseG.add(tube([V(0.245,0.06,-0.08),V(0.27,0.12,-0.04),pw.clone().add(V(0.05,-0.03,0)),pw],0.004,M.hose));
+}
+
+/* height pole */
+const pole=new THREE.Group();pole.position.set(-0.9,0,-0.55);scene.add(pole);
+pole.add(between(V(0,0,0),V(0,4,0),0.008,mat(0xe7e2d4)));
+const ticks=[];for(let h=0.5;h<=4.0001;h+=0.5){const t=box(0.06,0.006,0.006,M.red);t.position.y=h;pole.add(t);ticks.push(h);}
+
+/* ===== drone: bullet body, gear-synced folding wings, folding inverted-V tail, pusher prop =====
+   local +Y = nose, local -X = top (becomes up in level flight) */
+const drone=new THREE.Group();scene.add(drone);
+const bp=[V(0,0,0),V(0.016,0,0),V(0.022,0.01,0),V(0.027,0.025,0),V(0.030,0.045,0)];
+for(let k=0;k<=16;k++){const a=k/16*Math.PI/2;bp.push(V(0.030*Math.cos(a),0.35+0.10*Math.sin(a),0));}
+drone.add(new THREE.Mesh(new THREE.LatheGeometry(bp.map(p=>new THREE.Vector2(p.x,p.y)),40),M.shell));
+for(const y of [0.08,0.18,0.30]){const r=new THREE.Mesh(new THREE.TorusGeometry(0.0302,0.0008,4,28),mat(0x8b938f));r.rotation.x=Math.PI/2;r.position.y=y;drone.add(r);}
+const tailSw=cyl(0.005,0.005,0.008,M.red,10);tailSw.rotation.z=Math.PI/2;tailSw.position.set(0.026,0.022,0);drone.add(tailSw);
+/* wings */
+const PIV_Y=0.28, HALF=0.27, CH=0.10;
+const wingPost=cyl(0.008,0.008,0.016,M.brass,12);wingPost.rotation.z=Math.PI/2;wingPost.position.set(-0.036,PIV_Y,0);drone.add(wingPost);
+const wings=[];
+[[1,0],[-1,1]].forEach(([side,i])=>{
+  const gW=new THREE.Group();gW.position.set(-0.040-i*0.007,PIV_Y,0);drone.add(gW);
+  const w=box(0.006,HALF,CH,M.wing);w.position.set(0,-HALF/2,-side*0.025);gW.add(w);
+  const ail=box(0.007,0.11,0.024,M.ctrl);ail.position.set(0,-HALF+0.07,-side*(0.025+CH/2-0.012));gW.add(ail);
+  const tip=new THREE.Object3D();tip.position.set(0,-HALF,-side*0.025);gW.add(tip);
+  wings.push({g:gW,side,tip});
+});
+/* inverted V tail, wraps around the lower body */
+const fins=[];
+[[40,1],[-40,-1]].forEach(([deg,s])=>{
+  const phi=deg*Math.PI/180;
+  const pv=new THREE.Group();pv.position.set(0.031*Math.cos(phi),0.03,0.031*Math.sin(phi));pv.rotation.y=-phi;drone.add(pv);
+  const hg=new THREE.Group();pv.add(hg);
+  const fin=box(0.003,0.065,0.07,M.ctrl);fin.position.set(0,0.0325,s*0.035);hg.add(fin);
+  fins.push({hg,s});
+});
+/* pusher motor + folding prop */
+const motorM=cyl(0.014,0.014,0.022,M.motor,22);motorM.position.y=-0.009;drone.add(motorM);
+const propAxis=new THREE.Group();propAxis.position.y=-0.024;drone.add(propAxis);
+const spinner=new THREE.Group();propAxis.add(spinner);
+spinner.add(cyl(0.01,0.008,0.008,M.dark,14));
+const blades=[];
+for(const s of [1,-1]){const b=new THREE.Group();b.position.x=s*0.016;spinner.add(b);const bl=box(0.076,0.003,0.014,M.prop);bl.position.x=s*0.038;bl.rotation.x=s*0.25;b.add(bl);blades.push({g:b,s});}
+const disc=new THREE.Mesh(new THREE.RingGeometry(0.012,0.092,40),M.disc);disc.rotation.x=-Math.PI/2;disc.visible=false;propAxis.add(disc);
+
+/* trajectory line */
+let pathLine=null, endMark=new THREE.Mesh(new THREE.TorusGeometry(0.35,0.03,8,32),M.red);endMark.rotation.x=Math.PI/2;endMark.visible=false;scene.add(endMark);
+function muzzleTail(){cell.updateMatrixWorld(true);return cell.localToWorld(V(0,D,0));}
+function flight(){
+  const m0=muzzleTail();
+  const res=isFinite(L.tClear)?flightSim({vMuzzle:L.vMuzzle,tilt:state.tilt,T0:state.T0,x0:m0.x,h0:m0.y}):null;
+  if(pathLine){scene.remove(pathLine);pathLine.geometry.dispose();pathLine=null;}
+  endMark.visible=false;
+  if(res){
+    pathLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(res.pts.map(p=>V(p.x,p.h,0))),res.crash?M.pathBad:M.path);
+    pathLine.computeLineDistances();scene.add(pathLine);
+    const e=res.pts[res.pts.length-1];
+    if(res.crash){endMark.position.set(e.x,0.05,0);endMark.visible=true;}
+  }
+  return res;
+}
+function sampleAt(tau){
+  const pts=F.pts;if(tau<=pts[0].t)return pts[0];
+  let lo=0,hi=pts.length-1;if(tau>=pts[hi].t)return pts[hi];
+  while(hi-lo>1){const mid=(lo+hi)>>1;if(pts[mid].t<=tau)lo=mid;else hi=mid;}
+  const a=pts[lo],b=pts[hi],k=(tau-a.t)/(b.t-a.t);
+  return {t:tau,x:a.x+(b.x-a.x)*k,h:a.h+(b.h-a.h)*k,gam:a.gam+(b.gam-a.gam)*k,v:a.v+(b.v-a.v)*k,CL:a.CL};
+}
+
+/* ===== pose ===== */
+const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+let cur={h:0,v:0,wing:0,stroke:0,ratio:0};
+function poseAt(t){
+  const lidA=ease(t/TL.T_LID)*1.95;lidPivot.rotation.z=lidA;servoArm.rotation.z=lidA*0.6;
+  const S=state.stroke;
+  let s=0;if(t>TL.T_FIRE){const tt=Math.min(t-TL.T_FIRE,L.tStroke);s=Math.min(S,0.5*L.acc*tt*tt);}
+  cur.stroke=s;plateG.position.y=s;pistonG.position.y=s;
+  const pz=-(S+0.1)+s;pusher.position.y=pz-0.005;
+  const seat=spring.userData.seat;spring.position.y=seat;spring.scale.y=Math.max(0.03,pz-0.01-seat);
+  latchPin.visible=t<TL.T_FIRE;
+  const dirA=V(Math.sin(state.tilt),Math.cos(state.tilt),0);
+  let pos,vel=0,rotZ=-state.tilt,tau=-1;
+  if(t<=TL.T1){pos=cell.localToWorld(V(0,s+CRADLE,0));vel=t>TL.T_FIRE?L.acc*(t-TL.T_FIRE):0;}
+  else if(t<=TL.TC||!F){
+    const tt=t-TL.T1,a=g*Math.cos(state.tilt);
+    let u=L.v*tt-0.5*a*tt*tt; if(!isFinite(L.tClear)&&u<0)u=0;
+    pos=cell.localToWorld(V(0,S+CRADLE+Math.max(0,u),0));vel=Math.max(0,L.v-a*tt);
+  } else {
+    tau=t-TL.TC;const p=sampleAt(tau);pos=V(p.x,p.h,0);vel=p.v;
+    const alpha=Math.max(-0.2,Math.min(0.3,(p.CL||0)/4.2));
+    rotZ=-(Math.PI/2-p.gam-alpha);
+    if(F.crash&&tau>=F.tCrash){rotZ=-Math.PI/2+0.15;pos.y=0.035;}
+  }
+  drone.position.copy(pos);drone.rotation.set(0,0,rotZ);drone.updateMatrixWorld(true);
+  // deploy
+  const wf=tau<0?0:ease(tau/P.T_WING);
+  wings.forEach(w=>w.g.rotation.x=-w.side*wf*Math.PI/2);
+  const ff=tau<0?0:ease((tau-P.T_WING)/P.T_FIN);
+  fins.forEach(f=>f.hg.rotation.y=f.s*ff*Math.PI/2);
+  const motorOn=tau>=P.T_MOTOR&&!(F&&F.crash&&tau>=F.tCrash);
+  const unfold=motorOn?Math.min(1,(tau-P.T_MOTOR)/0.06):0;
+  blades.forEach(b=>b.g.rotation.z=b.s*(1-unfold)*Math.PI/2*0.86);
+  if(motorOn)spinner.rotation.y+=Math.min(1,(tau-P.T_MOTOR)/P.T_RAMP)*0.9;
+  disc.visible=motorOn&&tau-P.T_MOTOR>0.08;
+  cur.h=drone.localToWorld(V(0,0,0)).y;cur.v=vel;cur.wing=wf*90;cur.ratio=vel/P.VS;
+  return {tau,motorOn,inCell:t<TL.TC,crashed:F&&F.crash&&tau>=F.tCrash,flying:F&&F.tFly!==null&&tau>=F.tFly};
+}
+
+/* ===== labels ===== */
+const labelsEl=$('labels'),labels=[];
+function addLabel(o){const el=document.createElement('div');el.className='lbl '+(o.kind||'');el.innerHTML='<div class="lead"></div><i class="dot"></i><div class="card"></div>';labelsEl.appendChild(el);o.el=el;o.card=el.querySelector('.card');o.lead=el.querySelector('.lead');o.dx=o.dx||40;o.dy=o.dy||-24;labels.push(o);}
+function setText(o){const h=typeof o.html==='function'?o.html():o.html;if(h!==o._h){o.card.innerHTML=h;o._h=h;}}
+const W2=(obj,x,y,z)=>()=>obj.localToWorld(V(x,y,z));
+const air=()=>state.mode==='air',spr=()=>state.mode==='spring',always=()=>true;
+addLabel({dr:1,anchor:W2(drone,0.03,0.40,0),dx:46,dy:-34,html:`<b>หัวทรงกระสุน + แบต (ย้ายมาหัว)</b><span>0.15 ม. ${tg('C')} · แบต ≈180 ก. ${tg('G')}</span>`,show:always});
+addLabel({dr:1,anchor:W2(drone,0.03,0.24,0),dx:56,dy:-8,html:`<b>ช่องบอร์ดคุมบิน + GPS + ตัวรับ</b><span>0.12 ม. ${tg('C')}</span>`,show:always});
+addLabel({dr:1,anchor:W2(drone,0.03,0.13,0),dx:56,dy:20,html:`<b>ช่องเซอร์โว + ESC</b><span>0.10 ม. ${tg('C')} · ลำตัว ⌀60 × 450 มม. ${tg('C')}</span>`,show:always});
+addLabel({dr:1,anchor:()=>wings[0].tip.getWorldPosition(V(0,0,0)),dx:-230,dy:-30,html:()=>`<b>ปีก 2 ชิ้น ซิงก์ด้วยเฟือง</b><span>กาง 0.54 × คอร์ด 0.10 ม. ${tg('C')} · ตอนนี้ ${cur.wing.toFixed(0)}°</span>`,show:always});
+addLabel({dr:1,anchor:W2(wingPost,0,0,0),dx:-220,dy:10,html:`<b>แกนปีก + สปริงบิด + สลักล็อก</b><span>0.28 ม. จากท้าย ${tg('C')}</span>`,show:always});
+addLabel({dr:1,anchor:()=>fins[0].hg.localToWorld(V(0,0.03,0.06)),dx:40,dy:26,html:`<b>หาง V คว่ำ พับรอบลำ</b><span>2 แพน 70 × 65 มม. ${tg('G')}</span>`,show:always});
+addLabel({dr:1,anchor:W2(motorM,0.014,0,0),dx:-230,dy:30,html:()=>`<b>มอเตอร์ 2207 + ใบพัดพับ 6" แบบดัน</b><span>แรงขับสถิต ≈${state.T0} N ${tg('G')}</span>`,show:always});
+addLabel({anchor:W2(cell,W/2+T,D*0.8,W/2+T),dx:38,dy:-8,html:()=>`<b>กล่องไม้อัด 12 มม.</b><span>ภายใน 0.30 × 0.30 × 0.85 ม. ${tg('C')} · เอียง ${Math.round(state.tilt*180/Math.PI)}°</span>`,show:always});
+addLabel({anchor:W2(sleeve,SLEEVE_R,0.25,0),dx:44,dy:6,html:`<b>ท่อนำกลม</b><span>ใน ⌀170 × 0.83 ม. ${tg('G')} · ห่อปีกพับ ⌀136 ${tg('C')}</span>`,show:always});
+addLabel({anchor:W2(servo,0,0.02,0),dx:-190,dy:-30,html:`<b>ฝาบน + เซอร์โวเปิดฝา</b><span>เปิด ≈110° ใน 0.6 วิ ${tg('G')}</span>`,show:always});
+addLabel({anchor:W2(plateG,0.08,0.006,0),dx:44,dy:12,html:()=>`<b>แผ่นดัน ⌀160 + ถ้วยรองท้าย</b><span>ชักแล้ว ${(cur.stroke*1000).toFixed(0)} / ${state.stroke*1000} มม.</span>`,show:always});
+addLabel({anchor:()=>cell.localToWorld(V(0.024,-0.03-(state.stroke+0.1)/2,0)),dx:40,dy:12,html:()=>`<b>กระบอกลม ⌀32 มม.</b><span>ระยะชัก ${state.stroke} ม. ${tg('C')}</span>`,show:air});
+addLabel({anchor:W2(bumper,0.018,0,0),kind:'warn',dx:40,dy:-14,html:()=>`<b>ยางกันกระแทกปลายช่วงชัก</b><span>ข้อเสนอ · รับ ≈${(0.5*P.M_PLATE*L.v*L.v).toFixed(0)} J ต่อนัด ${tg('C')}</span>`,show:air});
+addLabel({anchor:()=>cell.localToWorld(V(0.025,-(state.stroke+0.1)-0.06,0)),dx:40,dy:10,html:()=>`<b>สปริงดัน ${state.k} N/มม.</b><span>${(L.E||0).toFixed(0)} J ${tg('C')}</span>`,show:spr});
+addLabel({anchor:()=>cell.localToWorld(V(0.065,-(state.stroke+0.1)+0.01,0)),dx:40,dy:-14,html:`<b>เซอร์โวปลดสลัก</b><span>ดึงสลักออกเพื่อปล่อยสปริง</span>`,show:spr});
+addLabel({anchor:W2(tank,0,-0.06,0),dx:-80,dy:40,html:`<b>ถังลมเล็ก</b><span>3–5 ลิตร ${tg('G')}</span>`,show:air});
+addLabel({anchor:W2(pump,-0.04,0.05,0),dx:-120,dy:-34,html:`<b>ปั๊มลม 12V</b><span>เติมถึง 6 บาร์ ≈1–2 นาที ${tg('G')}</span>`,show:air});
+addLabel({anchor:W2(gauge,0,0,0.01),dx:-40,dy:46,html:`<b>ตัวปรับแรงดัน + เกจ</b><span>ตั้งตามแผงตรวจฟิสิกส์</span>`,show:air});
+addLabel({anchor:W2(valve,0.025,0.02,0),dx:46,dy:-6,html:`<b>วาล์วไฟฟ้า 12V</b><span>รู ≥3/8" ต่อชิดกระบอก ${tg('L')}</span>`,show:air});
+addLabel({anchor:W2(ardu,0.075,0.03,0),dx:30,dy:30,html:`<b>กล่อง Arduino + กุญแจ ARM</b><span>ยิงได้เมื่อ: กุญแจ ON + สวิตช์ก้นช่องกด + ฝาเปิดสุด</span>`,show:always});
+addLabel({anchor:W2(limitSw,0.01,0.006,0),kind:'safety',dx:44,dy:-30,html:`<b>สวิตช์ปลายก้นช่อง</b><span>กดอยู่ = โดรนยังในช่อง → ห้ามยิงซ้ำ ห้ามหมุนมอเตอร์</span>`,show:always});
+addLabel({anchor:W2(estopBtn,0,0.012,0),kind:'safety',dx:30,dy:-40,html:`<b>สวิตช์ตัดไฟฉุกเฉิน</b><span>ตัดไฟวาล์ว/เซอร์โว + ระบายลมถัง</span>`,show:always});
+addLabel({anchor:W2(reliefCap,0,0.01,0),kind:'safety',dx:-150,dy:-50,html:`<b>วาล์วนิรภัย</b><span>เปิดที่ ≈7 บาร์ ${tg('G')} ต่ำกว่าพิกัดถัง</span>`,show:air});
+addLabel({dr:1,anchor:W2(tailSw,0.004,0,0),kind:'safety',dx:40,dy:44,html:`<b>สวิตช์กดท้ายลำ (บนโดรน)</b><span>ถูกถ้วยรองกดอยู่ = FC ห้าม arm</span>`,show:always});
+ticks.forEach(h=>addLabel({anchor:()=>pole.localToWorld(V(0.04,h,0)),kind:'tick',dx:6,dy:-8,html:`${h.toFixed(1)} ม.`,show:always,tick:true}));
+addLabel({anchor:()=>{const e=F.pts[F.pts.length-1];return F.crash?V(e.x,0.05,0):V(F.pts[F.pts.length-1].x,F.pts[F.pts.length-1].h,0);},kind:'warn',dx:20,dy:-40,html:()=>F.crash?`<b>จุดตก</b><span>${(F.pts[F.pts.length-1].x-F.pts[0].x).toFixed(1)} ม. จากแท่น · ${F.tCrash.toFixed(2)} วิหลังพ้นช่อง ${tg('L')}</span>`:`<b>ไต่ระดับต่อ</b><span>ถึงความเร็วบินที่ ${F.tFly.toFixed(2)} วิ ${tg('L')}</span>`,show:()=>!!F});
+const pv=new THREE.Vector3();
+function updateLabels(w,h,inCell){
+  for(const o of labels){
+    let vis=o.show()&&(o.tick?state.lbl!=='off':(state.lbl==='all'||(state.lbl==='safety'&&o.kind==='safety')));
+    if(vis&&o.dr&&((inCell&&!state.cut)||state.playing))vis=false;
+    if(vis){pv.copy(o.anchor()).project(camera);if(pv.z>1||pv.z<-1)vis=false;}
+    if(!vis){if(o.el.style.display!=='none')o.el.style.display='none';continue;}
+    if(o.el.style.display==='none')o.el.style.display='';
+    setText(o);
+    const x=(pv.x*0.5+0.5)*w,y=(-pv.y*0.5+0.5)*h;
+    if(x<-50||x>w+50||y<-50||y>h+50){o.el.style.display='none';continue;}
+    o.el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+    const cw=o.card.offsetWidth||120;let dx=o.dx;if(x+dx+cw>w-6)dx=-cw-24;if(x+dx<6)dx=24;
+    o.card.style.left=dx+'px';o.card.style.top=o.dy+'px';
+    if(!o.tick){const tx=dx<0?dx+cw:dx,ty=o.dy+10,len=Math.hypot(tx,ty);o.lead.style.width=len+'px';o.lead.style.transform=`rotate(${Math.atan2(ty,tx)}rad)`;}
+  }
+}
+
+/* ===== camera ===== */
+let camTween=null;
+function views(){
+  if(!F)return {rig:{p:V(1.9,1.9,2.6),t:V(0,1.0,0)}};
+  const xs=F.pts.map(p=>p.x),hs=F.pts.map(p=>p.h);
+  const x0=Math.min(-0.5,...xs),x1=Math.max(...xs),h1=Math.max(2,...hs),cx=(x0+x1)/2,span=Math.max(x1-x0,h1*1.6,6);
+  return {rig:{p:V(1.9,1.9,2.6),t:V(0,1.0,0)},side:{p:V(cx,h1*0.55+1,span*1.05),t:V(cx,h1*0.45,0)},follow:null};
+}
+function goView(name,instant){const v=views()[name];if(!v)return;if(instant){camera.position.copy(v.p);controls.target.copy(v.t);return;}camTween={p0:camera.position.clone(),t0:controls.target.clone(),p1:v.p.clone(),t1:v.t.clone(),k:0};}
+goView('rig',true);
+function applyTheme(){const c=getComputedStyle(document.documentElement).getPropertyValue('--stage').trim()||'#d5dedb';renderer.setClearColor(new THREE.Color(c),1);}
+applyTheme();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);}catch(e){}
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ===== toggles ===== */
+function applyMode(){
+  const a=air();airG.visible=a;piston.visible=a;bumper.visible=a;pneu.visible=a;springG.visible=!a;
+  $('mAir').setAttribute('aria-pressed',a);$('mSpring').setAttribute('aria-pressed',!a);
+  $('modeTag').textContent=a?`แบบลม · กระบอก ⌀32 × ${state.stroke} ม.`:`แบบสปริง · ${state.k} N/มม.`;
+}
+function applyCut(){
+  wallZp.visible=!state.cut;[wallXn,wallXp,wallZn,floor,lid].forEach(m=>m.material=state.cut?cutPly:M.ply);
+  M.sleeve.opacity=state.cut?0.22:0.55;
+  if(cylBody)cylBody.material.opacity=state.cut?0.22:0.9;if(sTube)sTube.material.opacity=state.cut?0.18:0.85;
+  $('cut').setAttribute('aria-pressed',state.cut);
+}
+function reset(){state.t=0;state.playing=false;state.started=false;$('play').textContent='▶ เล่นลำดับ';if($('view').value==='side')goView('side');}
+window.__scene={flight,rebuild(){buildEjector();buildStand();applyMode();},reset};
+__scene.rebuild();recompute();
+$('play').onclick=()=>{
+  const end=TL.TC+(F?(F.crash?F.tCrash+1.5:F.pts[F.pts.length-1].t):2);
+  if(state.started&&state.t>end)reset();
+  state.playing=!state.playing;state.started=true;
+  $('play').textContent=state.playing?'❚❚ หยุดชั่วคราว':'▶ เล่นต่อ';
+  if(state.playing&&$('view').value==='rig'){$('view').value='follow';}
+  if($('view').value==='side')goView('side');
+};
+$('reset').onclick=()=>{reset();if($('view').value==='follow'){$('view').value='rig';goView('rig');}};
+$('cut').onclick=()=>{state.cut=!state.cut;applyCut();};
+$('mAir').onclick=()=>{state.mode='air';syncInputs();applyMode();changed(false);};
+$('mSpring').onclick=()=>{state.mode='spring';syncInputs();applyMode();changed(false);};
+$('lblMode').onchange=e=>state.lbl=e.target.value;
+$('speed').onchange=e=>state.speed=parseFloat(e.target.value);
+$('view').onchange=e=>goView(e.target.value);
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('speed').value='0.1';state.speed=0.1;}
+
+/* ===== loop ===== */
+const phaseEls=[...document.querySelectorAll('#phases li')];
+const pill=(c,t)=>`<span class="pill ${c}">${t}</span>`;
+let last=performance.now(),w=0,h=0;
+function resize(){const r=stage.getBoundingClientRect();w=r.width;h=r.height;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);resize();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(state.playing)state.t+=dt*state.speed;
+  if(camTween){camTween.k=Math.min(1,camTween.k+dt*1.4);const e=ease(camTween.k);camera.position.lerpVectors(camTween.p0,camTween.p1,e);controls.target.lerpVectors(camTween.t0,camTween.t1,e);if(camTween.k>=1)camTween=null;}
+  const t=state.t,r=poseAt(t);
+  if($('view').value==='follow'&&state.started&&!camTween){
+    const want=drone.position.clone();const d=want.sub(controls.target).multiplyScalar(Math.min(1,dt*4));
+    controls.target.add(d);camera.position.add(d);
+  }
+  needle.rotation.z=state.started&&t>TL.T_FIRE&&t<TL.T_FIRE+0.3?0.2:-0.9;
+  let p=0;if(state.started)p=t<TL.T_FIRE?1:t<TL.TC?2:r.tau<P.T_WING?3:r.tau<P.T_MOTOR+P.T_RAMP?4:5;
+  phaseEls.forEach((li,i)=>{li.className=i+1<p?'done':i+1===p?(r.crashed&&i===4?'bad':'now'):'';});
+  phaseEls[4].lastChild.textContent=r.crashed?'ตก':'ไต่ระดับ';
+  const ban=$('banner');
+  if(r.crashed){ban.hidden=false;ban.className='banner bad';ban.textContent='ตก: ปีกไม่ได้ความเร็วพอ ลองปุ่ม "ข้อเสนอที่บินได้"';}
+  else if(r.flying){ban.hidden=false;ban.className='banner okb';ban.textContent='ถึงความเร็วบินแล้ว ไต่ระดับต่อ';}
+  else ban.hidden=true;
+  $('tT').textContent=t.toFixed(3)+' วิ';
+  $('tS').textContent=(cur.stroke*1000).toFixed(0)+' มม.';
+  $('tH').textContent=cur.h.toFixed(2)+' ม.';
+  $('tV').textContent=cur.v.toFixed(1)+' ม./วิ';
+  $('tR').innerHTML=r.inCell?'—':pill(cur.ratio>=1.15?'grn':cur.ratio>=1?'amb':'red',(cur.ratio*100).toFixed(0)+'%');
+  $('tA').textContent=cur.wing.toFixed(0)+'°'+(cur.wing>=89.9?' ล็อก':'');
+  $('tSw').innerHTML=!state.started||t<TL.T_FIRE?pill('red','กดอยู่ · ห้ามหมุน'):r.inCell?pill('amb','ปล่อยแล้ว · โดรนยังในช่อง'):pill('grn','พ้นช่อง');
+  $('tM').innerHTML=r.crashed?pill('red','ดับ (ตก)'):r.motorOn?pill('grn','หมุน'):r.tau>=0?pill('amb','รอหางล็อก + หน่วง'):pill('red','ล็อก');
+  controls.update();renderer.render(scene,camera);updateLabels(w,h,r.inCell);
+  requestAnimationFrame(frame);
+}
+applyCut();requestAnimationFrame(frame);
+})();
+
+/* ================= BOM (works without WebGL) ================= */
+(function(){
+"use strict";
+const TAG={C:'Certain',L:'Likely',G:'Guessing'};
+const GROUPS=[
+ {id:'drone',name:'โดรนทดสอบ (ปีกตรึง)',rows:[
+  ['d1','ท่อลำตัว ⌀60 × 450 มม. + หัวทรงกระสุน','ไฟเบอร์กลาส/คาร์บอน หรือพิมพ์ PETG',1,1200,'G'],
+  ['d2','ปีก 2 ชิ้น 270 × 100 มม.','โฟม EPP/บัลซาหุ้ม + คานคาร์บอน',1,500,'G'],
+  ['d3','ชุดแกนปีก: เฟืองซิงก์ สปริงบิด สลักล็อก ไมโครสวิตช์','เฟืองโลหะ',1,700,'G'],
+  ['d4','หาง V คว่ำ 2 แพน + บานพับสปริง','',1,300,'G'],
+  ['d5','เซอร์โวจิ๋ว 9 ก.','ปีก 2 หาง 2',4,600,'L'],
+  ['d6','มอเตอร์ 2207','',1,700,'L'],
+  ['d7','ใบพัดพับ 6" แบบดัน + ฮับ','รวมสำรอง',3,350,'G'],
+  ['d8','ESC 30–40 A','',1,600,'L'],
+  ['d9','บอร์ดคุมบินปีกตรึง (รองรับ ArduPilot)','',1,2000,'L'],
+  ['d10','GPS ขนาดเล็ก','',1,700,'L'],
+  ['d11','แบต LiPo 3S/4S 1300 mAh','',2,1600,'L'],
+  ['d12','ตัวรับสัญญาณ ELRS','',1,450,'L'],
+  ['d13','สวิตช์กดท้ายลำ (ห้าม arm ในช่อง)','',1,120,'G',true],
+  ['d14','เส้นพิมพ์ 3D + สายไฟ ขั้วต่อ น็อต','',1,650,'G'],
+  ['d15','ทางเลือก: ตัววัดความเร็วลม','',1,1200,'G',false,false]
+ ]},
+ {id:'cell',name:'ช่องปล่อย',rows:[
+  ['c1','ไม้อัด 12 มม. 120 × 240 ซม.','ผนังสูง 0.86 ม. ×4 ฝา ก้น ฐานแท่น',2,1700,'G'],
+  ['c2','ท่อนำกลม PVC ใน ≈170 มม.','ตัดยาว 0.83 ม. + ค้ำยึด 8 จุด',1,750,'G'],
+  ['c3','บานพับ น็อต กาว เหล็กฉากขาตั้งเอียง','กล่องสูง ต้องยึดฐานกันล้ม',1,550,'G'],
+  ['c4','เซอร์โวเปิดฝา ≈20 kg·cm','',1,350,'L'],
+  ['c5','กระบอกลม ⌀32 × 400 มม.','ระยะชัก 0.4 ม. ลดแรงเหลือ ≈18 g',1,1500,'L',true],
+  ['c6','แผ่นดัน ⌀160 + ถ้วยรองท้าย','',1,300,'G'],
+  ['c7','ยาง/โช้คหยุดปลายช่วงชัก','',1,600,'G',true],
+  ['c8','ไมโครสวิตช์ปลายก้นช่อง','เผื่อสำรอง',2,80,'L'],
+  ['c9','ทางเลือก: สปริงดัน + เซอร์โวปลดสลัก','ใช้แทนกระบอกลม',1,900,'G',false,false]
+ ]},
+ {id:'gnd',name:'อุปกรณ์พื้นฐาน',rows:[
+  ['g1','วาล์วไฟฟ้า 12V รู ≥3/8"','',1,650,'G'],
+  ['g2','ถังลม 3–5 ลิตร','',1,800,'G'],
+  ['g3','ปั๊มลม 12V','',1,700,'L'],
+  ['g4','ตัวปรับแรงดัน + เกจ 0–10 บาร์','',1,550,'G'],
+  ['g5','วาล์วนิรภัย','',1,300,'G'],
+  ['g6','ข้อต่อ สายลม PU คอปเปอร์','',1,450,'G'],
+  ['g7','Arduino + โมดูล MOSFET/รีเลย์','',1,350,'L'],
+  ['g8','สวิตช์ฉุกเฉินหัวเห็ด + กล่อง','',1,400,'L'],
+  ['g9','สวิตช์กุญแจ ARM + ไฟสถานะ + บัซเซอร์','',1,200,'G'],
+  ['g10','แบต 12V 7Ah','หรือหม้อแปลง 12V',1,650,'L'],
+  ['g11','ตาข่ายกั้นพื้นที่ / ตาข่ายรับหุ่น','',1,800,'G'],
+  ['g12','แว่นนิรภัย','',2,200,'L'],
+  ['g13','เครื่องชาร์จ LiPo','ถ้ายังไม่มี',1,1500,'L',false,false],
+  ['g14','รีโมท ELRS','ถ้ายังไม่มี',1,2800,'L',false,false]
+ ]}
+];
+const KEY='tdc01-bom-v2';
+let saved={actual:{},incl:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')saved=Object.assign(saved,s);}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){}};
+const fmt=n=>n.toLocaleString('th-TH',{maximumFractionDigits:0});
+const tbody=document.querySelector('#bom tbody');
+const incl=r=>saved.incl[r[0]]!==undefined?saved.incl[r[0]]:(r[7]!==false);
+function build(){
+  let html='';
+  for(const G of GROUPS){
+    html+=`<tr class="grp"><td colspan="7">${G.name}</td></tr>`;
+    for(const r of G.rows){
+      const [id,name,spec,qty,est,tag,isAdd]=r,on=incl(r);
+      html+=`<tr data-id="${id}" class="${on?'':'off'}"><td class="inc"><input type="checkbox" id="inc-${id}" aria-label="นับ ${name}" ${on?'checked':''}></td>
+      <td>${name}${isAdd?'<span class="add">ข้อเสนอ</span>':''}${spec?`<span class="spec">${spec}</span>`:''}</td>
+      <td class="num">${qty}</td><td class="num">${fmt(est)}</td><td><span class="tg tg-${tag}">${TAG[tag]}</span></td>
+      <td class="num"><input type="number" min="0" step="1" inputmode="numeric" id="act-${id}" aria-label="ราคาจริง ${name}" value="${saved.actual[id]??''}" placeholder="—"></td>
+      <td class="num" id="dif-${id}"></td></tr>`;
+    }
+    html+=`<tr class="sub"><td></td><td>รวม${G.name}</td><td></td><td class="num" id="se-${G.id}"></td><td></td><td class="num" id="sa-${G.id}"></td><td class="num" id="sd-${G.id}"></td></tr>`;
+  }
+  tbody.innerHTML=html;
+  tbody.addEventListener('input',e=>{if(e.target.id.startsWith('act-')){const id=e.target.id.slice(4),v=e.target.value;if(v==='')delete saved.actual[id];else saved.actual[id]=parseFloat(v);save();calc();}});
+  tbody.addEventListener('change',e=>{if(e.target.id.startsWith('inc-')){const id=e.target.id.slice(4);saved.incl[id]=e.target.checked;e.target.closest('tr').className=e.target.checked?'':'off';save();calc();}});
+}
+const diff=df=>`<span class="${df>0?'diff-pos':df<0?'diff-neg':''}">${df>0?'+':''}${fmt(df)}</span>`;
+function calc(){
+  let GE=0,GA=0,GAest=0,cards='';
+  for(const G of GROUPS){
+    let e=0,a=0,ae=0,n=0,cnt=0;
+    for(const r of G.rows){
+      const id=r[0],on=incl(r),act=saved.actual[id],d=document.getElementById('dif-'+id);
+      const has=act!==undefined&&!isNaN(act);
+      d.innerHTML=has?diff(act-r[4]):'';
+      if(!on)continue;cnt++;e+=r[4];if(has){a+=act;ae+=r[4];n++;}
+    }
+    document.getElementById('se-'+G.id).textContent=fmt(e);
+    document.getElementById('sa-'+G.id).textContent=n?fmt(a):'—';
+    document.getElementById('sd-'+G.id).innerHTML=n?diff(a-ae):'';
+    GE+=e;GA+=a;GAest+=ae;
+    cards+=`<div class="tot"><div class="k">${G.name}</div><div class="v">${fmt(e)} ฿</div><div class="s">ราคาจริง ${n?fmt(a)+' ฿ ('+n+'/'+cnt+' รายการ)':'ยังไม่ได้ใส่'}</div></div>`;
+  }
+  cards+=`<div class="tot grand"><div class="k">รวมทั้งหมด (ประเมิน) <span class="tg tg-G">Guessing</span></div><div class="v">${fmt(GE)} ฿</div><div class="s">ราคาจริงที่ใส่แล้ว ${fmt(GA)} ฿${GAest?' · ต่างจากประเมิน '+(GA-GAest>0?'+':'')+fmt(GA-GAest)+' ฿':''}</div></div>`;
+  document.getElementById('totals').innerHTML=cards;
+}
+build();calc();
+let armed=false;const cb=document.getElementById('clearBom');
+cb.onclick=()=>{if(!armed){armed=true;cb.textContent='กดอีกครั้งเพื่อยืนยันล้าง';setTimeout(()=>{armed=false;cb.textContent='ล้างราคาจริง';},3000);return;}
+  saved.actual={};save();document.querySelectorAll('#bom input[type=number]').forEach(i=>i.value='');calc();armed=false;cb.textContent='ล้างแล้ว';setTimeout(()=>cb.textContent='ล้างราคาจริง',1500);};
+})();
+</script>
+
+</body></html>

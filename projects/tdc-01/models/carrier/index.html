@@ -1,0 +1,1837 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<a href="../../index.html" style="position:fixed;left:14px;bottom:14px;z-index:2147483647;padding:8px 14px;border-radius:999px;background:rgba(10,10,26,.82);color:#f0f0f5;font:600 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)">&larr; TDC-01 Swarm</a>
+
+<title>TDC-01 Swarm — รถ Swarm</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one field-test screen. Live 3D vehicle on top, mission controls directly under it,
+   then a compact spec sheet where every number carries its confidence tag. Single dark look. */
+:root {
+  --bg: #0b0f0d;
+  --panel: #121815;
+  --panel-2: #18201c;
+  --line: #26312b;
+  --ink: #e3e8e2;
+  --mute: #93a096;
+  --accent: #b9d66a;
+  --warn: #e6b450;
+  --bad: #e2765b;
+  --display: "Chakra Petch", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, "IBM Plex Sans Thai", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; padding-top: 22px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 4px 0 0; text-wrap: balance; }
+h1 span { color: var(--accent); }
+.tagline { color: var(--mute); max-width: 62ch; margin: 0; }
+.viewer { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 72vh; border: 1px solid var(--line); background: #a9b0a6; overflow: hidden; cursor: grab; touch-action: pan-y; }
+.viewer.drag { cursor: grabbing; }
+.viewer canvas { display: block; width: 100%; height: 100%; }
+.hud { position: absolute; left: 12px; top: 10px; right: 12px; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: #1d241f; }
+.hud b { font-weight: 500; background: rgba(240,244,236,.72); padding: 2px 7px; }
+.nogl { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--ink); background: var(--panel); }
+.viewer.nogl-on .nogl { display: flex; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); padding: 10px 16px; min-height: 44px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+button .k { font-family: var(--mono); font-size: 11px; color: var(--mute); border: 1px solid var(--line); padding: 0 5px; }
+button:hover:not(:disabled) { border-color: var(--mute); }
+button.primary { background: var(--accent); color: #141a0b; border-color: var(--accent); }
+button.primary .k { color: #2b3510; border-color: #7d9640; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.status { font-family: var(--mono); font-size: 12.5px; color: var(--mute); margin-left: auto; min-width: 0; }
+.status b { color: var(--accent); font-weight: 500; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.card { border: 1px solid var(--line); background: var(--panel); padding: 16px 18px; min-width: 0; }
+.card h2 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 0 0 10px; }
+dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 14px; }
+dt { color: var(--mute); }
+dd { margin: 0; font-variant-numeric: tabular-nums; }
+.tag { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; padding: 0 5px; border: 1px solid; margin-left: 6px; white-space: nowrap; vertical-align: 1px; }
+.tag.c { color: #8fd0a6; border-color: #2f5a40; }
+.tag.l { color: var(--accent); border-color: #4c5c27; }
+.tag.g { color: var(--warn); border-color: #5f4a1f; }
+ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.note { border: 1px solid #5f4a1f; color: var(--warn); padding: 10px 14px; font-size: 13.5px; }
+.labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lbl { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); font-family: var(--mono); font-size: 11px; line-height: 1.3; color: #eef2ea; background: rgba(12,16,14,.8); padding: 2px 7px; white-space: nowrap; }
+.lbl::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 1px; height: 7px; background: rgba(12,16,14,.8); }
+.lbl[hidden] { display: none !important; }
+.armor { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; }
+.armor .lab { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin-right: 4px; }
+button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+button[aria-pressed="true"]::before { content: ""; width: 8px; height: 8px; background: var(--accent); display: inline-block; }
+button[aria-pressed="false"]::before { content: ""; width: 8px; height: 8px; border: 1px solid var(--mute); display: inline-block; }
+.mass { font-family: var(--mono); font-size: 13px; color: var(--ink); margin-left: auto; }
+.mass b { font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+h2.sec { font-family: var(--display); font-weight: 600; font-size: clamp(20px, 3vw, 26px); margin: 12px 0 0; }
+.chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.chain li { border: 1px solid var(--line); background: var(--panel); padding: 12px 14px; min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; }
+.chain .n { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .1em; }
+.chain b { font-family: var(--display); font-weight: 600; font-size: 15px; }
+.chain span { color: var(--mute); }
+.tbl { overflow-x: auto; border: 1px solid var(--line); background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); font-weight: 500; background: var(--panel-2); }
+tr:last-child td { border-bottom: 0; }
+td.ok { color: #8fd0a6; } td.mid { color: var(--warn); } td.no { color: var(--bad); }
+@media (max-width: 860px) { .chain { grid-template-columns: minmax(0, 1fr); } .mass { margin-left: 0; width: 100%; } }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } .viewer { aspect-ratio: 4 / 3; } .status { margin-left: 0; width: 100%; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">TDC-01 · Thai Drone Carrier · แนวคิดรอบแรก</div>
+      <h1>Swarm <span>TDC-01</span></h1>
+    </div>
+    <p class="tagline">รถสายพานไร้คนขับขนโดรน ไม่มีปืนใหญ่ ใช้แท่นตลับยกขึ้นจากใต้หลังคา โดรนสกัดกั้นแบบขึ้นตรง ท่อพิเศษปล่อยเย็น โรงเก็บโดรนลาดตระเวน และเสาโดรนส่งสัญญาณ</p>
+  </header>
+
+  <div class="viewer" id="viewer" role="img" aria-label="โมเดล 3 มิติของรถสายพานขนโดรน ลากเพื่อหมุนมุมมอง เลื่อนล้อเมาส์เพื่อซูม">
+    <div class="hud"><b id="hud-l">ลากเพื่อหมุน · ล้อเมาส์เพื่อซูม</b><b>รูปทรงแนวคิด ไม่ใช่แบบวิศวกรรม</b></div>
+    <div class="nogl">เบราว์เซอร์นี้แสดงโมเดล 3 มิติไม่ได้ ดูสเปกด้านล่างแทน</div>
+    <div class="labels" id="labels" aria-hidden="true"></div>
+  </div>
+
+  <div class="controls">
+    <button id="b-bay" class="primary"><span class="k">1</span><span id="b-bay-t">ยกแท่นยิง</span></button>
+    <button id="b-fire" disabled><span class="k">2</span><span id="b-fire-t">ปล่อยโดรนสกัดกั้นจากตลับ (10)</span></button>
+    <button id="b-fire2" disabled><span class="k">9</span><span id="b-fire2-t">ยิงท่อพิเศษ (2)</span></button>
+    <button id="b-recon"><span class="k">3</span><span id="b-recon-t">ปล่อยโดรนลาดตระเวน</span></button>
+    <button id="b-mast"><span class="k">4</span><span id="b-mast-t">ยกเสาโดรนส่งสัญญาณ</span></button>
+    <button id="b-bat"><span class="k">5</span><span id="b-bat-t">มุมมองหน่วยยิง</span></button>
+    <button id="b-enemy"><span class="k">6</span>จำลองโดรนข้าศึก</button>
+    <button id="b-swap"><span class="k">7</span>สาธิตเปลี่ยนแท่นตลับ</button>
+    <button id="b-reset"><span class="k">R</span>รีเซ็ต</button>
+    <div class="status" id="status" aria-live="polite">สถานะ: <b>เดินทาง</b> แท่นยิงเก็บใต้หลังคาเกราะ</div>
+  </div>
+  <div class="armor">
+    <span class="lab">ชุดเกราะเสริม</span>
+    <button id="a-cage" aria-pressed="false">กรงเหล็ก (Cage)</button>
+    <button id="a-solkit" aria-pressed="true">แผงโซลาร์ปีกข้าง</button>
+    <button id="a-nera" aria-pressed="false">NERA ด้านข้าง</button>
+    <button id="a-era" aria-pressed="false">ERA หน้า</button>
+    <button id="a-border" aria-pressed="false">ชุดชายแดน (ตาข่าย + เซนเซอร์)</button>
+    <button id="a-cut" aria-pressed="false">ภาพตัดภายใน</button>
+    <button id="a-lbl" aria-pressed="true">ป้ายชื่อระบบ</button>
+    <div class="mass">น้ำหนักประเมิน <b id="mass">13.95</b> ตัน <span class="tag g">GUESS</span></div>
+  </div>
+  <div class="armor">
+    <span class="lab">โหมดไฟฟ้า</span>
+    <button id="m-hibernate" aria-pressed="false">จำศีล</button>
+    <button id="m-watch" aria-pressed="true">เฝ้าระวัง</button>
+    <button id="m-alert" aria-pressed="false">เตือนภัย</button>
+    <button id="m-combat" aria-pressed="false">รบ</button>
+    <button id="m-move" aria-pressed="false">เคลื่อนย้าย</button>
+    <button id="a-solar" aria-pressed="true">กางแผงโซลาร์</button>
+    <div class="mass" id="pw" style="font-size:12.5px">ใช้ไฟ 1.8 kW</div>
+  </div>
+  <div class="armor">
+    <span class="lab">ตรวจดูรถ</span>
+    <button id="i-car" aria-pressed="false">Swarm</button>
+    <button id="i-ctoc" aria-pressed="false">CTOC</button>
+    <button id="i-gun" aria-pressed="false">รถปืน</button>
+    <button id="i-rs" aria-pressed="false">รถส่งกำลัง</button>
+    <button id="b-rv"><span class="k">8</span>สาธิตออกจากป่าไปจุดนัด</button>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>ตัวรถ</h2>
+      <dl>
+        <dt>น้ำหนัก</dt><dd>12–15 ตัน<span class="tag g">GUESS</span></dd>
+        <dt>ขนาด</dt><dd>6.2 × 3.1 ม. สูงถึงหลังคา 1.65 ม.<span class="tag g">GUESS</span></dd>
+        <dt>ลูกเรือ</dt><dd>ไม่มี ควบคุมจากฐาน<span class="tag l">LIKELY</span></dd>
+        <dt>ขับเคลื่อน</dt><dd>ไฮบริดไฟฟ้า เงียบได้ตอนซุ่ม<span class="tag l">LIKELY</span></dd>
+        <dt>ขนส่ง</dt><dd>รถพ่วงชานต่ำ ผ่านสะพาน 30 ตัน<span class="tag l">LIKELY</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>ระบบโดรนและป้องกัน</h2>
+      <dl>
+        <dt>แท่นยิง</dt><dd>ตลับ 10 ช่อง + ท่อพิเศษ 2 ท่อ ยกจากใต้หลังคา แนว Shturm-S<span class="tag l">LIKELY</span></dd>
+        <dt>ในตลับ</dt><dd>โดรนสกัดกั้นหลายใบพัดลำยาว แขนพับแนบลำตัวในช่อง ลมอัดดีดออก (ปล่อยเย็น) แล้วแขนกาง ใช้ครั้งเดียว<span class="tag l">LIKELY</span></dd>
+        <dt>ท่อพิเศษ</dt><dd>โดรนสกัดกั้นเร็วที่ผู้ผลิตทำมา ปล่อยเย็นด้วยลมอัด สำหรับเป้าเร็วและแพง<span class="tag l">LIKELY</span></dd>
+        <dt>รีโหลด</dt><dd>บนรถ 10 + 2 ลำ เปลี่ยนทั้งแท่นด้วยเครน (กด 7) หรือทหารราบเติมโดรนลงช่องทีละลำด้วยมือ</dd>
+        <dt>โรงเก็บ</dt><dd>โดรนลาดตระเวน ใช้ซ้ำ ชาร์จบนรถ<span class="tag g">GUESS</span></dd>
+        <dt>ตรวจจับ</dt><dd>เรดาร์ 4 หน้า + กล้องกลางวัน/ความร้อน · ชุดชายแดนเพิ่มกล้องความร้อนรอบทิศ + ไมโครโฟน 4 จุด สำหรับ FPV สายใยแก้วที่ไม่ปล่อยคลื่น</dd>
+        <dt>ชั้นสุดท้าย</dt><dd>ปืนกลรีโมตขนาดเล็ก</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>การสื่อสาร</h2>
+      <ul>
+        <li>วิทยุเครือข่ายใยแมงมุม ส่งต่อระหว่างรถ โดรน และฐาน</li>
+        <li>โดรนต่อสายลอยค้างเป็นเสา ให้จุดปล่อยคลื่นห่างตัวรถ</li>
+        <li>ระยะเป้าหมาย 10 กม.<span class="tag g">GUESS</span></li>
+        <li>สัญญาณขาด: รถและโดรนกลับจุดนัดเอง</li>
+      </ul>
+    </section>
+  </div>
+  <h2 class="sec">ป้องกันโดรนข้าศึกทำงานยังไง</h2>
+  <ol class="chain">
+    <li><span class="n">ขั้น 1</span><b>ตรวจจับ</b><span>เรดาร์ 4 หน้าหมุนรอบทิศ ตัวจับคลื่นวิทยุฟังสัญญาณควบคุมของโดรนข้าศึก</span></li>
+    <li><span class="n">ขั้น 2</span><b>ยืนยันเป้า</b><span>กล้องกลางวัน/ความร้อนหันตามพิกัดจากเรดาร์ ผู้ควบคุมที่ฐานยืนยันว่าเป็นข้าศึก</span></li>
+    <li><span class="n">ขั้น 3</span><b>รบกวนสัญญาณ</b><span>ตัดการเชื่อมต่อของโดรนข้าศึก ใช้ได้กับโดรนวิทยุ แต่ใช้ไม่ได้กับโดรนสายใยแก้ว<span class="tag l">LIKELY</span></span></li>
+    <li><span class="n">ขั้น 4</span><b>โดรนสกัดกั้น</b><span>ปล่อยโดรนสกัดกั้นขึ้นตรงจากตลับ หรือยิงท่อพิเศษสำหรับเป้าเร็ว บินเข้าชนหรือดักโดรนข้าศึก</span></li>
+    <li><span class="n">ขั้น 5</span><b>ชั้นสุดท้าย</b><span>ปืนกลรีโมตยิงโดรนที่หลุดเข้ามาใกล้ ตาข่ายด้านบนและกรงเหล็กรับ FPV ที่ยังผ่านมาได้</span></li>
+  </ol>
+
+  <div class="grid">
+    <section class="card">
+      <h2>ชุดกำลัง</h2>
+      <ul>
+        <li>ไฮบริดอนุกรมแบบ Milrem Type-X: ดีเซลปั่นไฟอยู่ท้าย → แบต 100 kWh ใต้พื้น → มอเตอร์ 2 ตัวขับเฟืองหน้า (กดภาพตัดภายใน)<span class="tag l">LIKELY</span></li>
+        <li>ถังน้ำมัน 2 × 200 ลิตรข้างเครื่อง ฝาซ่อมบำรุงบนตัวถังยื่นด้านท้าย</li>
+        <li>คอมเพรสเซอร์ + ถังลมอัดใต้แท่นยิง ใช้ไฟจากแบต เติมลมเองสำหรับท่อพิเศษ<span class="tag g">GUESS ≈0.2 ตัน</span></li>
+        <li>ใช้ไฟจากแบตเวลาซุ่ม เสียงและความร้อนต่ำ</li>
+        <li>ไฟส่วนเกินจ่ายเรดาร์ ระบบรบกวน และชาร์จโดรนในโรงเก็บ</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>สมองของรถ</h2>
+      <ul>
+        <li>คอมพิวเตอร์บนรถรวมข้อมูลเรดาร์ กล้อง และคลื่นวิทยุ เป็นภาพเดียวส่งให้ฐาน</li>
+        <li>ขับตามเส้นทางเองได้ ผู้ควบคุมสั่งเป็นจุดหมาย ไม่ต้องบังคับตลอด<span class="tag l">LIKELY</span></li>
+        <li>การยิงทุกครั้งต้องมีคนกดยืนยัน ไม่ให้ระบบตัดสินใจเอง</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>ซ่อนตัวจากการจับทิศ</h2>
+      <ul>
+        <li>ปล่อยคลื่นผ่านโดรนต่อสายที่ลอยอยู่สูง ตัวรถเงียบ</li>
+        <li>เสาอากาศแบบกำหนดทิศ ส่งเฉพาะทางที่ต้องการ</li>
+        <li>ส่งข้อมูลเป็นช่วงสั้นๆ แล้วย้ายที่<span class="tag l">LIKELY</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <h2 class="sec">เทียบชุดเกราะเสริม</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>ชุด</th><th>กันอะไร</th><th>น้ำหนักเพิ่ม</th><th>เหมาะกับรถนี้</th></tr></thead>
+      <tbody>
+        <tr><td>กรงเหล็ก (Cage)</td><td>RPG บางส่วน และโดรน FPV ชนก่อนถึงตัวรถ</td><td>≈0.4 ตัน<span class="tag g">GUESS</span></td><td class="ok">เหมาะที่สุด เบาและถูก แต่หลังคาต้องเว้นช่องให้แท่นยิงและโรงเก็บ</td></tr>
+        <tr><td>ชุดชายแดน</td><td>FPV โจมตีจากด้านบน (ตาข่าย) และ FPV สายใยแก้วที่เครื่องจับคลื่นมองไม่เห็น (กล้องความร้อน + ไมโครโฟน)</td><td>≈0.35 ตัน<span class="tag g">GUESS</span></td><td class="ok">ควรเป็นค่ามาตรฐานในภารกิจชายแดนไทย–กัมพูชา ตาข่ายคลุมเฉพาะดาดฟ้าเซนเซอร์ เว้นช่องแท่นยิง โรงเก็บ และโดรนต่อสาย</td></tr>
+        <tr><td>NERA ด้านข้าง</td><td>หัวรบดินระเบิดรูปทรงขนาดเล็ก สะเก็ด และกระสุนปืนกลหนัก</td><td>≈1.8 ตัน<span class="tag g">GUESS</span></td><td class="mid">ใช้ได้ ไม่ระเบิดออก จึงไม่ทำของบนหลังคาเสียหาย แต่น้ำหนักสูง</td></tr>
+        <tr><td>ERA หน้า</td><td>หัวรบดินระเบิดรูปทรงจากด้านหน้า</td><td>≈1.2 ตัน<span class="tag g">GUESS</span></td><td class="no">ไม่แนะนำ แรงระเบิดของ ERA ทำแท่นยิง เรดาร์ และโดรนบนหลังคาเสียหายได้</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">รถในหน่วยยิง (กด 5 เพื่อดู)</h2>
+  <div class="grid">
+    <section class="card">
+      <h2>ศูนย์บังคับการ CTOC</h2>
+      <dl>
+        <dt>แชสซี</dt><dd>รถบรรทุก 8×8 + ตู้ ISO 20 ฟุต<span class="tag g">GUESS</span></dd>
+        <dt>คนประจำ</dt><dd>ผู้ควบคุม 3–4 คน<span class="tag g">GUESS</span></dd>
+        <dt>คุม</dt><dd>Swarm 3 คัน + รถปืน 1 คัน</dd>
+        <dt>บนตู้</dt><dd>เสาพับยกไฮดรอลิก ไม่มีสายยึด จานดาวเทียม แอร์ ขาค้ำ 4 จุด บันไดท้าย</dd>
+        <dt>ไฟฟ้า</dt><dd>เครื่องปั่นไฟในช่องหลังค้อนโดยสาร แยกจากตู้</dd>
+        <dt>บรรทุก</dt><dd>ไม่มีกระสุนหรือโดรนสำรอง</dd>
+        <dt>ชุดชายแดน</dt><dd>ตาข่ายหลังคาตู้ เว้นร่องตามแนวเสายก + ตาข่ายห้องคนขับ กล้องความร้อน ไมโครโฟน 4 จุด<span class="tag g">GUESS +0.5 ตัน</span></dd>
+        <dt>ที่ตั้ง</dt><dd>ห่างแนวหน้าเกินระยะ FPV สายใยแก้ว ≈10–20 กม. ระยะคือเกราะที่ดีที่สุดของ CTOC<span class="tag l">LIKELY</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>รถปืนป้องกันศูนย์</h2>
+      <dl>
+        <dt>แชสซี</dt><dd>รถบรรทุก 8×8 + แท่นป้อม<span class="tag g">GUESS</span></dd>
+        <dt>คนประจำ</dt><dd>คนขับ 1 + ผู้ควบคุมการยิง 2 ในห้องท้าย<span class="tag g">GUESS</span></dd>
+        <dt>อาวุธ</dt><dd>ปืน 30 มม. ยิงกระสุนระเบิดกลางอากาศ<span class="tag l">LIKELY</span></dd>
+        <dt>ตรวจจับ</dt><dd>เรดาร์ค้นหาหมุนบนหลังคาป้อม + เรดาร์ควบคุมการยิงท้ายป้อม + กล้อง EO</dd>
+        <dt>ตั้งยิง</dt><dd>กางขาค้ำ 4 ขาก่อนยิง ป้อมตั้งบนหลังคาห้องควบคุม ลำกล้องสูง ≈4.4 ม. ข้ามหลังคาห้องคนขับ</dd>
+        <dt>ห้องควบคุม</dt><dd>โมดูลรบท้ายรถแบบ Pantsir: ห้องหุ้มเกราะ 2 ที่นั่ง แอร์ ช่องมอง ประตูข้างพร้อมบันได</dd>
+        <dt>รอบป้อม</dt><dd>ตู้กระสุน รางป้อนกระสุน เครื่องยิงลูกระเบิดควัน</dd>
+        <dt>ชุดชายแดน</dt><dd>ตาข่ายคลุมห้องคนขับและชุดไฟฟ้าเท่านั้น ป้อมต้องหมุนได้รอบตัว จึงคลุมไม่ได้ · กล้องความร้อน + ไมโครโฟนท้ายห้องควบคุม</dd>
+        <dt>บทบาทที่ชายแดน</dt><dd>ยิง FPV สายใยแก้วที่เครื่องรบกวนทำอะไรไม่ได้ ใช้เรดาร์และกล้องของตัวเอง ไม่พึ่งการจับคลื่น<span class="tag l">LIKELY</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>รถส่งกำลัง</h2>
+      <dl>
+        <dt>แชสซี</dt><dd>รถบรรทุกติดเครนพับได้<span class="tag l">LIKELY</span></dd>
+        <dt>คนประจำ</dt><dd>คนขับ + คนคุมเครน 2 คน<span class="tag g">GUESS</span></dd>
+        <dt>บรรทุก</dt><dd>แท่นตลับสำรอง 3 แท่น (30 ช่อง + 6 ท่อ) + ลังโดรนสกัดกั้น 4 ลัง ให้ทหารราบแบกไปเติมตลับด้วยมือ</dd>
+        <dt>ชุดชายแดน</dt><dd>ตาข่ายห้องคนขับ + เครื่องรบกวนพกพาบนหลังคา · เป็นรถที่บางที่สุดในหน่วย</dd>
+        <dt>เครน</dt><dd>กระบอกไฮดรอลิก ตะขอ ขาค้ำ 2 ข้าง แท่นยืนคุมเครน</dd>
+        <dt>วิธีเปลี่ยน</dt><dd>ยกทั้งแท่นออก วางแท่นใหม่ เวลาที่ใช้ต้องจับจากต้นแบบ<span class="tag g">GUESS</span></dd>
+        <dt>จุดอ่อน</dt><dd>ไม่มีเกราะ นัดเปลี่ยนแท่นที่จุดกำบังด้านหลัง</dd>
+      </dl>
+    </section>
+  </div>
+
+  <h2 class="sec">ข้อมูลวิศวกรรมประเมิน</h2>
+  <p class="tagline">ทุกตัวเลขในหัวข้อนี้เป็นการประเมินรอบแรก ไม่ใช่ผลออกแบบจริง ตัวที่คำนวณจากสูตรบอกสูตรไว้ ตัวที่ตั้งเองติดป้าย GUESS</p>
+  <div class="grid">
+    <section class="card">
+      <h2>งบน้ำหนัก Swarm</h2>
+      <dl>
+        <dt>ตัวถัง + เกราะพื้นฐาน</dt><dd>5.0 ตัน</dd>
+        <dt>ช่วงล่าง + สายพาน</dt><dd>2.6 ตัน</dd>
+        <dt>เครื่องปั่นไฟ + มอเตอร์</dt><dd>2.0 ตัน</dd>
+        <dt>แบตเตอรี่ 100 kWh</dt><dd>0.7 ตัน</dd>
+        <dt>แท่นตลับ + ท่อพิเศษ + ระบบลมอัด + โดรน 12 ลำ</dt><dd>1.4 ตัน</dd>
+        <dt>โรงเก็บ + โดรนลาดตระเวน</dt><dd>0.4 ตัน</dd>
+        <dt>เซนเซอร์ ปืนกล สื่อสาร</dt><dd>0.8 ตัน</dd>
+        <dt>แผงโซลาร์ปีกข้าง + ราวยึด</dt><dd>0.25 ตัน</dd>
+        <dt>น้ำมัน ของเหลว อื่นๆ</dt><dd>0.8 ตัน</dd>
+        <dt><b>รวม</b></dt><dd><b>13.95 ตัน</b><span class="tag g">GUESS</span></dd>
+        <dt>กรงเหล็ก (ตัวเลือก)</dt><dd>+0.4 ตัน ยาวขึ้น ≈0.7 ม.</dd>
+        <dt>ชุดชายแดน (ตัวเลือก)</dt><dd>+0.35 ตัน</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>การเคลื่อนที่ Swarm</h2>
+      <dl>
+        <dt>พื้นสัมผัสสายพาน</dt><dd>2 × 4.15 × 0.42 ม. = 3.49 ม²</dd>
+        <dt>แรงกดพื้น</dt><dd>14,100 × 9.81 ÷ 3.49 = <b>40 kPa</b><span class="tag l">สูตร</span></dd>
+        <dt>เทียบ</dt><dd>รถถังหลักราว 80–100 kPa จึงลุยดินโคลนหน้าฝนได้ดีกว่า<span class="tag l">LIKELY</span></dd>
+        <dt>ชุดกำลัง</dt><dd>ดีเซลปั่นไฟ 300 kW<span class="tag g">GUESS</span></dd>
+        <dt>กำลังต่อน้ำหนัก</dt><dd>300 ÷ 14.1 = <b>21.3 kW/ตัน</b><span class="tag l">สูตร</span></dd>
+        <dt>ความเร็วถนน</dt><dd>65 กม./ชม.<span class="tag g">GUESS</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>งบไฟฟ้าตอนซุ่ม (ดับเครื่อง)</h2>
+      <dl>
+        <dt>เรดาร์</dt><dd>3.0 kW</dd>
+        <dt>กล้อง EO/IR</dt><dd>0.3 kW</dd>
+        <dt>สื่อสาร + โดรนต่อสาย</dt><dd>0.8 kW</dd>
+        <dt>คอมพิวเตอร์</dt><dd>1.0 kW</dd>
+        <dt>ปืนกลรีโมตพร้อมยิง</dt><dd>0.3 kW</dd>
+        <dt>ชาร์จโดรน</dt><dd>2.0 kW</dd>
+        <dt>ระบายความร้อน</dt><dd>0.6 kW</dd>
+        <dt><b>รวม</b></dt><dd><b>8.0 kW</b> → แบต 70 kWh ใช้ได้ <b>≈8.8 ชม.</b><span class="tag g">GUESS</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>การสื่อสาร</h2>
+      <dl>
+        <dt>สูตรขอบฟ้าวิทยุ</dt><dd>d ≈ 3.57 × (√h₁ + √h₂) กม.<span class="tag c">สูตร</span></dd>
+        <dt>โดรนต่อสายสูง 100 ม. ถึงพื้น</dt><dd>≈36 กม.</dd>
+        <dt>โดรน 100 ม. ถึงหัวเสา CTOC 10.7 ม.</dt><dd>≈47 กม.</dd>
+        <dt>ข้อสรุป</dt><dd>ขอบฟ้าไม่ใช่ข้อจำกัดที่ 10–20 กม. ข้อจำกัดจริงคือการรบกวนสัญญาณและกำลังส่ง<span class="tag l">LIKELY</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>ขนาดหลัก</h2>
+      <dl>
+        <dt>Swarm</dt><dd>6.2 × 3.1 × 1.65 ม. (หลังคา)</dd>
+        <dt>CTOC 8×8</dt><dd>11.0 × 2.55 ม. ตู้ ISO 20 ฟุต 6.06 × 2.44 × 2.59 ม.<span class="tag c">ISO</span></dd>
+        <dt>เสา CTOC</dt><dd>เสาโครงถักพับยกไฮดรอลิก 6.6 ม. บนหลังคาตู้ หัวเสาสูง ≈10.7 ม.</dd>
+        <dt>รถปืน 8×8</dt><dd>10.0 × 2.55 ม. น้ำหนัก ≈25 ตัน<span class="tag g">GUESS</span></dd>
+        <dt>รถส่งกำลัง 6×6</dt><dd>9.0 × 2.5 ม.</dd>
+        <dt>แท่นตลับ</dt><dd>1.66 × 1.12 × 0.95 ม. ≈1.1 ตัน<span class="tag g">GUESS</span></dd>
+        <dt>ช่องตลับ / ท่อพิเศษ</dt><dd>ช่อง 0.30 × 0.30 × 0.85 ม. ตั้งตรงแบบ TOR · ท่อยาว 1.6 ม. ⌀ 0.20 ม. (R 0.10 ม.)<span class="tag g">GUESS</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>เครนรถส่งกำลัง</h2>
+      <dl>
+        <dt>ภาระ</dt><dd>แท่นตลับ 1.1 ตัน ที่ระยะยื่น 4 ม.</dd>
+        <dt>โมเมนต์ที่ต้องการ</dt><dd>1.1 × 4 = <b>4.4 ตัน·ม.</b><span class="tag l">สูตร</span></dd>
+        <dt>เผื่อความปลอดภัย</dt><dd>เลือกเครน ≥ 8 ตัน·ม. (เผื่อ 2 เท่า)<span class="tag g">GUESS</span></dd>
+        <dt>บรรทุก</dt><dd>3 แท่น ≈3.3 ตัน + เครน</dd>
+        <dt>ข้อสังเกต</dt><dd>เครนรถบรรทุกพลเรือนขนาดนี้มีขายทั่วไป<span class="tag l">LIKELY</span></dd>
+      </dl>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>งบน้ำหนัก CTOC</h2>
+      <dl>
+        <dt>แชสซี 8×8</dt><dd>13.5 ตัน</dd>
+        <dt>ตู้ ISO 20 ฟุตพร้อมอุปกรณ์</dt><dd>4.5 ตัน</dd>
+        <dt>เครื่องปั่นไฟ 30 kVA</dt><dd>1.2 ตัน</dd>
+        <dt>เสาพับไฮดรอลิก + กระบอก</dt><dd>0.9 ตัน</dd>
+        <dt>ขาค้ำ 4 จุด</dt><dd>0.5 ตัน</dd>
+        <dt>สื่อสาร + ดาวเทียม</dt><dd>0.4 ตัน</dd>
+        <dt>น้ำมัน อื่นๆ</dt><dd>0.8 ตัน</dd>
+        <dt><b>รวม</b></dt><dd><b>21.8 ตัน</b><span class="tag g">GUESS</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>งบไฟฟ้า CTOC</h2>
+      <dl>
+        <dt>แอร์ 2 ชุด</dt><dd>7.0 kW</dd>
+        <dt>คอนโซล 4 ที่นั่ง</dt><dd>2.0 kW</dd>
+        <dt>สื่อสาร + ลิงก์ข้อมูล</dt><dd>1.5 kW</dd>
+        <dt>ดาวเทียม</dt><dd>0.4 kW</dd>
+        <dt>หัวเสา + ไฟเตือน</dt><dd>0.4 kW</dd>
+        <dt>ไฟส่องสว่าง</dt><dd>0.3 kW</dd>
+        <dt><b>รวม</b></dt><dd><b>11.6 kW</b> เครื่อง 30 kVA (≈24 kW) เผื่อ ≈2 เท่า<span class="tag g">GUESS</span></dd>
+        <dt>ข้อสังเกต</dt><dd>แอร์กินไฟมากสุด เพราะอากาศร้อนชื้นของไทย</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>งบน้ำหนัก รถปืน + รถส่งกำลัง</h2>
+      <dl>
+        <dt>รถปืน: แชสซี + เกราะห้องคนขับ</dt><dd>13.5 ตัน</dd>
+        <dt>ป้อม + ปืน</dt><dd>4.2 ตัน</dd>
+        <dt>ห้องควบคุมหุ้มเกราะ 2 ที่นั่ง</dt><dd>1.8 ตัน</dd>
+        <dt>ดาดฟ้า กระสุน เรดาร์ ไฟ ขาค้ำ อื่นๆ</dt><dd>5.3 ตัน</dd>
+        <dt><b>รถปืนรวม</b></dt><dd><b>24.8 ตัน</b><span class="tag g">GUESS</span></dd>
+        <dt>รถส่งกำลัง: แชสซี 6×6 + กระบะ</dt><dd>10.3 ตัน</dd>
+        <dt>เครน 8 ตัน·ม. + ขาค้ำ</dt><dd>2.6 ตัน</dd>
+        <dt>แท่นตลับ 3 แท่น + อื่นๆ</dt><dd>3.6 ตัน</dd>
+        <dt><b>รถส่งกำลังรวม</b></dt><dd><b>16.5 ตัน</b><span class="tag g">GUESS</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>โซลาร์เซลล์: ช่วยได้แค่ไหน</h2>
+      <dl>
+        <dt>สูตร</dt><dd>พลังงาน/วัน = แดด × พื้นที่ × ประสิทธิภาพแผง<span class="tag c">สูตร</span></dd>
+        <dt>แดดไทยเฉลี่ย</dt><dd>≈5 kWh/ม²/วัน<span class="tag l">LIKELY</span></dd>
+        <dt>Swarm (ว่าง ≈5 ม²)</dt><dd>5 × 5 × 0.2 = <b>5 kWh/วัน</b></dd>
+        <dt>เทียบตอนซุ่มเต็มระบบ</dt><dd>8 kW × 24 ชม. = 192 kWh → โซลาร์ช่วย <b>2.6%</b></dd>
+        <dt>เทียบโหมดกล้อง + สื่อสารอย่างเดียว</dt><dd>1.6 kW × 24 = 38 kWh → ช่วย <b>13%</b></dd>
+        <dt>CTOC (หลังคา ≈10 ม²)</dt><dd>10 kWh/วัน เทียบ 278 kWh → <b>3.6%</b></dd>
+        <dt>สรุป</dt><dd>ใช้เป็นตัวเสริมชาร์จช้าๆ ตอนจอดซ่อน ไม่ใช่แหล่งไฟหลัก</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>พรางในป่าไทย</h2>
+      <ul>
+        <li>ใต้ร่มไม้หนา โดรนลาดตระเวนจากด้านบนมองเห็นยาก<span class="tag l">LIKELY</span></li>
+        <li>แต่เรดาร์ต้องเห็นท้องฟ้า และโดรนต้องมีช่องให้บินออก ใต้ร่มไม้จึงใช้งานเต็มระบบไม่ได้</li>
+        <li>วิธีใช้: ซ่อนใต้ร่มไม้ตอนรอ แล้วขยับออกไปชายป่าเมื่อต้องเปิดเรดาร์หรือยิง</li>
+        <li>ความร้อนของเครื่องยนต์ยังทะลุใบไม้ได้ ต้องดับเครื่องใช้แบต และคลุมผ้าพรางกันความร้อน<span class="tag l">LIKELY</span></li>
+        <li>ดินโคลนหน้าฝน: แรงกดพื้น 40 kPa ของ Swarm ช่วย แต่รถบรรทุก 8×8 ของ CTOC จะติดหล่มง่ายกว่า</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>รีโหลด</h2>
+      <ul>
+        <li>บน Swarm มีตลับ 10 ช่อง + ท่อพิเศษ 2 ท่อ ไม่มีระบบบรรจุอัตโนมัติ</li>
+        <li>วิธีหลัก: เปลี่ยนทั้งแท่นด้วยเครน ≈1.1 ตัน</li>
+        <li>วิธีสำรอง: โดรนแบบขึ้นตรงเบาพอให้ทหารราบแบกมาเติมลงช่องทีละลำด้วยมือ เมื่อรถส่งกำลังเข้าไม่ถึง<span class="tag l">LIKELY</span></li>
+        <li>รถส่งกำลัง 1 คันมี 3 แท่น = 30 ช่อง + 6 ท่อ</li>
+      </ul>
+    </section>
+  </div>
+
+  <h2 class="sec">ประจำการในป่า เปลี่ยนเวรได้เดือนละครั้ง</h2>
+  <div class="grid">
+    <section class="card">
+      <h2>4 โหมดไฟฟ้า</h2>
+      <dl>
+        <dt>จำศีล</dt><dd>0.5 kW ตัวจับคลื่น + ไมโครโฟน</dd>
+        <dt>เฝ้าระวัง</dt><dd>1.8 kW ฟังเงียบ เรดาร์เปิด 10% ของเวลา</dd>
+        <dt>เตือนภัย</dt><dd>6.5 kW เรดาร์เต็มเวลา + โดรนต่อสาย</dd>
+        <dt>รบ</dt><dd>9.5 kW ทุกระบบ</dd>
+        <dt>พลังงานในรถ</dt><dd>ถังดีเซล 400 ลิตร กันสำรองหนี 100 ลิตร → ใช้เฝ้าระวังได้ 300 × 3.3 + แบต 70 = 1,060 kWh<span class="tag g">GUESS</span></dd>
+        <dt>สำรองหนี</dt><dd>100 × 3.3 ÷ 50 kW × 8 กม./ชม. ≈ 53 กม. · แบตอย่างเดียว ≈11 กม.<span class="tag l">สูตร</span></dd>
+        <dt>เคลื่อนย้าย</dt><dd>พับทุกอย่าง ขับด้วยแบตก่อน ติดดีเซลเมื่อพ้นจุดซ่อน</dd>
+        <dt>อยู่ได้</dt><dd>ตัวแสดงบนโมเดลคำนวณสดตามโหมดและแผงโซลาร์</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>แผงโซลาร์ปีกข้าง</h2>
+      <dl>
+        <dt>พื้นที่</dt><dd>หลังคา 5 ม² + ปีก 2 × 5.4 × 1.0 ม. ≈ 16 ม²</dd>
+        <dt>ได้ต่อวัน</dt><dd>5 × 16 × 0.2 = <b>16 kWh</b><span class="tag l">สูตร</span></dd>
+        <dt>ต่อเดือน</dt><dd>480 kWh ≈ 37% ของโหมดเฝ้าระวัง</dd>
+        <dt>ใต้ร่มไม้</dt><dd>แดดลดลงมาก ได้น้อยกว่านี้หลายเท่า<span class="tag l">LIKELY</span></dd>
+        <dt>กฎใช้งาน</dt><dd>พับเก็บอัตโนมัติเมื่อเข้าโหมดเตือนภัย รบ หรือยกแท่นยิง</dd>
+        <dt>ทำไมไม่ไว้ใต้รถ</dt><dd>ท้องรถเจอโคลน หิน แรงระเบิด และรถไม่มีคนชักแผงออก</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>ส่งกำลังโดยทหารราบ</h2>
+      <dl>
+        <dt>ดีเซลต่อเดือน</dt><dd>(1,296 − 480 − 70) ÷ 3.3 ≈ <b>226 ลิตร</b><span class="tag l">สูตร</span></dd>
+        <dt>ถังมือ 20 ลิตร</dt><dd>12 ถัง ≈ 18 กก./ถัง ≈ 205 กก.<span class="tag l">LIKELY</span></dd>
+        <dt>คนแบก</dt><dd>ทหาร 6 นาย คนละ 2 ถัง</dd>
+        <dt>แบตโดรนลาดตระเวน</dt><dd>เปลี่ยนด้วยมือได้</dd>
+        <dt>โดรนเติมตลับ</dt><dd>แบกมาเติมทีละลำได้ แต่ท่อพิเศษและแท่นทั้งชุดต้องใช้รถส่งกำลัง</dd>
+        <dt>ความเสี่ยง</dt><dd>ทหารที่เดินเข้าออกเป็นประจำทำให้ตำแหน่งรถถูกตามรอยได้</dd>
+      </dl>
+    </section>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2>ชาร์จโดรนโดยไม่มีคน</h2>
+      <ul>
+        <li>โดรนลาดตระเวนลงบนแท่นที่มีแถบโลหะ ขาโดรนมีขั้วไฟ<span class="tag l">LIKELY</span></li>
+        <li>แขนกล 4 ด้านดันโดรนเข้าตำแหน่งให้ขั้วตรงกัน แล้วฝาเลื่อนปิด</li>
+        <li>ลงจอดตรงจุดด้วยกล้องอ่านสัญลักษณ์บนแท่น + GPS ความแม่นสูง</li>
+        <li>ไร้สายแบบเหนี่ยวนำไม่ใช้ เพราะช้า ร้อน และเสียพลังงานมาก<span class="tag l">LIKELY</span></li>
+        <li>โดรนในตลับเติมไฟช้าๆ ผ่านขั้วต่อที่ก้นช่อง<span class="tag g">GUESS</span></li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>ต้องเพิ่มในแบบ</h2>
+      <ul>
+        <li>เครื่องปั่นไฟเล็ก 10–15 kW สำหรับชาร์จแบตในโหมดประหยัด<span class="tag l">LIKELY</span></li>
+        <li>มอเตอร์พับกางแผงโซลาร์ +0.2–0.3 ตัน<span class="tag g">GUESS</span></li>
+        <li>ฝาถังน้ำมันรับถังมือ 20 ลิตรได้ พร้อมกรองกันน้ำและเศษดิน</li>
+        <li>ซีลกันชื้นทุกขั้วต่อ เพราะจอดในป่าฝนนานหลายสัปดาห์</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>จุดเสี่ยงของการจอดนาน</h2>
+      <ul>
+        <li>ติดเครื่องชาร์จแบตทุกครั้ง เกิดความร้อนและเสียงที่ตรวจจับได้</li>
+        <li>ถ้าเข้าโหมดรบบ่อย ไฟหมดก่อนรอบส่งกำลัง</li>
+        <li>ซ่อมเองไม่ได้ ชิ้นไหนเสียคือเสียจนกว่าจะเปลี่ยนเวร</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="note">ขอบเขต: โดรนในแบบนี้มีบทบาทลาดตระเวนและสกัดกั้นโดรนข้าศึก ตลับและท่อออกแบบให้รับของที่รัฐจัดหาได้หลายยี่ห้อ แต่ไม่มีการออกแบบตัวโดรนโจมตี หัวรบ หรือการนำวิถีโจมตี ตัวเลขทุกตัวเป็นเป้าออกแบบที่ยังไม่ได้คำนวณ</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  var el = document.getElementById("viewer");
+  if (!window.THREE) { el.classList.add("nogl-on"); return; }
+  var T = window.THREE, renderer;
+  try { renderer = new T.WebGLRenderer({ antialias: true }); } catch (e) { el.classList.add("nogl-on"); return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.outputEncoding = T.sRGBEncoding;
+  renderer.toneMapping = T.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.95;
+  el.insertBefore(renderer.domElement, el.firstChild);
+
+  var scene = new T.Scene();
+  scene.background = new T.Color(0xaab2a8);
+  scene.fog = new T.Fog(0xaab2a8, 26, 70);
+  var camera = new T.PerspectiveCamera(32, 16 / 9, 0.1, 200);
+
+  scene.add(new T.HemisphereLight(0xe8eee6, 0x5b5446, 0.85));
+  var sun = new T.DirectionalLight(0xfff3df, 1.6);
+  sun.position.set(9, 14, 6);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  var sc = sun.shadow.camera; sc.left = -12; sc.right = 12; sc.top = 12; sc.bottom = -12; sc.near = 1; sc.far = 50;
+  sun.shadow.bias = -0.0006;
+  scene.add(sun);
+
+  // ground with subtle colour noise
+  var gg = new T.PlaneGeometry(320, 320, 120, 120); gg.rotateX(-Math.PI / 2);
+  var cols = [], base = new T.Color(0x8d8670), tmp = new T.Color();
+  for (var i = 0; i < gg.attributes.position.count; i++) {
+    var n = (Math.sin(i * 12.9898) * 43758.5453) % 1; n = Math.abs(n);
+    tmp.copy(base).offsetHSL(0, 0, (n - 0.5) * 0.06).convertSRGBToLinear(); cols.push(tmp.r, tmp.g, tmp.b);
+  }
+  gg.setAttribute("color", new T.Float32BufferAttribute(cols, 3));
+  var ground = new T.Mesh(gg, new T.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+  ground.receiveShadow = true; scene.add(ground);
+
+  function M(c, r, m) { return new T.MeshStandardMaterial({ color: c, roughness: r == null ? 0.75 : r, metalness: m == null ? 0.15 : m, flatShading: true }); }
+  var mHull = M(0x6c7060, 0.8, 0.12), mHull2 = M(0x5d6153, 0.8, 0.12), mDark = M(0x2a2c27, 0.9, 0.2),
+      mMetal = M(0x3a3d37, 0.55, 0.5), mTrack = M(0x232420, 0.95, 0.3), mGlass = M(0x14232b, 0.2, 0.6),
+      mTube = M(0x585c4f, 0.7, 0.2), mRed = new T.MeshStandardMaterial({ color: 0xc23b22, emissive: 0x5a0e05 }),
+      mLight = new T.MeshStandardMaterial({ color: 0xf2f0dc, emissive: 0x66654f }),
+      mDrone = M(0x8a8e80, 0.6, 0.2), mDroneDark = M(0x2f322c, 0.6, 0.3);
+  var lineMat = new T.LineBasicMaterial({ color: 0x1b1d18, transparent: true, opacity: 0.35 });
+
+  function add(geo, mat, x, y, z, parent, noEdge) {
+    var m = new T.Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0);
+    m.castShadow = true; m.receiveShadow = true;
+    if (!noEdge) m.add(new T.LineSegments(new T.EdgesGeometry(geo, 28), lineMat));
+    (parent || car).add(m); return m;
+  }
+  function box(w, h, d) { return new T.BoxGeometry(w, h, d); }
+  function cylX(r, len, seg) { var g = new T.CylinderGeometry(r, r, len, seg || 14); g.rotateZ(-Math.PI / 2); return g; }
+  function cylZ(r, len, seg) { var g = new T.CylinderGeometry(r, r, len, seg || 16); g.rotateX(Math.PI / 2); return g; }
+  function extrude(pts, depth, bevel) {
+    var s = new T.Shape(); s.moveTo(pts[0][0], pts[0][1]);
+    for (var i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1]);
+    s.closePath();
+    var g = new T.ExtrudeGeometry(s, bevel ? { depth: depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 1 } : { depth: depth, bevelEnabled: false });
+    g.translate(0, 0, -depth / 2); return g;
+  }
+  function ss(a, b, x) { var t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+
+  var car = new T.Group(); scene.add(car);
+
+  // ---------- hull (faceted by bevel) ----------
+  add(extrude([[-3.05, 0.52], [-3.1, 1.32], [-2.96, 1.5], [1.25, 1.5], [2.95, 0.98], [3.0, 0.8], [2.72, 0.52]], 1.8, 0.18), mHull);
+  // glacis plates and side sponson strips
+  [-1, 1].forEach(function (s) {
+    add(extrude([[-2.9, 1.1], [1.1, 1.1], [2.6, 0.9], [2.6, 0.82], [-2.9, 0.82]], 0.05), mHull2, 0, 0, s * 1.11);
+    // sponsons: upper hull overhangs the tracks out to the skirt line (no open gap above the tracks)
+    add(extrude([[-3.0, 1.12], [-3.0, 1.55], [1.45, 1.55], [2.75, 1.12]], 0.45, 0.03), mHull, 0, 0, s * 1.33);
+    add(box(5.6, 0.03, 0.03), mDark, -0.2, 1.585, s * 1.555, car, true);
+  });
+  // front lights + tow hooks
+  [-0.78, 0.78].forEach(function (z) {
+    var l = add(box(0.16, 0.09, 0.22), mDark, 2.62, 1.16, z); l.rotation.z = -0.3;
+    add(box(0.02, 0.05, 0.12), mLight, 2.71, 1.15, z, null, true).rotation.z = -0.3;
+    add(box(0.14, 0.1, 0.1), mMetal, 2.95, 0.62, z * 0.7);
+    add(box(0.04, 0.08, 0.16), mRed, -3.27, 1.2, z * 1.12, null, true);
+    add(box(0.12, 0.1, 0.1), mMetal, -3.25, 0.66, z * 0.7);
+  });
+  // rear stowage and ramp seam
+  add(box(0.08, 0.5, 1.5), mHull2, -3.25, 0.98, 0);
+
+  // ---------- running gear ----------
+  var trackShape = new T.Shape();
+  var S = { x: 2.62, y: 0.62 }, I = { x: -2.72, y: 0.58 };
+  trackShape.moveTo(-2.1, 0); trackShape.lineTo(2.05, 0); trackShape.lineTo(S.x + 0.22, S.y - 0.29);
+  trackShape.absarc(S.x, S.y, 0.36, -0.92, Math.PI / 2, false);
+  trackShape.lineTo(I.x, I.y + 0.34);
+  trackShape.absarc(I.x, I.y, 0.34, Math.PI / 2, 4.28, false);
+  trackShape.lineTo(-2.1, 0);
+  var tg = new T.ExtrudeGeometry(trackShape, { depth: 0.42, bevelEnabled: false }); tg.translate(0, 0, -0.21);
+  var grPts = trackShape.getSpacedPoints(150);
+  var grouser = new T.InstancedMesh(box(0.07, 0.04, 0.44), mTrack, grPts.length * 2);
+  var mtx = new T.Matrix4(), q = new T.Quaternion(), sc1 = new T.Vector3(1, 1, 1), k = 0;
+  [-1, 1].forEach(function (s) {
+    var zc = s * 1.3;
+    add(tg, mTrack, 0, 0, zc, null, true);
+    for (var i = 0; i < grPts.length; i++) {
+      var p = grPts[i], n = grPts[(i + 1) % grPts.length];
+      q.setFromAxisAngle(new T.Vector3(0, 0, 1), Math.atan2(n.y - p.y, n.x - p.x));
+      mtx.compose(new T.Vector3(p.x, p.y, zc), q, sc1); grouser.setMatrixAt(k++, mtx);
+    }
+    for (var w = 0; w < 6; w++) {
+      var wx = -1.75 + w * 0.7;
+      add(cylZ(0.32, 0.46, 18), mDark, wx, 0.34, zc, null, true);
+      add(cylZ(0.21, 0.48, 12), mMetal, wx, 0.34, zc, null, true);
+      add(cylZ(0.08, 0.52, 8), mDark, wx, 0.34, zc, null, true);
+    }
+    add(cylZ(0.3, 0.46, 10), mMetal, S.x, S.y, zc);
+    add(cylZ(0.12, 0.54, 8), mDark, S.x, S.y, zc, null, true);
+    add(cylZ(0.27, 0.46, 16), mDark, I.x, I.y, zc, null, true);
+    add(cylZ(0.1, 0.52, 8), mMetal, I.x, I.y, zc, null, true);
+    // skirt with panel seams
+    add(extrude([[-2.6, 0.62], [2.5, 0.62], [2.86, 0.86], [2.74, 1.12], [-2.6, 1.12]], 0.06), mHull2, 0, 0, s * 1.55);
+    for (var p2 = 0; p2 < 5; p2++) add(box(0.03, 0.48, 0.07), mDark, -1.6 + p2 * 1.0, 0.87, s * 1.58, null, true);
+  });
+  grouser.castShadow = true; car.add(grouser);
+
+  // ---------- launcher bay (Shturm-S style, rises out of hull) ----------
+  var doors = [];
+  [-1, 1].forEach(function (s) {
+    var piv = new T.Group(); piv.position.set(-0.3, 1.67, s * 0.95); car.add(piv);
+    add(box(2.0, 0.06, 0.92), mHull, 0, 0.03, -s * 0.46, piv);
+    add(box(1.9, 0.03, 0.05), mDark, 0, 0.07, -s * 0.2, piv, true);
+    doors.push({ g: piv, s: s });
+  });
+  var launcher = new T.Group(); launcher.position.set(-1.3, 0.78, 0); car.add(launcher);
+  add(box(1.66, 0.06, 1.12), mMetal, 0.83, -0.03, 0, launcher);
+  [-0.56, 0.56].forEach(function (z) { add(box(1.66, 0.12, 0.04), mMetal, 0.83, 0.06, z, launcher); });
+  // box-cell magazine: 5 x 2 open-top cells, each with a hinged lid; VTOL interceptors climb straight out
+  add(box(1.58, 0.85, 0.66), mTube, 0.83, 0.425, 0, launcher);
+  for (var rb = 0; rb < 4; rb++) [-0.335, 0.335].forEach(function (rz) { add(box(0.03, 0.82, 0.02), mMetal, 0.2 + rb * 0.42, 0.425, rz, launcher, true); });
+  var cells = [], mHole = M(0x141512, 0.95, 0.1), mLid = M(0x666a5b, 0.7, 0.25);
+  for (var ci = 0; ci < 5; ci++) [-0.165, 0.165].forEach(function (cz) {
+    var cx = 0.2 + ci * 0.315;
+    add(box(0.27, 0.006, 0.27), mHole, cx, 0.852, cz, launcher, true);
+    var lp = new T.Group(); lp.position.set(cx - 0.145, 0.855, cz); launcher.add(lp);
+    add(box(0.29, 0.025, 0.29), mLid, 0.145, 0.012, 0, lp);
+    add(box(0.05, 0.02, 0.08), mMetal, 0.25, 0.03, 0, lp, true);
+    cells.push({ x: cx, z: cz, lid: lp, open: 0, openT: 0, used: false });
+  });
+  // two special tubes for vendor-supplied fast interceptors; they elevate on their own rack, magazine stays level
+  var tubeRack = new T.Group(); tubeRack.position.set(0.05, 0.13, 0); launcher.add(tubeRack);
+  var tubes = [];
+  [-0.445, 0.445].forEach(function (tz) {
+    add(cylX(0.1, 1.56, 16), mMetal, 0.78, 0, tz, tubeRack);
+    [0.25, 0.8, 1.35].forEach(function (bx) { add(cylX(0.108, 0.04, 16), mDark, bx, 0, tz, tubeRack, true); });
+    var cap = add(cylX(0.103, 0.03, 16), mDroneDark, 1.57, 0, tz, tubeRack, true);
+    // blast deflector behind each tube (keeps any booster exhaust off the hangar and solar wings)
+    var dfl = add(box(0.03, 0.32, 0.28), M(0xb8862b, 0.6, 0.3), -0.06, 0.04, tz, tubeRack, true); dfl.rotation.z = -0.5;
+    tubes.push({ y: 0, z: tz, cap: cap, used: false });
+  });
+  // hydraulic ram
+  var ram = add(cylX(0.05, 0.9, 8), mMetal, 0, 0, 0, car, true);
+
+  // ---------- sensors, RWS, recon hangar, tether pod ----------
+  var rws = new T.Group(); rws.position.set(0.95, 1.67, -0.55); car.add(rws);
+  add(cylZ(0.2, 0.12, 14).rotateX(Math.PI / 2), mMetal, 0, 0.06, 0, rws);
+  add(box(0.36, 0.22, 0.3), mHull2, 0, 0.24, 0, rws);
+  add(cylX(0.025, 0.7, 8), mDark, 0.5, 0.26, 0.05, rws, true);
+  add(box(0.12, 0.1, 0.12), mGlass, 0.12, 0.4, -0.1, rws, true);
+
+  add(cylZ(0.04, 0.6, 8).rotateX(Math.PI / 2), mMetal, 0.95, 1.97, 0.62);
+  var radar = new T.Group(); radar.position.set(0.95, 2.32, 0.62); car.add(radar);
+  add(box(0.34, 0.34, 0.34), mHull2, 0, 0, 0, radar);
+  [[0.175, 0, 0, 0], [-0.175, 0, 0, Math.PI], [0, 0, 0.175, -Math.PI / 2], [0, 0, -0.175, Math.PI / 2]].forEach(function (f) {
+    var p = add(box(0.02, 0.28, 0.28), mGlass, f[0], 0, f[2], radar, true); p.rotation.y = f[3];
+  });
+  var eo = add(new T.SphereGeometry(0.13, 12, 10), mDark, 0, 0.3, 0, radar);
+  add(box(0.06, 0.06, 0.02), mGlass, 0.1, 0.3, 0, radar, true);
+
+  // antennas
+  var ants = [];
+  [[-2.85, 0.95], [-2.85, -0.95], [0.6, 0.95]].forEach(function (a, i) {
+    var g = new T.Group(); g.position.set(a[0], 1.67, a[1]); car.add(g);
+    add(new T.CylinderGeometry(0.008, 0.014, 1.6 - i * 0.3, 5), mDark, 0, (1.6 - i * 0.3) / 2, 0, g, true);
+    add(cylZ(0.04, 0.06, 8).rotateX(Math.PI / 2), mMetal, 0, 0.03, 0, g, true);
+    ants.push(g);
+  });
+
+  // recon hangar (rear) with sliding lid
+  add(box(1.1, 0.36, 1.5), mHull2, -2.2, 1.85, 0);
+  // taller hangar walls so the recon drone sits on a charging pad under the sliding lid
+  [[0, 0.74, 1.12, 0.04], [0, -0.74, 1.12, 0.04], [0.54, 0, 0.04, 1.5], [-0.54, 0, 0.04, 1.5]].forEach(function (w) {
+    add(box(w[2], 0.3, w[3]), mHull2, -2.2 + w[0], 2.18, w[1]);
+  });
+  var lid = add(box(1.12, 0.05, 1.52), mHull, -2.2, 2.35, 0);
+  // contact-charging pad: metal strips + four centring arms that push the drone onto the contacts
+  add(box(0.95, 0.02, 1.2), mDark, -2.2, 2.04, 0, car, true);
+  [-0.3, -0.1, 0.1, 0.3].forEach(function (z) { add(box(0.8, 0.012, 0.05), M(0xc9a84a, 0.35, 0.8), -2.2, 2.056, z, car, true); });
+  var cArms = [];
+  [[0, 1], [0, -1]].forEach(function (a) { cArms.push({ m: add(box(0.9, 0.06, 0.04), mMetal, -2.2, 2.09, a[1] * 0.68, car, true), s: a[1], ax: "z" }); });
+  [[1, 0], [-1, 0]].forEach(function (a) { cArms.push({ m: add(box(0.04, 0.06, 1.1), mMetal, -2.2 + a[0] * 0.5, 2.09, 0, car, true), s: a[0], ax: "x" }); });
+
+  // fold-out solar wings hinged on the cage top rail (stowed hanging down, deploy flat outward)
+  var mSolar = M(0x1d3557, 0.3, 0.5), wings = [], solarG = new T.Group(); car.add(solarG);
+  [-1, 1].forEach(function (s) {
+    // own mounting rail on standoff brackets from the sponson, so the wings never depend on the cage
+    add(box(5.5, 0.06, 0.06), mMetal, -0.1, 1.64, s * 1.9, solarG, true);
+    [-2.4, -0.9, 0.6, 2.0].forEach(function (bx) {
+      add(box(0.08, 0.08, 0.38), mMetal, bx, 1.6, s * 1.72, solarG, true);
+      var st2 = add(box(0.06, 0.42, 0.06), mMetal, bx, 1.4, s * 1.75, solarG, true); st2.rotation.x = s * 0.6;
+    });
+    var piv = new T.Group(); piv.position.set(-0.1, 1.64, s * 1.93); solarG.add(piv);
+    var pnl = add(box(5.4, 0.035, 1.0), mSolar, 0, 0, s * 0.5, piv);
+    for (var gx = -2.4; gx <= 2.41; gx += 0.6) add(box(0.012, 0.04, 0.98), mMetal, gx, 0, s * 0.5, piv, true);
+    add(box(5.4, 0.04, 0.012), mMetal, 0, 0, s * 0.5, piv, true);
+    add(box(5.44, 0.05, 0.04), mMetal, 0, 0, s * 1.0, piv, true);
+    wings.push({ g: piv, s: s });
+  });
+
+  // jerrycan refuel point at the rear (infantry can top up by hand)
+  add(box(0.08, 0.28, 0.3), mHull2, -3.3, 1.45, -0.9);
+  add(cylX(0.07, 0.06, 12), M(0xd69a2a, 0.5, 0.1), -3.36, 1.47, -0.9, car, true);
+  add(box(0.04, 0.05, 0.22), mMetal, -3.36, 1.33, -0.9, car, true);
+  function quad(scale) {
+    var g = new T.Group(); var rot = [];
+    add(box(0.34, 0.1, 0.34), mDrone, 0, 0, 0, g);
+    add(box(0.12, 0.06, 0.1), mGlass, 0.2, -0.03, 0, g, true);
+    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(function (c) {
+      var arm = add(box(0.38, 0.03, 0.04), mDroneDark, c[0] * 0.18, 0.02, c[1] * 0.18, g, true); arm.rotation.y = c[0] * c[1] > 0 ? -Math.PI / 4 : Math.PI / 4;
+      var r = add(new T.CylinderGeometry(0.15, 0.15, 0.008, 18), new T.MeshStandardMaterial({ color: 0x222222, transparent: true, opacity: 0.55 }), c[0] * 0.3, 0.05, c[1] * 0.3, g, true);
+      rot.push(r);
+    });
+    g.scale.setScalar(scale || 1); g.userData.rot = rot; return g;
+  }
+  var recon = quad(1.15); recon.position.set(-2.2, 2.12, 0); car.add(recon);
+
+  // tether relay pod (front-left) + drone + cable
+  add(cylZ(0.24, 0.12, 16).rotateX(Math.PI / 2), mMetal, 0.35, 1.72, 0.62);
+  var relay = quad(0.75); relay.position.set(0.35, 1.84, 0.62); car.add(relay);
+  var cableGeo = new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]);
+  var cable = new T.Line(cableGeo, new T.LineBasicMaterial({ color: 0x1d1f1a })); scene.add(cable);
+
+  // ---------- carrier detail: bolt rows, lifting eyes, spare track links, tow cable, rear cooling grille, side stowage ----------
+  var boltGeo = box(0.035, 0.035, 0.035), boltRow = new T.InstancedMesh(boltGeo, mDark, 44), bi = 0, bm = new T.Matrix4();
+  [-1, 1].forEach(function (s) { for (var bx = -2.75; bx <= 1.3; bx += 0.2) { bm.makeTranslation(bx, 1.585, s * 1.5); boltRow.setMatrixAt(bi++, bm); } });
+  boltRow.count = bi; car.add(boltRow);
+  [[-2.7, 1], [-2.7, -1], [1.15, 1], [1.15, -1]].forEach(function (p) {
+    add(box(0.12, 0.1, 0.04), mMetal, p[0], 1.72, p[1] * 0.98, car, true);
+  });
+  var links = new T.Group(); links.position.set(2.05, 1.38, 0); links.rotation.z = -0.305; car.add(links);
+  [-0.55, -0.3, 0.3, 0.55].forEach(function (z) { add(box(0.16, 0.05, 0.22), mTrack, 0, 0, z, links, true); });
+  [-1, 1].forEach(function (s) {
+    var cab = add(cylX(0.022, 3.6, 6), mDark, -0.4, 1.45, s * 1.575, car, true);
+    add(box(0.25, 0.08, 0.05), mMetal, 1.3, 1.45, s * 1.58, car, true);
+    add(box(0.9, 0.3, 0.1), mHull2, -1.9, 1.3, s * 1.6, car);
+    add(box(0.55, 0.32, 0.12), mHull2, 0.15, 1.3, s * 1.61, car);
+  });
+  for (var cg = 0; cg < 6; cg++) add(box(0.04, 0.36, 0.03), mDark, -3.29, 1.02, -0.5 + cg * 0.2, car, true);
+
+  // ---------- add-on armour kits ----------
+  // cage: slat bars standing off the sides, rear and nose, plus a net over the front deck only
+  var cage = new T.Group(); car.add(cage);
+  var barS = box(0.03, 0.84, 0.03), railS = box(5.5, 0.04, 0.04);
+  [-1, 1].forEach(function (s) {
+    for (var x = -2.8; x <= 2.62; x += 0.13) add(barS, mDark, x, 1.17, s * 1.84, cage, true);
+    add(railS, mMetal, -0.09, 0.77, s * 1.84, cage, true);
+    add(railS, mMetal, -0.09, 1.58, s * 1.84, cage, true);
+    [-2.4, -0.9, 0.6, 2.1].forEach(function (x) { add(box(0.04, 0.04, 0.3), mMetal, x, 1.3, s * 1.7, cage, true); });
+  });
+  var barR = box(0.03, 0.78, 0.03);
+  for (var zr = -1.8; zr <= 1.81; zr += 0.13) add(barR, mDark, -3.55, 1.15, zr, cage, true);
+  add(box(0.04, 0.04, 3.68), mMetal, -3.55, 0.77, 0, cage, true);
+  add(box(0.04, 0.04, 3.68), mMetal, -3.55, 1.53, 0, cage, true);
+  var barF = box(0.03, 0.5, 0.03);
+  for (var zf = -1.5; zf <= 1.51; zf += 0.13) add(barF, mDark, 3.32, 0.86, zf, cage, true);
+  add(box(0.04, 0.04, 3.04), mMetal, 3.32, 0.62, 0, cage, true);
+  add(box(0.04, 0.04, 3.04), mMetal, 3.32, 1.1, 0, cage, true);
+  var netMat = new T.MeshBasicMaterial({ color: 0x23261f });
+  [[1.35, 0.98], [1.35, -0.98], [2.45, 0.9], [2.45, -0.9]].forEach(function (p) {
+    add(box(0.04, 0.62, 0.04), mMetal, p[0], 1.62 - (p[0] - 1.35) * 0.3, p[1], cage, true);
+  });
+  for (var nz = -0.95; nz <= 0.96; nz += 0.19) add(box(1.12, 0.012, 0.012), netMat, 1.9, 1.92, nz, cage, true);
+  for (var nx = 1.35; nx <= 2.46; nx += 0.185) add(box(0.012, 0.012, 1.95), netMat, nx, 1.92, 0, cage, true);
+
+  // NERA: bolted side modules over the upper hull, thicker skirts, glacis plate
+  var nera = new T.Group(); car.add(nera); nera.visible = false;
+  [-1, 1].forEach(function (s) {
+    add(box(4.4, 0.4, 0.1), mHull2, -0.6, 1.33, s * 1.62, nera);
+    add(box(5.0, 0.46, 0.08), mHull, 0.0, 0.87, s * 1.65, nera);
+    for (var i = 0; i < 6; i++) {
+      add(box(0.025, 0.41, 0.11), mDark, -2.6 + i * 0.8, 1.33, s * 1.62, nera, true);
+      add(box(0.025, 0.47, 0.09), mDark, -2.3 + i * 0.92, 0.87, s * 1.66, nera, true);
+    }
+  });
+  var gl = add(box(1.55, 0.08, 1.9), mHull2, 2.15, 1.42, 0, nera); gl.rotation.z = -0.305;
+
+  // ERA: tiles on the glacis and the front skirt panels
+  var era = new T.Group(); car.add(era); era.visible = false;
+  var eraFace = new T.Group(); eraFace.position.set(2.15, 1.5, 0); eraFace.rotation.z = -0.305; era.add(eraFace);
+  var tile = box(0.34, 0.07, 0.27), mEra = M(0x575b4d, 0.85, 0.1);
+  for (var ex = -0.6; ex <= 0.61; ex += 0.4) for (var ez = -0.78; ez <= 0.79; ez += 0.312) add(tile, mEra, ex, 0.04, ez, eraFace);
+  [-1, 1].forEach(function (s) {
+    for (var x2 = 0.9; x2 <= 2.31; x2 += 0.36) add(box(0.32, 0.4, 0.07), mEra, x2, 0.88, s * 1.7, era);
+  });
+
+  // ---------- border kit (Thai–Cambodian border lessons): top net over the sensor deck + sensors that don't rely on RF ----------
+  var border = new T.Group(); car.add(border); border.visible = false;
+  var mNet = new T.MeshBasicMaterial({ color: 0x2b2e26 });
+  [[0.72, 1.02], [0.72, -1.02], [2.5, 0.95], [2.5, -0.95]].forEach(function (p) {
+    var h = 2.98 - (p[0] > 2 ? 1.25 : 1.6);
+    add(box(0.05, h, 0.05), mMetal, p[0], 2.98 - h / 2, p[1], border, true);
+  });
+  add(box(1.82, 0.04, 0.04), mMetal, 1.61, 2.98, 1.0, border, true); add(box(1.82, 0.04, 0.04), mMetal, 1.61, 2.98, -1.0, border, true);
+  add(box(0.04, 0.04, 2.04), mMetal, 0.72, 2.98, 0, border, true); add(box(0.04, 0.04, 1.94), mMetal, 2.5, 2.98, 0, border, true);
+  for (var bz = -0.95; bz <= 0.96; bz += 0.13) add(box(1.78, 0.01, 0.01), mNet, 1.61, 2.97, bz, border, true);
+  for (var bxn = 0.8; bxn <= 2.45; bxn += 0.13) add(box(0.01, 0.01, 1.98), mNet, bxn, 2.97, 0, border, true);
+  // 360° thermal camera ring on a short mast (sees fibre-optic FPVs that emit nothing)
+  add(new T.CylinderGeometry(0.025, 0.03, 0.7, 6), mMetal, -1.6, 2.02, -0.98, border, true);
+  add(new T.CylinderGeometry(0.1, 0.1, 0.2, 12), mHull2, -1.6, 2.45, -0.98, border);
+  add(new T.CylinderGeometry(0.102, 0.102, 0.07, 12), mGlass, -1.6, 2.46, -0.98, border, true);
+  add(new T.CylinderGeometry(0.06, 0.1, 0.06, 12), mHull2, -1.6, 2.58, -0.98, border, true);
+  // acoustic array: four microphone pods with windscreens at the hull corners
+  var mics = [[1.3, 1.4], [1.3, -1.4], [-2.95, 1.4], [-2.95, -1.4]];
+  mics.forEach(function (p) {
+    add(new T.CylinderGeometry(0.012, 0.012, 0.3, 5), mMetal, p[0], 1.7, p[1], border, true);
+    add(new T.SphereGeometry(0.06, 10, 8), M(0x3b3d35, 1, 0), p[0], 1.88, p[1], border, true);
+  });
+  // jammer: small emitter box on the left sponson with four stub antennas (layer for radio-controlled FPVs only)
+  add(box(0.36, 0.2, 0.3), mHull2, 0.75, 1.65, -1.33, border);
+  [[-0.12, -0.1], [0.12, -0.1], [-0.12, 0.1], [0.12, 0.1]].forEach(function (a) {
+    var s2 = add(new T.CylinderGeometry(0.018, 0.024, 0.22, 6), mDark, 0.75 + a[0], 1.86, -1.33 + a[1], border, true); s2.rotation.x = a[1] * 2.5; s2.rotation.z = -a[0] * 2.5;
+  });
+
+  // ---------- cutaway internals: series-hybrid powertrain (Type-X style), batteries, cold-launch air system ----------
+  var inner = new T.Group(); car.add(inner); inner.visible = false;
+  var mEng = M(0x5a5d52, 0.5, 0.5), mBat = M(0x2e4057, 0.6, 0.3), mHV = M(0xd9822b, 0.5, 0.2), mAir = M(0x4f6d7a, 0.45, 0.5), mFuel = M(0x8c7340, 0.6, 0.2);
+  add(box(0.9, 0.55, 0.78), mEng, -2.35, 0.95, 0, inner);                       // diesel genset engine
+  add(cylX(0.24, 0.45, 16), mDark, -1.72, 0.95, 0, inner);                    // generator
+  add(box(0.08, 0.5, 1.2), mDark, -2.98, 1.0, 0, inner);                      // radiator behind rear grille
+  [-1, 1].forEach(function (s) { add(box(1.5, 0.42, 0.26), mFuel, -2.15, 0.84, s * 0.66, inner); });  // 2 × 200 L side fuel tanks
+  add(box(0.34, 0.28, 0.28), mAir, -1.05, 0.76, -0.74, inner);                // compressor (side strip beside the deep bay)
+  add(cylX(0.07, 0.24, 10), mMetal, -1.32, 0.76, -0.74, inner, true);         // compressor motor
+  [-0.74, 0.74].forEach(function (z) { add(cylX(0.11, 1.25, 14), mAir, -0.25, 0.78, z, inner); });   // air bottles, one each side
+  add(cylX(0.012, 1.5, 6), mMetal, -0.55, 1.05, 0.62, inner, true);           // air line up to the tube rack
+  [0.68, 1.24, 1.8].forEach(function (x) { [-0.4, 0.4].forEach(function (z) { add(box(0.52, 0.22, 0.7), mBat, x, 0.72, z, inner); }); });  // 100 kWh battery packs, forward of the bay
+  add(box(0.5, 0.42, 0.62), mEng, 1.0, 1.12, 0.0, inner);                      // power electronics + vehicle computer
+  [-1, 1].forEach(function (s) {
+    add(cylZ(0.17, 0.34, 16), mMetal, 2.3, 0.66, s * 0.55, inner);            // traction motors
+    add(box(0.22, 0.26, 0.2), mDark, 2.52, 0.64, s * 0.82, inner, true);      // final drives to the sprockets
+  });
+  add(box(4.4, 0.03, 0.03), mHV, 0.15, 0.6, 0, inner, true);                  // HV cable run genset -> batteries -> motors
+  add(box(0.03, 0.03, 1.1), mHV, 2.3, 0.6, 0, inner, true);
+
+  // ---------- hull engineering detail: transport tie-down rings, maintenance hatches, glacis access panel ----------
+  var mYelR = M(0xd6b02a, 0.5, 0.4), ringG = new T.TorusGeometry(0.06, 0.016, 6, 14); ringG.rotateY(Math.PI / 2);
+  [[3.13, 0.8, 0.86], [3.13, 0.8, -0.86], [-3.3, 0.78, 0.86], [-3.3, 0.78, -0.86]].forEach(function (r) { add(ringG, mYelR, r[0], r[1], r[2], car, true); });
+  var gp = add(box(0.8, 0.02, 1.1), mHull2, 2.02, 1.425, 0); gp.rotation.z = -0.297;
+  [-0.35, 0.35].forEach(function (z) { var h2 = add(box(0.12, 0.03, 0.04), mMetal, 2.25, 1.37, z, car, true); h2.rotation.z = -0.297; });
+  [-1, 1].forEach(function (s) {
+    add(box(0.75, 0.015, 0.3), mHull2, -2.3, 1.58, s * 1.3);                 // genset service hatch on the sponson
+    add(box(0.1, 0.02, 0.03), mMetal, -2.0, 1.595, s * 1.3, car, true);
+  });
+
+  cage.visible = false;
+  var kits = { cage: { g: cage, on: false, t: 0.4 }, nera: { g: nera, on: false, t: 1.8 }, era: { g: era, on: false, t: 1.2 }, solar: { g: solarG, on: true, t: 0.25 }, border: { g: border, on: false, t: 0.35 }, cut: { g: inner, on: false, t: 0 } };
+  function applyBorder() {
+    if (!bat.built || !bat.refs.bk) return;
+    var on = kits.border.on, bi2 = car.children.indexOf(border);
+    bat.refs.bk.forEach(function (g) { g.visible = on; });
+    bat.refs.carriersAll.forEach(function (c) { c.children[bi2].visible = on; });
+  }
+  function mass() {
+    var m = 13.7; Object.keys(kits).forEach(function (k) { if (kits[k].on) m += kits[k].t; });
+    document.getElementById("mass").textContent = m.toFixed(2);
+  }
+  [["a-cage", "cage"], ["a-nera", "nera"], ["a-era", "era"], ["a-solkit", "solar"], ["a-border", "border"], ["a-cut", "cut"]].forEach(function (p) {
+    document.getElementById(p[0]).addEventListener("click", function () {
+      var kt = kits[p[1]]; kt.on = !kt.on; kt.g.visible = kt.on;
+      this.setAttribute("aria-pressed", kt.on ? "true" : "false"); mass(); power();
+      if (p[1] === "solar") setStatus(kt.on ? "<b>ติดตั้งแผงปีกข้าง</b> ราวยึดของตัวเองบนตัวถัง ไม่ต้องพึ่งกรง +0.25 ตัน" : "<b>ถอดแผงปีกข้าง</b> เหลือแผงบนหลังคา 5 ม²");
+      if (p[1] === "era" && kt.on) setStatus("<b>ERA ติดแล้ว</b> ระวัง: แรงระเบิดของ ERA ทำของบนหลังคาเสียหายได้");
+      if (p[1] === "cage") setStatus(kt.on ? "<b>กรงเหล็ก</b> รับ RPG บางส่วนและโดรน FPV เว้นช่องหลังคาให้แท่นยิง" : "<b>ถอดกรง</b> เบาลงแต่เปิดรับโดรน FPV");
+      if (p[1] === "border") applyBorder();
+      if (p[1] === "border") setStatus(kt.on ? "<b>ชุดชายแดน</b> ตาข่ายเหนือดาดฟ้าเซนเซอร์ กล้องความร้อนรอบทิศ ไมโครโฟน 4 จุด และเครื่องรบกวน +0.35 ตัน · ใส่ให้รถทุกคันในหน่วยด้วย (กด 5)" : "<b>ถอดชุดชายแดน</b>");
+      if (p[1] === "cut") {
+        [mHull, mHull2].forEach(function (m) { m.transparent = kt.on; m.opacity = kt.on ? 0.16 : 1; m.depthWrite = !kt.on; m.needsUpdate = true; });
+        setStatus(kt.on ? "<b>ภาพตัดภายใน</b> ไฮบริดอนุกรม: ดีเซลปั่นไฟท้าย → แบต 100 kWh กลางพื้น → มอเตอร์ 2 ตัวขับเฟืองหน้า · ถังลมใต้แท่นยิง" : "<b>ปิดภาพตัด</b>");
+      }
+      if (p[1] === "nera") setStatus(kt.on ? "<b>NERA</b> โมดูลด้านข้าง ไม่ระเบิดออก แต่หนักราว 1.8 ตัน" : "<b>ถอด NERA</b>");
+    });
+  });
+  mass();
+
+  // ---------- labels pinned to the model ----------
+  var lblBox = document.getElementById("labels"), lblOn = true, labels = [];
+  function pin(text, fn, kit, isBat, focus) {
+    var d = document.createElement("div"); d.className = "lbl"; d.textContent = text; lblBox.appendChild(d);
+    labels.push({ d: d, fn: fn, kit: kit, bat: !!isBat, focus: focus || null });
+  }
+  function carPt(x, y, z) { return function (v) { return car.localToWorld(v.set(x, y, z)); }; }
+  pin("เรดาร์ 4 หน้า + กล้อง EO/IR", function (v) { return radar.localToWorld(v.set(0, 0.55, 0)); });
+  pin("ปืนกลรีโมต (ชั้นสุดท้าย)", function (v) { return rws.localToWorld(v.set(0.2, 0.45, 0)); });
+  pin("แท่นตลับ 10 ช่อง (โดรนขึ้นตรง)", function (v) { return launcher.localToWorld(v.set(0.6, 0.75, 0)); });
+  pin("ท่อพิเศษ 2 ท่อ (ปล่อยเย็นด้วยลมอัด)", function (v) { return st.bay > 0.6 ? tubeRack.localToWorld(v.set(1.45, 0.2, 0.445)) : hidePt(v); });
+  pin("แผ่นเบี่ยงแรงพ่นท้ายท่อ", function (v) { return st.bay > 0.9 ? tubeRack.localToWorld(v.set(-0.08, 0.3, -0.445)) : hidePt(v); });
+  pin("โรงเก็บโดรนลาดตระเวน", function (v) { return st.recon > 0.3 ? recon.localToWorld(v.set(0, 0.25, 0)) : car.localToWorld(v.set(-2.2, 2.2, 0)); });
+  pin("โดรนต่อสายส่งสัญญาณ", function (v) { return relay.localToWorld(v.set(0, 0.3, 0)); });
+  pin("เสาอากาศ + ตัวจับคลื่นวิทยุ", carPt(-2.85, 3.35, 0.95));
+  pin("ชุดกำลังไฮบริดอนุกรม (กดภาพตัดภายใน)", function (v) { return kits.cut.on ? hidePt(v) : car.localToWorld(v.set(2.3, 1.55, -0.2)); });
+  pin("ตาข่ายกัน FPV เหนือดาดฟ้าเซนเซอร์", carPt(2.0, 3.1, 0.9), "border");
+  pin("กล้องความร้อนรอบทิศ", carPt(-1.6, 2.8, -0.98), "border");
+  pin("ไมโครโฟนตรวจเสียงโดรน", carPt(-2.95, 2.05, 1.4), "border");
+  pin("เครื่องรบกวน (เฉพาะ FPV วิทยุ)", carPt(0.75, 2.05, -1.33), "border");
+  pin("ดีเซลปั่นไฟ (ท้าย)", carPt(-2.35, 1.3, 0), "cut");
+  pin("ถังน้ำมัน 2 × 200 ลิตร", carPt(-2.15, 1.1, 0.75), "cut");
+  pin("คอมเพรสเซอร์ + ถังลมอัด (ข้างช่องแท่นยิง)", carPt(-0.3, 1.05, 0.78), "cut");
+  pin("ช่องแท่นยิงลึก 0.9 ม. (ตลับเก็บใต้หลังคา)", carPt(-0.5, 1.5, 0), "cut");
+  pin("แบต 100 kWh (พื้นรถ)", carPt(1.3, 0.9, -0.45), "cut");
+  pin("อิเล็กทรอนิกส์กำลัง + คอมพิวเตอร์", carPt(1.0, 1.4, 0), "cut");
+  pin("มอเตอร์ขับ 2 ตัว → เฟืองหน้า", carPt(2.35, 0.9, 0.55), "cut");
+  pin("ห่วงผูกยึดขนส่ง 4 จุด", carPt(3.13, 0.95, 0.86));
+  pin("ฝาซ่อมบำรุงชุดกำลัง", carPt(-2.3, 1.68, 1.3));
+  pin("เฟืองขับหน้า + มอเตอร์", carPt(2.62, 1.05, 1.55));
+  pin("กรงเหล็ก", carPt(-1.4, 1.72, 1.84), "cage");
+  pin("NERA", carPt(-1.0, 1.62, 1.66), "nera");
+  pin("ตัวถังยื่นคลุมสายพาน (sponson)", carPt(-2.0, 1.75, -1.4));
+  pin("ERA", carPt(2.3, 1.78, 0.75), "era");
+  pin("แผงโซลาร์พับได้ (ปีกข้าง)", function (v) { return st.solar > 0.5 && kits.solar.on ?car.localToWorld(v.set(-1.6, 1.75, 2.6)) : hidePt(v); });
+  pin("แท่นชาร์จขั้วสัมผัส", function (v) { return st.recon > 0.25 ? car.localToWorld(v.set(-2.2, 2.25, 0)) : hidePt(v); });
+  pin("จุดเติมน้ำมันถังมือ", carPt(-3.4, 1.75, -0.9));
+  document.getElementById("a-lbl").addEventListener("click", function () {
+    lblOn = !lblOn; this.setAttribute("aria-pressed", lblOn ? "true" : "false");
+    lblBox.hidden = !lblOn;
+  });
+  var lv = new T.Vector3();
+  function placeLabels() {
+    if (!lblOn) return;
+    var w = el.clientWidth, h = el.clientHeight;
+    labels.forEach(function (L) {
+      if (L.bat !== bat.on || (L.kit && !kits[L.kit].on) || (kits.cut.on && !L.bat && L.kit !== "cut") || (L.focus && L.focus !== bat.focus) || (!L.focus && L.bat && bat.focus)) { L.d.hidden = true; return; }
+      L.fn(lv); lv.project(camera);
+      var off = lv.z > 1 || Math.abs(lv.x) > 1.05 || Math.abs(lv.y) > 1.05;
+      L.d.hidden = off;
+      if (!off) L.d.style.transform = "translate(" + ((lv.x + 1) / 2 * w).toFixed(1) + "px," + ((1 - lv.y) / 2 * h).toFixed(1) + "px) translate(-50%,-100%)";
+    });
+  }
+
+  // ---------- fire-unit view: CTOC truck + three carriers + relay links (IRIS-T SLM style) ----------
+  var bat = { on: false, built: false, g: new T.Group(), segs: [], refs: {} };
+  bat.g.visible = false; scene.add(bat.g);
+  var pkMat = new T.MeshBasicMaterial({ color: new T.Color(0xd7f07a).convertSRGBToLinear() });
+  var linkMat = new T.LineBasicMaterial({ color: new T.Color(0xd7f07a).convertSRGBToLinear(), transparent: true, opacity: 0.75 });
+  pkMat.userData.lin = true; linkMat.userData.lin = true;
+  var pkGeo = new T.SphereGeometry(0.28, 10, 8);
+  function seg(fa, fb) {
+    var g = new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]);
+    var line = new T.Line(g, linkMat); bat.g.add(line);
+    var pk = [0, 0.5].map(function (o) { var m = new T.Mesh(pkGeo, pkMat); bat.g.add(m); return { m: m, o: o }; });
+    bat.segs.push({ a: fa, b: fb, g: g, pk: pk });
+  }
+  function buildBattery() {
+    var relayIdx = car.children.indexOf(relay);
+    var carriers = [car];
+    [[8, 16, 0.45], [5, -17, -0.35]].forEach(function (p) {
+      var c = car.clone(); c.position.set(p[0], 0, p[1]); c.rotation.y = p[2];
+      c.children[relayIdx].position.y = 10.8; bat.g.add(c); carriers.push(c);
+    });
+    // CTOC: 8x8 truck, ISO 20 ft shelter (6.06 x 2.44 x 2.59 m), onboard genset, 6-section telescopic mast
+    var tr = truckBase(-40, 4, 0.15, 11.0, [4.5, 3.05, -2.6, -4.0]);
+    var cx = -2.37, mLite = M(0xcfd2c6, 0.5, 0.2);
+    add(box(6.06, 2.59, 2.44), mHull2, cx, 2.55, 0, tr);
+    [-1, 1].forEach(function (s) {
+      for (var rx = cx - 2.9; rx <= cx + 2.91; rx += 0.29) add(box(0.05, 2.36, 0.04), mHull, rx, 2.55, s * 1.235, tr, true);
+      [cx - 2.7, cx + 2.6].forEach(function (jx) {
+        add(box(0.16, 0.16, 0.55), mMetal, jx, 1.15, s * 1.45, tr, true);
+        add(box(0.12, 1.05, 0.12), mMetal, jx, 0.6, s * 1.7, tr, true);
+        add(box(0.42, 0.05, 0.42), mDark, jx, 0.07, s * 1.7, tr, true);
+      });
+    });
+    [cx - 3.03, cx + 3.03].forEach(function (x) { [1.3, 3.8].forEach(function (y) { [-1.2, 1.2].forEach(function (z) { add(box(0.18, 0.12, 0.16), mDark, x, y, z, tr, true); }); }); });
+    // right side: personnel door + fold-down steps, AC unit, cable entry panel
+    add(box(0.9, 2.0, 0.04), mDark, cx - 1.6, 2.4, 1.26, tr, true);
+    add(box(0.05, 0.16, 0.06), mMetal, cx - 1.25, 2.35, 1.29, tr, true);
+    for (var stp = 0; stp < 3; stp++) add(box(0.8, 0.04, 0.3), mMetal, cx - 1.6, 1.15 - stp * 0.3, 1.42 + stp * 0.14, tr, true);
+    add(box(0.9, 0.7, 0.4), mMetal, cx + 1.5, 3.0, 1.46, tr);
+    for (var ag = 0; ag < 5; ag++) add(box(0.03, 0.55, 0.02), mDark, cx + 1.18 + ag * 0.16, 3.0, 1.67, tr, true);
+    add(box(0.65, 0.5, 0.05), mDark, cx + 2.4, 1.9, 1.26, tr, true);
+    [[-0.15, 0.1], [0.15, 0.1], [-0.15, -0.12], [0.15, -0.12]].forEach(function (c) { add(cylZ(0.05, 0.1, 8), mLite, cx + 2.4 + c[0], 1.9 + c[1], 1.3, tr, true); });
+    // left side: second AC unit, two observation windows
+    add(box(0.9, 0.7, 0.4), mMetal, cx + 0.3, 3.0, -1.46, tr);
+    add(box(0.5, 0.35, 0.03), mGlass, cx - 0.9, 3.05, -1.24, tr, true);
+    add(box(0.5, 0.35, 0.03), mGlass, cx - 2.1, 3.05, -1.24, tr, true);
+    // rear doors with lock rods + ladder to roof
+    add(box(0.03, 2.4, 2.3), mDark, cx - 3.05, 2.55, 0, tr, true);
+    [-0.8, -0.35, 0.35, 0.8].forEach(function (z) { add(box(0.04, 2.3, 0.04), mMetal, cx - 3.08, 2.55, z, tr, true); });
+    [0.62, 1.02].forEach(function (z) { add(box(0.04, 3.0, 0.04), mMetal, cx - 3.14, 2.4, z, tr, true); });
+    for (var rg = 0; rg < 9; rg++) add(box(0.04, 0.03, 0.44), mMetal, cx - 3.14, 1.0 + rg * 0.34, 0.82, tr, true);
+    // roof: walkway rails, GPS pucks, whips, satellite dish
+    [-1.12, 1.12].forEach(function (z) {
+      add(box(5.8, 0.04, 0.04), mMetal, cx, 4.25, z, tr, true);
+      for (var pp = 0; pp < 6; pp++) add(box(0.04, 0.4, 0.04), mMetal, cx - 2.85 + pp * 1.14, 4.05, z, tr, true);
+    });
+    [[cx + 2.4, 0.7], [cx + 2.0, 0.7]].forEach(function (p) { add(new T.CylinderGeometry(0.09, 0.09, 0.08, 12), mLite, p[0], 3.9, p[1], tr, true); });
+    [[cx + 2.6, -0.9, 2.6], [cx - 0.5, -1.0, 2.2], [cx + 1.0, -1.0, 2.0]].forEach(function (a) { add(new T.CylinderGeometry(0.01, 0.018, a[2], 5), mDark, a[0], 3.85 + a[2] / 2, a[1], tr, true); });
+    add(new T.CylinderGeometry(0.05, 0.05, 0.5, 8), mMetal, cx + 0.6, 4.1, 0.45, tr, true);
+    var dish = add(new T.CylinderGeometry(0.62, 0.08, 0.26, 18, 1, true), mLite, cx + 0.6, 4.5, 0.45, tr, true);
+    dish.material = mLite.clone(); dish.material.side = T.DoubleSide; dish.rotation.z = 0.9;
+    // onboard genset compartment behind the cab
+    add(box(1.4, 1.6, 2.3), mHull, 1.9, 2.05, 0, tr);
+    for (var gl2 = 0; gl2 < 6; gl2++) add(box(0.02, 1.0, 2.32), mDark, 1.4 + gl2 * 0.2, 2.05, 0, tr, true);
+    add(new T.CylinderGeometry(0.06, 0.06, 0.7, 8), mDark, 2.4, 3.2, 0.8, tr, true);
+    // hydraulic fold-up mast: lies along the shelter roof for travel, erects to vertical, self-supporting (no guy wires)
+    var hx = cx + 2.85, hy = 3.95, hz = -0.75, mastLen = 6.6, bw = 0.16;
+    add(box(0.6, 0.25, 0.7), mHull, hx, 3.92, hz, tr);
+    [-0.28, 0.28].forEach(function (z) { add(box(0.14, 0.38, 0.06), mMetal, hx, 4.06, hz + z, tr, true); });
+    add(box(0.14, 0.36, 0.56), mMetal, cx - 2.6, 4.0, hz, tr, true);
+    var mPiv = new T.Group(); mPiv.position.set(hx, hy + 0.12, hz); tr.add(mPiv);
+    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(function (c) { add(new T.CylinderGeometry(0.035, 0.035, mastLen, 6), mMetal, c[0] * bw, mastLen / 2, c[1] * bw, mPiv, true); });
+    for (var bb = 0; bb < 11; bb++) {
+      var by = 0.3 + bb * 0.6;
+      add(box(bw * 2, 0.03, 0.03), mDark, 0, by, bw, mPiv, true); add(box(bw * 2, 0.03, 0.03), mDark, 0, by, -bw, mPiv, true);
+      add(box(0.03, 0.03, bw * 2), mDark, bw, by, 0, mPiv, true); add(box(0.03, 0.03, bw * 2), mDark, -bw, by, 0, mPiv, true);
+      var dg = add(box(0.025, 0.62, 0.025), mDark, 0, by + 0.3, bw, mPiv, true); dg.rotation.z = 0.48;
+      var dg2 = add(box(0.025, 0.62, 0.025), mDark, 0, by + 0.3, -bw, mPiv, true); dg2.rotation.z = -0.48;
+    }
+    add(new T.CylinderGeometry(0.03, 0.03, mastLen, 6), M(0xd69a2a, 0.5, 0.1), 0, mastLen / 2, 0, mPiv, true);
+    var head = new T.Group(); head.position.set(0, mastLen, 0); mPiv.add(head);
+    var ramBody = add(new T.CylinderGeometry(0.075, 0.075, 1, 10), mMetal, 0, 0, 0, tr, true);
+    var ramRod = add(new T.CylinderGeometry(0.04, 0.04, 1, 8), mLite, 0, 0, 0, tr, true);
+    add(box(0.3, 0.2, 0.3), mMetal, hx - 2.4, 3.95, hz, tr, true);
+    bat.refs.mast = { piv: mPiv, head: head, body: ramBody, rod: ramRod, ax: hx - 2.4, ay: 3.98, hx: hx, hy: hy + 0.12, hz: hz, at: 1.6 };
+    var mx = hx, mz = hz, headY = hy + 0.12 + mastLen;
+    add(new T.CylinderGeometry(0.5, 0.5, 0.06, 18), mDark, 0, 0, 0, head, true);
+    [0, 1, 2, 3].forEach(function (k) {
+      var a = k * Math.PI / 2, pnl = add(box(0.06, 0.75, 0.38), mLite, Math.cos(a) * 0.46, 0.42, Math.sin(a) * 0.46, head);
+      pnl.rotation.y = -a;
+      add(box(0.3, 0.04, 0.04), mMetal, Math.cos(a) * 0.3, 0.2, Math.sin(a) * 0.3, head, true).rotation.y = -a;
+    });
+    add(new T.CylinderGeometry(0.18, 0.18, 0.55, 14), mLite, 0, 0.32, 0, head, true);
+    add(new T.SphereGeometry(0.18, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), mLite, 0, 0.6, 0, head, true);
+    add(new T.CylinderGeometry(0.008, 0.012, 1.2, 5), mDark, 0, 1.3, 0, head, true);
+    add(new T.SphereGeometry(0.05, 8, 6), mRed, 0, 1.92, 0, head, true);
+    bat.refs.mastHeadLocal = new T.Vector3(mx, headY + 0.4, mz);
+    bat.g.updateMatrixWorld(true);
+    bat.refs.truck = tr; bat.refs.carriers = carriers;
+    var top = tr.localToWorld(bat.refs.mastHeadLocal.clone());
+    carriers.forEach(function (c, i) {
+      var relayPos = i === 0 ? function (v) { return relay.getWorldPosition(v); } : function (v) { return c.localToWorld(v.set(0.35, 10.8, 0.62)); };
+      seg(function (v) { return head.localToWorld(v.set(0, 0.4, 0)); }, relayPos);
+      seg(relayPos, function (v) { return c.localToWorld(v.set(0.35, 1.85, 0.62)); });
+    });
+    // shared 6x6 truck base
+    function truckBase(x, z, ry, len, wheelX) {
+      var g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = ry; bat.g.add(g);
+      add(box(len, 0.35, 2.3), mDark, 0, 1.05, 0, g);
+      var f = len / 2;
+      add(extrude([[f - 1.8, 1.2], [f - 1.8, 2.9], [f - 0.8, 2.9], [f, 2.2], [f, 1.2]], 2.3, 0.08), mHull, 0, 0, 0, g);
+      var w = add(box(0.05, 0.7, 1.9), mGlass, f - 0.37, 2.56, 0, g, true); w.rotation.z = 0.86;
+      var wl = wheelX || [f - 1.0, -f + 2.7, -f + 1.3];
+      wl.forEach(function (wx) { [-1.05, 1.05].forEach(function (wz) {
+        add(cylZ(0.55, 0.42, 18), mDark, wx, 0.55, wz, g, true); add(cylZ(0.28, 0.44, 10), mMetal, wx, 0.55, wz, g, true);
+        add(cylZ(0.1, 0.46, 8), mDark, wx, 0.55, wz, g, true);
+        add(box(1.25, 0.06, 0.52), mHull2, wx, 1.2, wz * 1.06, g);
+      }); });
+      // cab front: bumper, grille, lights, tow hooks
+      add(box(0.22, 0.26, 2.5), mDark, f + 0.12, 1.02, 0, g);
+      add(box(0.05, 0.5, 1.2), mDark, f + 0.03, 1.62, 0, g, true);
+      for (var gi = 0; gi < 5; gi++) add(box(0.06, 0.03, 1.1), mMetal, f + 0.05, 1.42 + gi * 0.1, 0, g, true);
+      [-0.85, 0.85].forEach(function (z) {
+        add(box(0.05, 0.15, 0.32), mLight, f + 0.04, 1.45, z, g, true);
+        add(box(0.05, 0.08, 0.12), M(0xd69a2a, 0.5, 0.1), f + 0.04, 1.66, z * 1.1, g, true);
+        add(box(0.12, 0.12, 0.08), mMetal, f + 0.26, 0.9, z * 0.6, g, true);
+      });
+      // cab sides: doors, windows, mirrors, steps, grab handles
+      [-1, 1].forEach(function (s) {
+        add(box(0.95, 1.05, 0.02), mDark, f - 1.15, 2.05, s * 1.25, g, true);
+        add(box(0.62, 0.42, 0.02), mGlass, f - 1.05, 2.55, s * 1.26, g, true);
+        add(box(0.03, 0.03, 0.35), mDark, f - 0.55, 2.55, s * 1.4, g, true);
+        add(box(0.06, 0.32, 0.2), mGlass, f - 0.55, 2.4, s * 1.58, g);
+        add(box(0.5, 0.05, 0.26), mMetal, f - 1.15, 0.78, s * 1.27, g, true);
+        add(box(0.5, 0.05, 0.26), mMetal, f - 1.15, 1.25, s * 1.3, g, true);
+        add(box(0.03, 0.6, 0.03), mMetal, f - 1.7, 2.0, s * 1.27, g, true);
+      });
+      // cab roof hatch + beacon, exhaust stack, fuel tank, tool box, rear lights
+      add(cylZ(0.28, 0.08, 14).rotateX(Math.PI / 2), mHull2, f - 1.2, 2.98, 0.35, g);
+      add(new T.CylinderGeometry(0.03, 0.05, 1.5, 8), mDark, f - 1.95, 3.0, 1.05, g, true);
+      add(new T.CylinderGeometry(0.06, 0.06, 0.15, 8), mDark, f - 1.95, 3.78, 1.05, g, true);
+      var midX = (wl[wl.length - 3] + wl[wl.length - 2]) / 2;
+      add(cylX(0.27, 1.05, 14), mMetal, midX, 0.72, 1.12, g);
+      add(box(0.9, 0.45, 0.4), mHull2, midX, 0.75, -1.12, g);
+      [-1.0, 1.0].forEach(function (z) {
+        add(box(0.04, 0.12, 0.22), mRed, -f - 0.02, 1.0, z, g, true);
+        add(box(0.04, 0.08, 0.12), M(0xd69a2a, 0.5, 0.1), -f - 0.02, 1.15, z, g, true);
+      });
+      add(box(0.25, 0.15, 0.2), mMetal, -f - 0.1, 0.85, 0, g, true);
+      return g;
+    }
+    // point-defence gun vehicle beside the CTOC (Skynex idea, own vehicle)
+    var gv = truckBase(-30, -8, -0.4, 10.0, [4.0, 2.55, -2.1, -3.5]);
+    // armoured mission deck with seams and ammo hatch
+    add(box(7.0, 0.45, 2.45), mHull2, -1.45, 1.45, 0, gv);
+    for (var dsx = -4.2; dsx <= 0.81; dsx += 1.25) add(box(0.02, 0.46, 2.47), mDark, dsx, 1.45, 0, gv, true);
+    add(box(1.2, 0.04, 0.9), mDark, -3.6, 1.69, 0.6, gv, true);
+    add(box(0.2, 0.05, 0.05), mMetal, -3.1, 1.72, 0.6, gv, true);
+    // power + cooling unit behind the cab
+    add(box(1.1, 1.05, 2.3), mHull, 0.6, 2.2, 0, gv);
+    for (var cl = 0; cl < 5; cl++) add(box(0.02, 0.7, 2.32), mDark, 0.25 + cl * 0.18, 2.2, 0, gv, true);
+    // Pantsir-style rear combat module: armoured air-defence control shelter (2 operators), turret on its roof
+    var shx = -2.9;
+    add(box(3.6, 1.9, 2.45), mHull2, shx, 2.62, 0, gv);
+    [-1, 1].forEach(function (s) { for (var rx2 = shx - 1.6; rx2 <= shx + 1.61; rx2 += 0.4) add(box(0.04, 1.8, 0.04), mHull, rx2, 2.62, s * 1.245, gv, true); });
+    add(box(0.8, 1.5, 0.04), mDark, shx + 0.65, 2.5, 1.26, gv, true);
+    add(box(0.05, 0.16, 0.06), mMetal, shx + 0.98, 2.45, 1.29, gv, true);
+    for (var gs = 0; gs < 3; gs++) add(box(0.7, 0.04, 0.28), mMetal, shx + 0.65, 1.5 - gs * 0.3, 1.42 + gs * 0.13, gv, true);
+    [shx - 0.4, shx - 1.0].forEach(function (x) { add(box(0.42, 0.22, 0.03), mGlass, x, 3.15, 1.26, gv, true); });
+    add(box(0.42, 0.22, 0.03), mGlass, shx + 0.6, 3.15, -1.26, gv, true);
+    add(box(0.75, 0.55, 0.35), mMetal, shx - 0.7, 2.45, -1.44, gv);
+    for (var ag2 = 0; ag2 < 4; ag2++) add(box(0.03, 0.42, 0.02), mDark, shx - 0.95 + ag2 * 0.17, 2.45, -1.63, gv, true);
+    add(box(0.04, 1.4, 1.2), mDark, shx - 1.82, 2.5, 0, gv, true);
+    [[shx - 1.6, 1.05], [shx - 1.6, -1.05]].forEach(function (a) { add(new T.CylinderGeometry(0.01, 0.016, 2.0, 5), mDark, a[0], 4.57, a[1], gv, true); });
+    var tur = new T.Group(); tur.position.set(shx + 0.2, 3.57, 0); gv.add(tur);
+    add(new T.CylinderGeometry(0.95, 0.95, 0.3, 20), mMetal, 0, 0.15, 0, tur);
+    add(extrude([[-1.25, 0.3], [-1.25, 1.3], [0.55, 1.3], [1.25, 0.85], [1.25, 0.3]], 1.8, 0.07), mHull, 0, 0, 0, tur);
+    add(box(0.5, 0.45, 0.5), mMetal, 1.4, 0.8, 0, tur);
+    add(cylX(0.15, 0.8, 12), mMetal, 1.95, 0.8, 0, tur, true);
+    add(cylX(0.075, 3.0, 10), mDark, 3.6, 0.8, 0, tur, true);
+    add(cylX(0.12, 0.1, 12), mMetal, 4.9, 0.8, 0, tur, true);
+    add(box(0.36, 0.16, 0.16), mMetal, 5.15, 0.8, 0, tur, true);
+    // sensors on the turret: EO sight head, fire-control radar panel on the bustle
+    add(box(0.42, 0.32, 0.38), mHull2, 0.3, 1.47, 0.6, tur);
+    add(box(0.04, 0.2, 0.26), mGlass, 0.52, 1.47, 0.6, tur, true);
+    add(box(0.08, 0.75, 0.95), mHull2, -1.32, 1.0, 0, tur);
+    add(box(0.03, 0.62, 0.82), mGlass, -1.37, 1.0, 0, tur, true);
+    // feed chute + two banks of smoke dischargers
+    var chute = add(box(0.2, 0.2, 0.9), mDark, -0.7, 0.55, -0.7, tur, true); chute.rotation.x = 0.5;
+    [0.95, -0.95].forEach(function (z) {
+      for (var sd = 0; sd < 4; sd++) { var tb = add(cylX(0.05, 0.24, 8), mDark, 0.8, 1.15 - sd * 0.11, z, tur, true); tb.rotation.y = z > 0 ? -0.5 : 0.5; }
+    });
+    tur.rotation.y = 0.9; tur.rotation.z = 0.25; bat.refs.tur = tur;
+    // search radar on top of the turret, spinning on its own bearing
+    add(new T.CylinderGeometry(0.08, 0.1, 0.7, 10), mMetal, -0.4, 1.65, 0, tur, true);
+    var gRad = new T.Group(); gRad.position.set(-0.4, 2.4, 0); tur.add(gRad);
+    bat.refs.ped = null;
+    add(box(0.25, 0.85, 1.15), mHull2, 0, 0, 0, gRad);
+    add(box(0.03, 0.75, 1.05), mGlass, 0.14, 0, 0, gRad, true);
+    add(box(0.03, 0.75, 1.05), mGlass, -0.14, 0, 0, gRad, true);
+    add(box(0.35, 0.3, 0.35), mHull2, 0, -0.55, 0, gRad);
+    // four outriggers, deployed
+    [[-4.6, 1], [-4.6, -1], [1.0, 1], [1.0, -1]].forEach(function (o) {
+      add(box(0.18, 0.18, 0.95), mMetal, o[0], 1.0, o[1] * 1.62, gv, true);
+      add(box(0.13, 0.9, 0.13), mMetal, o[0], 0.55, o[1] * 2.05, gv, true);
+      add(box(0.48, 0.06, 0.48), mDark, o[0], 0.08, o[1] * 2.05, gv, true);
+    });
+    bat.refs.gunRadar = gRad;
+    bat.refs.gun = gv;
+    // resupply truck: spare 8-tube pods + knuckle crane, pods swap as a whole unit
+    var rs = truckBase(-20, 13, 0.25, 9.0);
+    add(box(6.2, 0.15, 2.4), mHull2, -1.3, 1.3, 0, rs);
+    function pod(parent, x, y, z) {
+      var p = new T.Group(); p.position.set(x, y, z); parent.add(p);
+      add(box(1.66, 0.95, 1.12), mTube, 0, 0.475, 0, p);
+      for (var pc = 0; pc < 5; pc++) [-0.165, 0.165].forEach(function (pz) { add(box(0.29, 0.02, 0.29), mDroneDark, -0.63 + pc * 0.315, 0.96, pz, p, true); });
+      [-0.445, 0.445].forEach(function (tz) { add(cylX(0.1, 0.03, 12), mDroneDark, 0.84, 0.13, tz, p, true); });
+      return p;
+    }
+    pod(rs, -3.2, 1.38, -0.6); pod(rs, -3.2, 1.38, 0.6); var swapPod = pod(rs, -1.3, 1.38, -0.6);
+    add(box(1.2, 0.5, 1.0), mHull, -1.1, 1.62, 0.65, rs);
+    var crane = new T.Group(); crane.position.set(2.2, 1.4, 0); rs.add(crane);
+    add(cylZ(0.35, 0.5, 12).rotateX(Math.PI / 2), mMetal, 0, 0.25, 0, crane);
+    var b1 = add(box(0.3, 2.4, 0.3), M(0xb8862b, 0.6, 0.3), -0.3, 1.5, 0, crane); b1.rotation.z = 0.3;
+    var b2 = add(box(2.6, 0.24, 0.24), M(0xb8862b, 0.6, 0.3), -1.75, 2.5, 0, crane); b2.rotation.z = -0.18;
+    add(box(0.03, 0.9, 0.03), mDark, -2.95, 2.25, 0, crane, true);
+    // crane detail: hydraulic rams, hook block, outrigger legs, operator stand
+    var mYel = M(0xb8862b, 0.6, 0.3);
+    var r1 = add(cylX(0.07, 1.4, 8), mMetal, -0.05, 0.9, 0.22, crane, true); r1.rotation.z = 1.0;
+    var r2 = add(cylX(0.06, 1.2, 8), mMetal, -1.1, 2.75, 0.18, crane, true); r2.rotation.z = -0.25;
+    add(box(0.22, 0.28, 0.22), mDark, -2.95, 1.7, 0, crane, true);
+    add(box(0.08, 0.16, 0.04), mYel, -2.95, 1.48, 0, crane, true);
+    add(box(0.5, 0.05, 0.5), mMetal, 0.45, 0.05, 0.75, crane, true);
+    add(box(0.04, 0.7, 0.04), mMetal, 0.65, 0.4, 0.95, crane, true);
+    [-1, 1].forEach(function (s) {
+      add(box(0.2, 0.2, 1.1), mYel, 2.2, 1.0, s * 1.65, rs, true);
+      add(box(0.14, 0.95, 0.14), mYel, 2.2, 0.5, s * 2.15, rs, true);
+      add(box(0.45, 0.06, 0.45), mDark, 2.2, 0.05, s * 2.15, rs, true);
+      for (var sp = 0; sp < 6; sp++) add(box(0.06, 0.45, 0.06), mMetal, -4.2 + sp * 1.15, 1.6, s * 1.2, rs, true);
+      add(box(6.0, 0.05, 0.05), mMetal, -1.3, 1.82, s * 1.2, rs, true);
+    });
+    [-3.2, -1.3].forEach(function (px) { [-0.6, 0.6].forEach(function (pz) {
+      if (px === -1.3 && pz < 0) { add(box(0.05, 0.66, 1.16), mDark, px - 0.3, 1.71, pz, rs, true); add(box(0.05, 0.66, 1.16), mDark, px + 0.3, 1.71, pz, rs, true); }
+      if (px === -3.2) { add(box(0.05, 0.66, 1.16), mDark, px - 0.3, 1.71, pz, rs, true); add(box(0.05, 0.66, 1.16), mDark, px + 0.3, 1.71, pz, rs, true); }
+    }); });
+    add(box(0.08, 1.3, 2.3), mMetal, 2.65, 2.0, 0, rs, true);
+    for (var hr = 0; hr < 4; hr++) add(box(0.06, 0.04, 2.3), mMetal, 2.65, 1.5 + hr * 0.3, 0, rs, true);
+    add(new T.CylinderGeometry(0.1, 0.1, 0.14, 10), new T.MeshStandardMaterial({ color: 0xe0a020, emissive: 0x6b4200 }), 3.3, 3.05, 0, rs, true);
+    crane.rotation.y = 0.5;
+    bat.refs.resupply = rs;
+    // a carrier parked beside the resupply truck, bay open and empty, waiting for a fresh pod
+    bat.g.updateMatrixWorld(true);
+    var sc2 = car.clone(); sc2.position.copy(rs.localToWorld(new T.Vector3(1.0, 0, 4.4))); sc2.rotation.y = rs.rotation.y; bat.g.add(sc2);
+    doors.forEach(function (d) { var dc = sc2.children[car.children.indexOf(d.g)]; dc.rotation.x = d.s < 0 ? 1.75 : -1.75; });
+    var scL = sc2.children[car.children.indexOf(launcher)]; scL.position.y = 0.78; scL.rotation.z = 0; scL.visible = false;
+    sc2.children[car.children.indexOf(relay)].position.y = 1.84;
+    var cable = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]), new T.LineBasicMaterial({ color: 0x1d1f1a }));
+    cable.visible = false; bat.g.add(cable);
+    bat.refs.swap = { rs: rs, crane: crane, pod: swapPod, home: swapPod.position.clone(), carrier: sc2, slot: scL, cable: cable, t: -1 };
+    bat.g.updateMatrixWorld(true);
+    var gunPt = gv.localToWorld(new T.Vector3(-2.9, 6.1, 0));
+    seg(function (v) { return head.localToWorld(v.set(0, 0.4, 0)); }, function (v) { return v.copy(gunPt); });
+      // forest patch with a hide clearing, and the route out to the roadside rendezvous
+    var rvEnd = sc2.position.clone(), rvStart = new T.Vector3(-4, 0, 38);
+    var curve = new T.CatmullRomCurve3([rvStart, new T.Vector3(-6, 0, 31), new T.Vector3(-12, 0, 25), rvEnd.clone().add(new T.Vector3(3.5, 0, 3.5)), rvEnd.clone()]);
+    var samples = curve.getSpacedPoints(60);
+    var trunkM = new T.InstancedMesh(new T.CylinderGeometry(0.16, 0.22, 3.2, 6), M(0x4a3b2a, 0.9, 0), 90);
+    var crownM = new T.InstancedMesh(new T.IcosahedronGeometry(1.7, 0), M(0x3f5a2c, 0.95, 0), 90);
+    var crown2 = new T.InstancedMesh(new T.IcosahedronGeometry(1.25, 0), M(0x4c6a33, 0.95, 0), 90);
+    var tn = 0, tm = new T.Matrix4(), tq = new T.Quaternion(), tsc = new T.Vector3();
+    for (var ti = 0; ti < 400 && tn < 90; ti++) {
+      var a = ti * 2.399, rr = 2.5 + Math.sqrt(ti) * 1.15, px = rvStart.x + Math.cos(a) * rr, pz = rvStart.z + Math.sin(a) * rr;
+      if (rr > 17) continue;
+      var near = samples.some(function (s) { return Math.hypot(s.x - px, s.z - pz) < 3.4; });
+      if (near || Math.hypot(px - rvStart.x, pz - rvStart.z) < 3.6) continue;
+      var k3 = 0.8 + ((ti * 37) % 10) / 20;
+      tq.setFromAxisAngle(new T.Vector3(0, 1, 0), ti);
+      tm.compose(new T.Vector3(px, 1.6 * k3, pz), tq, tsc.set(k3, k3, k3)); trunkM.setMatrixAt(tn, tm);
+      tm.compose(new T.Vector3(px, 3.9 * k3, pz), tq, tsc.set(k3, k3 * 0.85, k3)); crownM.setMatrixAt(tn, tm);
+      tm.compose(new T.Vector3(px + 0.5, 4.9 * k3, pz - 0.3), tq, tsc.set(k3, k3, k3)); crown2.setMatrixAt(tn, tm);
+      tn++;
+    }
+    [trunkM, crownM, crown2].forEach(function (im) { im.count = tn; im.castShadow = true; im.receiveShadow = true; bat.g.add(im); });
+    // a few overhanging trees right over the hide clearing (canopy cover from above)
+    [[1.8, 1.2], [-1.6, 1.6], [0.4, -2.0]].forEach(function (o) {
+      var c = add(new T.IcosahedronGeometry(2.2, 0), M(0x3f5a2c, 0.95, 0), rvStart.x + o[0], 5.2, rvStart.z + o[1], bat.g, true);
+      c.scale.set(1.2, 0.6, 1.2);
+    });
+    var marks = new T.Group(); bat.g.add(marks);
+    bat.refs.rv = { start: rvStart, end: rvEnd, curve: curve, len: curve.getLength(), t: -1, marks: marks, lastMark: null, endYaw: rs.rotation.y };
+    // ---------- border kit on the wheeled vehicles (same lessons: top-attack FPVs, fibre-optic FPVs that emit nothing) ----------
+    var mNetB = new T.MeshBasicMaterial({ color: 0x2b2e26 });
+    function netFrame(parent, x0, x1, z0, z1, yb, yt) {
+      [[x0, z0], [x0, z1], [x1, z0], [x1, z1]].forEach(function (p) { add(box(0.06, yt - yb, 0.06), mMetal, p[0], (yt + yb) / 2, p[1], parent, true); });
+      add(box(x1 - x0, 0.05, 0.05), mMetal, (x0 + x1) / 2, yt, z0, parent, true); add(box(x1 - x0, 0.05, 0.05), mMetal, (x0 + x1) / 2, yt, z1, parent, true);
+      add(box(0.05, 0.05, z1 - z0), mMetal, x0, yt, (z0 + z1) / 2, parent, true); add(box(0.05, 0.05, z1 - z0), mMetal, x1, yt, (z0 + z1) / 2, parent, true);
+      for (var nz2 = z0 + 0.15; nz2 < z1; nz2 += 0.15) add(box(x1 - x0, 0.012, 0.012), mNetB, (x0 + x1) / 2, yt - 0.01, nz2, parent, true);
+      for (var nx2 = x0 + 0.15; nx2 < x1; nx2 += 0.15) add(box(0.012, 0.012, z1 - z0), mNetB, nx2, yt - 0.01, (z0 + z1) / 2, parent, true);
+    }
+    function micPods(parent, pts, y) {
+      pts.forEach(function (p) {
+        add(new T.CylinderGeometry(0.014, 0.014, 0.35, 5), mMetal, p[0], y + 0.17, p[1], parent, true);
+        add(new T.SphereGeometry(0.07, 10, 8), M(0x3b3d35, 1, 0), p[0], y + 0.38, p[1], parent, true);
+      });
+    }
+    function thermalCam(parent, x, y, z) {
+      add(new T.CylinderGeometry(0.03, 0.035, 0.6, 6), mMetal, x, y + 0.3, z, parent, true);
+      add(new T.CylinderGeometry(0.12, 0.12, 0.24, 12), mHull2, x, y + 0.72, z, parent);
+      add(new T.CylinderGeometry(0.122, 0.122, 0.08, 12), mGlass, x, y + 0.74, z, parent, true);
+    }
+    function jammerBox(parent, x, y, z) {
+      add(box(0.45, 0.24, 0.36), mHull2, x, y + 0.12, z, parent);
+      [[-0.15, -0.12], [0.15, -0.12], [-0.15, 0.12], [0.15, 0.12]].forEach(function (a) {
+        var s3 = add(new T.CylinderGeometry(0.02, 0.026, 0.28, 6), mDark, x + a[0], y + 0.38, z + a[1], parent, true); s3.rotation.x = a[1] * 2.2; s3.rotation.z = -a[0] * 2.2;
+      });
+    }
+    var bk = [];
+    // CTOC: net over the shelter roof with a slot along the mast's swing plane (mast erects through the gap), net over the cab
+    var bkC = new T.Group(); tr.add(bkC); bk.push(bkC);
+    netFrame(bkC, cx - 3.0, cx + 3.0, hz + 0.38, 1.25, 3.85, 5.15);
+    netFrame(bkC, 3.75, 5.45, -1.15, 1.15, 2.95, 3.55);
+    thermalCam(bkC, cx - 2.7, 3.85, -1.1);
+    micPods(bkC, [[cx - 2.95, -1.2], [cx + 2.95, -1.2], [5.3, 1.15], [5.3, -1.15]], 3.85);
+    // gun vehicle: the turret must traverse freely, so the net covers the cab and the power unit only
+    var bkG = new T.Group(); gv.add(bkG); bk.push(bkG);
+    netFrame(bkG, -0.05, 4.95, -1.2, 1.2, 2.7, 3.3);
+    thermalCam(bkG, shx - 1.55, 3.57, 0.0);
+    micPods(bkG, [[shx - 1.75, 1.15], [shx - 1.75, -1.15], [4.8, 1.15], [4.8, -1.15]], 2.9);
+    // resupply truck: the softest vehicle — net over the cab, a portable jammer, and crates of interceptors for hand refill
+    var bkR = new T.Group(); rs.add(bkR); bk.push(bkR);
+    netFrame(bkR, 2.75, 4.45, -1.15, 1.15, 2.95, 3.55);
+    jammerBox(bkR, 3.6, 3.55, 0);
+    micPods(bkR, [[4.35, 1.15], [4.35, -1.15]], 2.95);
+    // interceptor crates (always carried): light enough for infantry to hand-load into a carrier's magazine cells
+    [[0.15, 0.62], [0.15, -0.62], [0.7, 0.62], [0.7, -0.62]].forEach(function (c) {
+      add(box(0.48, 0.32, 0.55), M(0x5e6650, 0.8, 0.1), c[0], 1.54, c[1], rs);
+      add(box(0.5, 0.03, 0.08), mMetal, c[0], 1.71, c[1], rs, true);
+    });
+    bat.refs.bk = bk; bat.refs.carriersAll = carriers.slice(1).concat([sc2]);
+    applyBorder();
+    bat.g.traverse(function (o) { if (o.material) lin(o.material); });
+    bat.built = true;
+    power();
+  }
+  var A = new T.Vector3(), B = new T.Vector3();
+  function updateLinks(t) {
+    bat.segs.forEach(function (s, i) {
+      s.a(A); s.b(B); s.g.setFromPoints([A, B]);
+      s.pk.forEach(function (p) { var u = (t * 0.45 + p.o + i * 0.13) % 1; p.m.position.copy(A).lerp(B, u); });
+    });
+  }
+  function hidePt(v) { return v.set(0, -999, 0); }
+  pin("ศูนย์บังคับการ CTOC (ตู้ ISO 20 ฟุตบน 8×8)", function (v) { return bat.built ? bat.refs.truck.localToWorld(v.set(-2.4, 4.7, 0)) : hidePt(v); }, null, true);
+  ["Swarm 1", "Swarm 2", "Swarm 3"].forEach(function (n, i) {
+    pin(n, function (v) { return bat.built ? bat.refs.carriers[i].localToWorld(v.set(0, 2.9, 0)) : hidePt(v); }, null, true);
+  });
+  pin("โดรนต่อสาย = เสาส่งสัญญาณ", function (v) { return bat.built ? bat.refs.carriers[1].localToWorld(v.set(0.35, 11.4, 0.62)) : hidePt(v); }, null, true);
+  pin("รถปืนป้องกันจุดบังคับการ (30 มม. ระเบิดกลางอากาศ)", function (v) { return bat.built ? bat.refs.gun.localToWorld(v.set(-2.2, 4.9, 0)) : hidePt(v); }, null, true);
+  pin("รถส่งกำลัง: แท่นตลับสำรอง + เครน", function (v) { return bat.built ? bat.refs.resupply.localToWorld(v.set(-1.5, 3.2, 0)) : hidePt(v); }, null, true);
+  // inspect-mode part labels, shown only while that vehicle is focused
+  function on(refName, fn) { return function (v) { return bat.built ? fn(v, bat.refs) : hidePt(v); }; }
+  [
+    ["ตู้ ISO 20 ฟุต 6.06 × 2.44 × 2.59 ม.", function (v, r) { return r.truck.localToWorld(v.set(-2.37, 4.15, -0.4)); }],
+    ["เสาพับยกไฮดรอลิก ≈10.7 ม. ไม่ต้องมีสายยึด", function (v, r) { return r.mast.piv.localToWorld(v.set(0, 3.6, 0)); }],
+    ["กระบอกไฮดรอลิกยกเสา", function (v, r) { return r.mast.body.localToWorld(v.set(0, 0.4, 0)); }],
+    ["หัวเสา: เสาอากาศกำหนดทิศ 4 ทิศ + เรโดม", function (v, r) { return r.mast.head.localToWorld(v.set(0, 1.0, 0)); }],
+    ["จานดาวเทียม", function (v, r) { return r.truck.localToWorld(v.set(-1.77, 4.9, 0.45)); }],
+    ["แอร์ 2 ชุด ≈7 kW", function (v, r) { return r.truck.localToWorld(v.set(-0.87, 3.5, 1.5)); }],
+    ["ประตูคน + บันไดพับ", function (v, r) { return r.truck.localToWorld(v.set(-3.97, 3.55, 1.3)); }],
+    ["แผงต่อสายภายนอก", function (v, r) { return r.truck.localToWorld(v.set(0.03, 2.3, 1.3)); }],
+    ["ช่องเครื่องปั่นไฟ 30 kVA", function (v, r) { return r.truck.localToWorld(v.set(1.9, 3.0, 0)); }],
+    ["ขาค้ำ 4 จุด", function (v, r) { return r.truck.localToWorld(v.set(0.23, 0.9, 1.7)); }],
+    ["ตาข่ายหลังคา เว้นร่องให้เสายกผ่าน", function (v, r) { return kits.border.on ? r.truck.localToWorld(v.set(-3.4, 5.4, 0.6)) : hidePt(v); }],
+    ["กล้องความร้อน + ไมโครโฟน", function (v, r) { return kits.border.on ? r.truck.localToWorld(v.set(-5.07, 4.9, -1.1)) : hidePt(v); }],
+    ["แชสซี 8×8 · 21.8 ตัน", function (v, r) { return r.truck.localToWorld(v.set(3.8, 1.5, 1.2)); }]
+  ].forEach(function (p) { pin(p[0], on(null, p[1]), null, true, "ctoc"); });
+  [
+    ["ป้อม 30 มม. ยิงระเบิดกลางอากาศ", function (v, r) { return r.tur.localToWorld(v.set(0.8, 1.9, -1.0)); }],
+    ["ห้องควบคุมป้องกันภัยทางอากาศ 2 คน", function (v, r) { return r.gun.localToWorld(v.set(-3.4, 2.6, 1.4)); }],
+    ["ประตู + บันไดพับ", function (v, r) { return r.gun.localToWorld(v.set(-2.25, 3.4, 1.4)); }],
+    ["เรดาร์ควบคุมการยิง (ท้ายป้อม)", function (v, r) { return r.tur.localToWorld(v.set(-1.35, 1.55, 0)); }],
+    ["กล้อง EO", function (v, r) { return r.tur.localToWorld(v.set(0.6, 2.05, 1.0)); }],
+    ["ลำกล้อง + ตัววัดความเร็วกระสุน", function (v, r) { return r.tur.localToWorld(v.set(4.9, 1.05, 0)); }],
+    ["เรดาร์ค้นหาหมุน", function (v, r) { return r.gunRadar.localToWorld(v.set(0, 0.65, 0)); }],
+    ["ชุดไฟฟ้า + ระบายความร้อน", function (v, r) { return r.gun.localToWorld(v.set(0.6, 2.9, 0)); }],
+    ["แอร์ห้องควบคุม", function (v, r) { return r.gun.localToWorld(v.set(-3.6, 3.0, -1.5)); }],
+    ["ขาค้ำ 4 ขา กางก่อนยิง", function (v, r) { return r.gun.localToWorld(v.set(1.0, 1.0, 2.05)); }],
+    ["ตาข่ายคลุมห้องคนขับ + ชุดไฟฟ้า (ป้อมหมุนได้อิสระ)", function (v, r) { return kits.border.on ? r.gun.localToWorld(v.set(2.4, 3.6, 0)) : hidePt(v); }],
+    ["กล้องความร้อนรอบทิศ", function (v, r) { return kits.border.on ? r.gun.localToWorld(v.set(-4.45, 4.6, 0)) : hidePt(v); }],
+    ["แชสซี 8×8 · 24.8 ตัน", function (v, r) { return r.gun.localToWorld(v.set(4.3, 1.5, 1.2)); }]
+  ].forEach(function (p) { pin(p[0], on(null, p[1]), null, true, "gun"); });
+  [
+    ["เครนพับ ≥8 ตัน·ม.", function (v, r) { return r.swap.crane.localToWorld(v.set(-1.4, 3.0, 0)); }],
+    ["แท่นตลับสำรอง 3 แท่น (30 ช่อง + 6 ท่อ)", function (v, r) { return r.resupply.localToWorld(v.set(-2.6, 2.3, 0)); }],
+    ["สายรัดแท่น", function (v, r) { return r.resupply.localToWorld(v.set(-3.5, 2.15, -0.6)); }],
+    ["ขาค้ำเครน 2 ข้าง", function (v, r) { return r.resupply.localToWorld(v.set(2.2, 1.1, 2.15)); }],
+    ["โครงกันกระแทกหลังห้องคนขับ", function (v, r) { return r.resupply.localToWorld(v.set(2.65, 2.75, -0.8)); }],
+    ["ไฟหมุนเตือน", function (v, r) { return r.resupply.localToWorld(v.set(3.3, 3.3, 0)); }],
+    ["ลังโดรนสกัดกั้น เติมตลับด้วยมือได้", function (v, r) { return r.resupply.localToWorld(v.set(0.45, 2.0, 0.62)); }],
+    ["ตาข่ายคลุมห้องคนขับ + เครื่องรบกวน", function (v, r) { return kits.border.on ? r.resupply.localToWorld(v.set(3.6, 4.2, 0)) : hidePt(v); }],
+    ["แชสซี 6×6 · 16.5 ตัน", function (v, r) { return r.resupply.localToWorld(v.set(3.8, 1.5, 1.2)); }]
+  ].forEach(function (p) { pin(p[0], on(null, p[1]), null, true, "rs"); });
+  pin("จุดซ่อนใต้ร่มไม้", function (v) { return bat.built && bat.refs.rv ? v.copy(bat.refs.rv.start).setY(3.5) : hidePt(v); }, null, true);
+  pin("จุดนัดริมทาง", function (v) { return bat.built && bat.refs.rv ? v.copy(bat.refs.rv.end).setY(3.2) : hidePt(v); }, null, true);
+  pin("ระยะจริง 10–20 กม. (ย่อในภาพ)", function (v) { return v.set(-18, 0.6, 2); }, null, true);
+
+  // ---------- pod swap demo: crane lifts a full cell-magazine pod off the truck into a waiting carrier ----------
+  var swA = new T.Vector3(), swB = new T.Vector3();
+  function startSwap() {
+    if (!bat.on) setBattery(true);
+    var S2 = bat.refs.swap;
+    S2.rs.add(S2.pod); S2.pod.position.copy(S2.home); S2.pod.visible = true; S2.slot.visible = false;
+    bat.g.updateMatrixWorld(true);
+    bat.g.attach(S2.pod);
+    S2.start = S2.pod.position.clone();
+    S2.target = S2.slot.localToWorld(new T.Vector3(0.83, -0.06, 0));
+    S2.t = 0;
+    var c = S2.rs.position; orbit.tgt.set(c.x + 1.5, 2, c.z + 2.5); orbit.r = 22; orbit.ph = 1.05; orbit.th = 0.4;
+    setStatus("<b>เปลี่ยนแท่นตลับ</b> Swarm ที่ยิงหมดมาจอดข้างรถส่งกำลัง เปิดฝาหลังคา ช่องแท่นยิงว่าง");
+  }
+  function updateSwap(dt) {
+    var S2 = bat.refs.swap; if (!S2 || S2.t < 0) return;
+    S2.t += dt; var t2 = S2.t, p = S2.pod.position;
+    var lift = ss(1.2, 2.7, t2), move = ss(2.7, 5.7, t2), lower = ss(5.7, 7.2, t2), hi = 2.6;
+    p.x = S2.start.x + (S2.target.x - S2.start.x) * move;
+    p.z = S2.start.z + (S2.target.z - S2.start.z) * move;
+    var yTop = Math.max(S2.start.y, S2.target.y) + hi;
+    p.y = lower > 0 ? yTop + (S2.target.y - yTop) * lower : S2.start.y + (yTop - S2.start.y) * lift;
+    // slew + telescope the crane so its tip stays over the pod
+    var lp = S2.rs.worldToLocal(p.clone()), dx = lp.x - 2.2, dz = lp.z;
+    var want = Math.atan2(dz, -dx), aim = t2 < 1.2 ? ss(0, 1.2, t2) : 1;
+    S2.crane.rotation.y = 0.5 + wrap(want - 0.5) * aim;
+    S2.crane.scale.x = Math.max(0.8, Math.min(1.8, Math.hypot(dx, dz) / 2.95));
+    S2.rs.updateMatrixWorld(true);
+    S2.crane.localToWorld(swA.set(-2.95, 2.3, 0)); swB.copy(p).setY(p.y + 0.62);
+    S2.cable.geometry.setFromPoints([swA, swB]); S2.cable.visible = t2 > 0.8 && t2 < 7.3;
+    if (t2 > 1.2 && t2 - dt <= 1.2) setStatus("<b>ยก</b> เครนยกแท่นตลับทั้งชุด (10 ช่อง + 2 ท่อ) ≈1.1 ตัน");
+    if (t2 > 2.7 && t2 - dt <= 2.7) setStatus("<b>เคลื่อน</b> เครนหมุนยื่นแท่นไปเหนือช่องแท่นยิงของ Swarm");
+    if (t2 > 5.7 && t2 - dt <= 5.7) setStatus("<b>วาง</b> ลดแท่นลงช่อง ล็อก 4 จุด ต่อขั้วไฟและข้อมูล");
+    if (t2 > 7.4) {
+      S2.pod.visible = false; S2.slot.visible = true; S2.cable.visible = false; S2.t = -1;
+      setStatus("<b>เสร็จ</b> Swarm ได้ตลับเต็ม 10 ช่อง + 2 ท่อ เวลาจริงต้องจับจากต้นแบบ");
+    }
+  }
+
+  // ---------- rendezvous demo: carrier leaves the forest hide (battery first, then diesel), meets the resupply truck ----------
+  var markGeo = box(0.5, 0.02, 0.35), markMat = new T.MeshBasicMaterial({ color: 0x5f5644, transparent: true, opacity: 0.75 });
+  function setDoors(c, k) { doors.forEach(function (d) { c.children[car.children.indexOf(d.g)].rotation.x = (d.s < 0 ? 1 : -1) * 1.75 * k; }); }
+  function startRV() {
+    if (!bat.on) setBattery(true);
+    bat.focus = null; setMode("move");
+    var R = bat.refs.rv, S2 = bat.refs.swap;
+    while (R.marks.children.length) R.marks.remove(R.marks.children[0]);
+    S2.t = -1; S2.rs.add(S2.pod); S2.pod.position.copy(S2.home); S2.pod.visible = true; S2.slot.visible = false; S2.cable.visible = false;
+    setDoors(S2.carrier, 0);
+    R.t = 0; R.lastMark = null;
+    setStatus("<b>ออกจากจุดซ่อน</b> พับแผง ลดเสา เก็บแท่นยิง ขับด้วยแบต เงียบ ไม่มีความร้อนจากเครื่อง");
+  }
+  function updateRV(dt) {
+    var R = bat.refs.rv; if (!R || R.t < 0) return;
+    var S2 = bat.refs.swap, c = S2.carrier;
+    R.t += dt;
+    var driveT = R.len / 4.5, u = Math.min(1, R.t / driveT);
+    if (u < 1) {
+      var p = R.curve.getPointAt(u), tg = R.curve.getTangentAt(u);
+      c.position.copy(p); c.rotation.y = Math.atan2(-tg.z, tg.x);
+      if (!R.lastMark || R.lastMark.distanceTo(p) > 0.9) {
+        [-1.3, 1.3].forEach(function (zo) {
+          var m = new T.Mesh(markGeo, markMat); m.position.copy(c.localToWorld(new T.Vector3(-2.4, 0.02, zo))); m.rotation.y = c.rotation.y; R.marks.add(m);
+        });
+        R.lastMark = p.clone();
+      }
+      if (u > 0.35 && R.t - dt < driveT * 0.35) setStatus("<b>ติดดีเซล</b> พ้นจุดซ่อนแล้ว ใช้เครื่องยนต์ เหลือน้ำมันสำรองหนี 100 ลิตร ≈50 กม.");
+      if (u > 0.8 && R.t - dt < driveT * 0.8) setStatus("<b>ใกล้จุดนัด</b> โดรนลาดตระเวนบินนำตรวจเส้นทางก่อนเข้า");
+      orbit.tgt.lerp(new T.Vector3(p.x, 1.5, p.z), Math.min(1, dt * 2)); orbit.r += (28 - orbit.r) * Math.min(1, dt);
+    } else {
+      var k = Math.min(1, (R.t - driveT) / 1.5);
+      c.position.lerp(R.end, k); c.rotation.y += wrap(R.endYaw - c.rotation.y) * k;
+      setDoors(c, ss(0.4, 1, k));
+      if (k >= 1) { R.t = -1; setStatus("<b>ถึงจุดนัด</b> จอดข้างรถส่งกำลัง เปิดฝาหลังคา"); setTimeout(startSwap, 600); }
+    }
+  }
+
+  function setBattery(on) {
+    bat.on = on; bat.focus = null;
+    if (on && !bat.built) buildBattery();
+    bat.g.visible = on;
+    if (on) { st.mastT = 1; orbit.tgt.set(-14, 1, 0); orbit.r = 82; orbit.ph = 0.88; orbit.th = 1.1; scene.fog.far = 190; }
+    else { orbit.tgt.set(0, 1.2, 0); orbit.r = 15; orbit.ph = 1.12; scene.fog.far = 70; }
+    var e = on ? 55 : 12; sc.left = -e; sc.right = e; sc.top = e; sc.bottom = -e; sc.updateProjectionMatrix();
+    document.getElementById("b-bat-t").textContent = on ? "กลับมุมมองรถคันเดียว" : "มุมมองหน่วยยิง";
+    setStatus(on ? "<b>หน่วยยิง</b> ศูนย์บังคับการ 1 จุด คุม Swarm 3 คันผ่านโดรนต่อสาย มีรถปืนป้องกันศูนย์ และรถส่งกำลังขนแท่นตลับสำรอง" : "<b>รถคันเดียว</b>");
+    ui();
+  }
+
+  // ---------- engagement demo: carrier radar detects -> CTOC relays track -> gun cues and fires when in range ----------
+  var ens = { on: false, t: 0, g: null, dead: false, vy: 0, deadT: 0, fireT: 0, lastShot: 0, detected: false, cued: false, cueT: 0, shots: [] };
+  var mEnemy = M(0x8f3325, 0.6, 0.2);
+  var redMat = new T.LineBasicMaterial({ color: new T.Color(0xe2765b).convertSRGBToLinear() }); redMat.userData.lin = true;
+  var orMat = new T.LineBasicMaterial({ color: new T.Color(0xe6b450).convertSRGBToLinear(), transparent: true, opacity: 0.9 }); orMat.userData.lin = true;
+  var tracerGeo = box(1.1, 0.06, 0.06), tracerMat = new T.MeshBasicMaterial({ color: 0xffd27a });
+  var darkPuffMat = new T.MeshBasicMaterial({ color: 0x3b3a34, transparent: true, opacity: 0.8, depthWrite: false });
+  var eStart = new T.Vector3(46, 16, -12), eEnd = new T.Vector3(-34, 7, 3);
+  var detLine = null, cueLine = null;
+  function mkLine(mat) { var l = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]), mat); l.visible = false; scene.add(l); return l; }
+  function darkPuff(pos) {
+    var m = new T.Mesh(puffGeo, darkPuffMat.clone()); m.position.copy(pos); m.scale.setScalar(0.5); scene.add(m); puffs.push({ m: m, t: 0 });
+  }
+  function clearEnemy() {
+    if (ens.g) scene.remove(ens.g);
+    ens.shots.forEach(function (s) { scene.remove(s.m); }); ens.shots = [];
+    ens.on = false; ens.g = null; if (detLine) { detLine.visible = false; cueLine.visible = false; }
+  }
+  function startEnemy() {
+    if (!bat.on) setBattery(true);
+    clearEnemy(); lin(mEnemy);
+    if (!detLine) { detLine = mkLine(redMat); cueLine = mkLine(orMat); }
+    var g = quad(1.4);
+    g.traverse(function (o) { if (o.material === mDrone || o.material === mDroneDark) o.material = mEnemy; });
+    g.position.copy(eStart); scene.add(g);
+    ens.g = g; ens.on = true; ens.t = 0; ens.dead = false; ens.vy = 0; ens.deadT = 0; ens.fireT = 0; ens.detected = false; ens.cued = false; ens.cueT = 0;
+    setStatus("<b>โดรนข้าศึก</b> เข้ามาจากแนวหน้า มุ่งไปที่ศูนย์บังคับการ");
+  }
+  function wrap(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; }
+  function updateEnemy(dt, t) {
+    if (!ens.on) return;
+    var g = ens.g, tur = bat.refs.tur, gv = bat.refs.gun;
+    if (!ens.dead) {
+      ens.t += dt;
+      var u = Math.min(1, ens.t / 17);
+      g.position.lerpVectors(eStart, eEnd, u); g.position.y += Math.sin(ens.t * 1.6) * 0.4;
+      g.userData.rot.forEach(function (r) { r.rotation.y += dt * 45; });
+      // 1) nearest carrier radar picks it up
+      var best = null, bd = 1e9;
+      bat.refs.carriers.forEach(function (c, i) {
+        var rp = c.localToWorld(new T.Vector3(0.95, 2.4, 0.62)), d = rp.distanceTo(g.position);
+        if (d < bd) { bd = d; best = { p: rp, i: i }; }
+      });
+      if (best && bd < 30) {
+        detLine.geometry.setFromPoints([best.p, g.position.clone()]); detLine.visible = true;
+        if (!ens.detected) { ens.detected = true; setStatus("<b>ตรวจจับ</b> Swarm " + (best.i + 1) + " เห็นโดรนข้าศึกก่อน ส่งพิกัดผ่านโดรนต่อสายไปศูนย์บังคับการ"); }
+      } else detLine.visible = false;
+      // 2) CTOC forwards the track to the gun after a short delay; turret slews early
+      if (ens.detected && !ens.cued) { ens.cueT += dt; if (ens.cueT > 1.2) { ens.cued = true; setStatus("<b>ส่งต่อเป้า</b> ศูนย์บังคับการส่งพิกัดให้รถปืน ป้อมหันรอเป้าก่อนเข้าระยะ"); } }
+      if (ens.cued) {
+        gv.updateMatrixWorld(true);
+        var gr = bat.refs.gunRadar.getWorldPosition(new T.Vector3());
+        cueLine.geometry.setFromPoints([gr, g.position.clone()]); cueLine.visible = true;
+        var lp = gv.worldToLocal(g.position.clone()).sub(tur.position);
+        var yaw = Math.atan2(-lp.z, lp.x), pitch = Math.atan2(lp.y - 0.8, Math.hypot(lp.x, lp.z));
+        tur.rotation.y += wrap(yaw - tur.rotation.y) * Math.min(1, dt * 3);
+        tur.rotation.z += (pitch - tur.rotation.z) * Math.min(1, dt * 3);
+        // 3) fire short bursts once inside the gun's (scaled) range
+        tur.updateMatrixWorld(true);
+        var muzzle = tur.localToWorld(new T.Vector3(5.3, 0.8, 0));
+        var dist = muzzle.distanceTo(g.position);
+        if (dist < 24) {
+          if (ens.fireT === 0) setStatus("<b>ยิง</b> เป้าเข้าระยะ ป้อมยิงกระสุนระเบิดกลางอากาศหน้าเป้า");
+          ens.fireT += dt;
+          if (t - ens.lastShot > 0.11) {
+            ens.lastShot = t;
+            var aim = g.position.clone().add(new T.Vector3((Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.2));
+            var dir = aim.clone().sub(muzzle).normalize();
+            var m = new T.Mesh(tracerGeo, tracerMat); m.position.copy(muzzle); m.quaternion.setFromUnitVectors(new T.Vector3(1, 0, 0), dir); scene.add(m);
+            ens.shots.push({ m: m, dir: dir, left: muzzle.distanceTo(aim), aim: aim });
+            puff(muzzle);
+          }
+          if (ens.fireT > 1.5) {
+            ens.dead = true; detLine.visible = false; cueLine.visible = false;
+            for (var k2 = 0; k2 < 5; k2++) darkPuff(g.position.clone().add(new T.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)));
+            setStatus("<b>สกัดได้</b> โดรนข้าศึกตกก่อนถึงศูนย์บังคับการ");
+          }
+        }
+      }
+      if (u >= 1 && !ens.dead) { setStatus("<b>หลุดเข้ามา</b> โดรนถึงศูนย์บังคับการ"); clearEnemy(); }
+    } else {
+      ens.deadT += dt; ens.vy -= 9.8 * dt;
+      if (g.position.y > 0.35) { g.position.y = Math.max(0.35, g.position.y + ens.vy * dt); g.rotation.x += dt * 4; g.rotation.z += dt * 3; }
+      if (ens.deadT > 4) clearEnemy();
+    }
+    for (var i = ens.shots.length - 1; i >= 0; i--) {
+      var s = ens.shots[i], step = 90 * dt;
+      s.m.position.addScaledVector(s.dir, step); s.left -= step;
+      if (s.left <= 0) { darkPuff(s.aim); scene.remove(s.m); ens.shots.splice(i, 1); }
+    }
+  }
+
+  // ---------- bullet-shaped quad interceptor (Sting-like), body axis = local x, thrust along the body ----------
+  function sting() {
+    // long slim body (fits a 0.30 x 0.30 x 0.85 m cell); four arms fold flat along the body in the cell and swing out after exit
+    var g = new T.Group(), rot = [], arms = [];
+    add(cylX(0.05, 0.56, 12), mDrone, 0, 0, 0, g);
+    var nz = new T.ConeGeometry(0.05, 0.16, 12); nz.rotateZ(-Math.PI / 2);
+    add(nz, mDroneDark, 0.36, 0, 0, g);
+    add(box(0.07, 0.04, 0.04), mGlass, 0.3, -0.045, 0, g, true);
+    add(cylX(0.052, 0.04, 12), mDroneDark, -0.1, 0, 0, g, true);
+    add(cylX(0.052, 0.04, 12), mDroneDark, 0.12, 0, 0, g, true);
+    [0.785, 2.356, 3.927, 5.498].forEach(function (phi) {
+      var ga = new T.Group(); ga.position.set(-0.12, 0, 0); ga.rotation.x = phi; g.add(ga);
+      var gb = new T.Group(); ga.add(gb);
+      add(box(0.025, 0.2, 0.02), mDroneDark, 0, 0.1, 0, gb, true);
+      var r = add(new T.CylinderGeometry(0.085, 0.085, 0.004, 14).rotateZ(Math.PI / 2), new T.MeshStandardMaterial({ color: 0x222222, transparent: true, opacity: 0.5 }), 0.02, 0.2, 0, gb, true);
+      add(cylX(0.018, 0.04, 8), mMetal, 0.0, 0.2, 0, gb, true);
+      rot.push(r); arms.push(gb);
+    });
+    g.userData.rot = rot; g.userData.arms = arms; return g;
+  }
+  // ---------- interceptor drone (folding wings, recon/intercept role only) ----------
+  function interceptor() {
+    var g = new T.Group();
+    add(cylX(0.085, 0.8, 12), mDrone, 0, 0, 0, g);
+    var nose = new T.ConeGeometry(0.085, 0.22, 12); nose.rotateZ(-Math.PI / 2);
+    add(nose, mDrone, 0.51, 0, 0, g);
+    add(box(0.06, 0.05, 0.05), mGlass, 0.52, -0.05, 0, g, true);
+    var wings = [];
+    [1, -1].forEach(function (s) {
+      var piv = new T.Group(); piv.position.set(0.05, 0.07, 0); g.add(piv);
+      add(box(0.5, 0.015, 0.1), mDroneDark, -0.25, 0, 0, piv, true);
+      wings.push({ g: piv, s: s });
+    });
+    var fins = [];
+    [0, 1, 2, 3].forEach(function (i) {
+      var piv = new T.Group(); piv.position.set(-0.36, 0, 0); piv.rotation.x = i * Math.PI / 2; g.add(piv);
+      var f = add(box(0.14, 0.12, 0.01), mDroneDark, -0.02, 0.06, 0, piv, true); f.scale.y = 0.05;
+      fins.push(f);
+    });
+    var prop = add(new T.CylinderGeometry(0.16, 0.16, 0.005, 16).rotateZ(Math.PI / 2), new T.MeshStandardMaterial({ color: 0x222222, transparent: true, opacity: 0.5 }), -0.43, 0, 0, g, true);
+    g.userData = { wings: wings, fins: fins, prop: prop }; return g;
+  }
+
+  var flying = [], puffs = [];
+  var puffGeo = new T.SphereGeometry(0.3, 10, 8);
+  function puff(pos) {
+    var m = new T.Mesh(puffGeo, new T.MeshBasicMaterial({ color: 0xdedfd6, transparent: true, opacity: 0.6, depthWrite: false }));
+    m.position.copy(pos); scene.add(m); puffs.push({ m: m, t: 0 });
+  }
+
+  // ---------- state ----------
+  var st = { bay: 0, bayT: 0, recon: 0, reconT: 0, mast: 0, mastT: 0, left: 10, tl: 2, firing: false, mode: "watch", solar: 1, solarT: 1 };
+  // power modes (average draw, kW) — first-pass estimates
+  var MODES = {
+    hibernate: { kw: 0.5, spin: 0, name: "จำศีล" },
+    watch: { kw: 1.8, spin: 0.15, name: "เฝ้าระวัง" },
+    alert: { kw: 6.5, spin: 0.9, name: "เตือนภัย" },
+    combat: { kw: 9.5, spin: 0.9, name: "รบ" },
+    move: { kw: 50, spin: 0.4, name: "เคลื่อนย้าย" }
+  };
+  // 400 L tank, 100 L locked as escape reserve; battery 70 kWh usable
+  var WATCH_KWH = 300 * 3.3 + 70, RESERVE_L = 100, DRIVE_KW = 50, DRIVE_KMH = 8;
+  function power() {
+    var el = document.getElementById("pw"); if (!el) return;
+    var escKm = RESERVE_L * 3.3 / DRIVE_KW * DRIVE_KMH, batKm = 70 / DRIVE_KW * DRIVE_KMH;
+    if (st.mode === "move") {
+      el.innerHTML = "ขับ ≈<b>50 kW</b> · ด้วยแบตเงียบได้ ≈<b>" + batKm.toFixed(0) + " กม.</b> · น้ำมันสำรองหนี " + RESERVE_L + " ลิตร ≈<b>" + escKm.toFixed(0) + " กม.</b>";
+      return;
+    }
+    var area = 5 + 11 * (st.solarT && kits.solar.on ? 1 : 0), solarDay = 5 * area * 0.2, solarKw = solarDay / 24;
+    var net = Math.max(0.05, MODES[st.mode].kw - solarKw), days = WATCH_KWH / (net * 24);
+    el.innerHTML = "ใช้ไฟ <b>" + MODES[st.mode].kw.toFixed(1) + " kW</b> · โซลาร์ +" + solarKw.toFixed(2) + " kW (" + solarDay.toFixed(0) + " kWh/วัน) · อยู่ได้ <b>" + (days > 99 ? "99+" : days.toFixed(0)) + " วัน</b> · สำรองหนี " + RESERVE_L + " ลิตร ≈" + escKm.toFixed(0) + " กม.";
+  }
+  function setMode(m) {
+    st.mode = m;
+    if (m === "alert" || m === "combat") { st.solarT = 0; st.mastT = 1; }
+    if (m === "combat") st.bayT = 1;
+    if (m === "hibernate" || m === "watch") { st.mastT = 0; st.bayT = 0; }
+    if (m === "move") { st.solarT = 0; st.mastT = 0; st.bayT = 0; st.reconT = 0; }
+    ["hibernate", "watch", "alert", "combat", "move"].forEach(function (k) { document.getElementById("m-" + k).setAttribute("aria-pressed", k === m ? "true" : "false"); });
+    document.getElementById("a-solar").setAttribute("aria-pressed", st.solarT ? "true" : "false");
+    setStatus("<b>โหมด" + MODES[m].name + "</b> " + ({
+      hibernate: "เปิดแค่ตัวจับคลื่นและไมโครโฟน เรดาร์ปิด",
+      watch: "ฟังเงียบเป็นหลัก เรดาร์เปิดเป็นช่วง ไม่ส่งคลื่นเกือบตลอดเวลา",
+      alert: "เรดาร์เต็มเวลา ยกโดรนต่อสาย พับแผงโซลาร์เก็บ",
+      combat: "ยกแท่นยิง ทุกระบบทำงาน แผงโซลาร์พับเก็บ",
+      move: "พับแผง ลดเสา เก็บแท่นยิงและโดรน ขับด้วยแบตก่อน แล้วติดดีเซลเมื่อพ้นจุดซ่อน"
+    })[m]);
+    power(); ui();
+  }
+  var $ = function (id) { return document.getElementById(id); };
+  function setStatus(t) { $("status").innerHTML = "สถานะ: " + t; }
+  function ui() {
+    $("b-bay-t").textContent = st.bayT ? "เก็บแท่นยิง" : "ยกแท่นยิง";
+    $("b-fire-t").textContent = "ปล่อยโดรนสกัดกั้นจากตลับ (" + st.left + ")";
+    $("b-fire").disabled = !(st.bay > 0.99 && st.bayT === 1 && st.left > 0);
+    $("b-fire").classList.toggle("primary", !$("b-fire").disabled);
+    $("b-fire2-t").textContent = "ยิงท่อพิเศษ (" + st.tl + ")";
+    $("b-fire2").disabled = !(st.bay > 0.99 && st.bayT === 1 && st.tl > 0);
+    $("b-bay").classList.toggle("primary", st.bayT === 0 && st.left + st.tl > 0);
+    $("b-recon-t").textContent = st.reconT ? "เรียกโดรนลาดตระเวนกลับ" : "ปล่อยโดรนลาดตระเวน";
+    $("b-mast-t").textContent = st.mastT ? "ลดเสาโดรนส่งสัญญาณ" : "ยกเสาโดรนส่งสัญญาณ";
+  }
+  ["hibernate", "watch", "alert", "combat", "move"].forEach(function (k) { $("m-" + k).addEventListener("click", function () { setMode(k); }); });
+  $("b-rv").addEventListener("click", startRV);
+  function inspect(k) {
+    ["car", "ctoc", "gun", "rs"].forEach(function (x) { $("i-" + x).setAttribute("aria-pressed", x === k ? "true" : "false"); });
+    if (k === "car") { if (bat.on) setBattery(false); bat.focus = null; orbit.tgt.set(0, 1.2, 0); orbit.r = 13; orbit.ph = 1.1; setStatus("<b>ตรวจดู Swarm</b> ป้ายบอกชิ้นส่วนบนตัวรถ"); return; }
+    if (!bat.on) setBattery(true);
+    bat.focus = k;
+    var g = k === "ctoc" ? bat.refs.truck : k === "gun" ? bat.refs.gun : bat.refs.resupply;
+    orbit.tgt.set(g.position.x, 3, g.position.z); orbit.r = k === "ctoc" ? 24 : 20; orbit.ph = 1.12; lastIn = clock.elapsedTime - 3;
+    setStatus("<b>ตรวจดู " + ({ ctoc: "ศูนย์บังคับการ CTOC", gun: "รถปืนป้องกันศูนย์", rs: "รถส่งกำลัง" })[k] + "</b> ลากหมุนดูรอบคันได้");
+  }
+  ["car", "ctoc", "gun", "rs"].forEach(function (k) { $("i-" + k).addEventListener("click", function () { inspect(k); }); });
+  $("a-solar").addEventListener("click", function () {
+    if (!kits.solar.on) { setStatus("<b>ยังไม่ได้ติดตั้งแผงปีกข้าง</b> เปิดที่ปุ่มแผงโซลาร์ปีกข้างในแถวชุดเสริมก่อน"); return; }
+    if (st.mode === "alert" || st.mode === "combat") { setStatus("<b>กางแผงไม่ได้</b> โหมดนี้ต้องพับแผงเก็บ ลดการสะท้อนแสงและให้แท่นยิงทำงาน"); return; }
+    st.solarT = st.solarT ? 0 : 1; this.setAttribute("aria-pressed", st.solarT ? "true" : "false"); power();
+    setStatus(st.solarT ? "<b>กางแผงโซลาร์</b> 16 ม² ได้ราว 16 kWh/วัน" : "<b>พับแผงโซลาร์</b> เหลือแผงบนหลังคา 5 ม²");
+  });
+  $("b-bay").addEventListener("click", function () { if (!st.bayT) { st.solarT = 0; $("a-solar").setAttribute("aria-pressed", "false"); power(); } st.bayT = st.bayT ? 0 : 1; setStatus(st.bayT ? "<b>เตรียมยิง</b> เปิดฝาหลังคา ยกแท่นตลับ ท่อพิเศษเงยขึ้น" : "<b>เก็บแท่น</b> ตลับกลับใต้เกราะ"); ui(); });
+  $("b-fire").addEventListener("click", fire);
+  $("b-fire2").addEventListener("click", fireTube);
+  $("b-recon").addEventListener("click", function () { st.reconT = st.reconT ? 0 : 1; setStatus(st.reconT ? "<b>ลาดตระเวน</b> เปิดโรงเก็บ ปล่อยโดรนใช้ซ้ำ" : "<b>เรียกกลับ</b> โดรนลงจอดและชาร์จ"); ui(); });
+  $("b-mast").addEventListener("click", function () { st.mastT = st.mastT ? 0 : 1; setStatus(st.mastT ? "<b>ส่งสัญญาณ</b> โดรนต่อสายลอยเป็นเสา จุดปล่อยคลื่นห่างตัวรถ" : "<b>เงียบสัญญาณ</b> ลดเสา"); ui(); });
+  $("b-bat").addEventListener("click", function () { if (bat.on) clearEnemy(); setBattery(!bat.on); });
+  $("b-enemy").addEventListener("click", startEnemy);
+  $("b-swap").addEventListener("click", startSwap);
+  $("b-reset").addEventListener("click", function () {
+    st.bayT = 0; st.reconT = 0; st.mastT = 0; st.left = 10; st.tl = 2;
+    tubes.forEach(function (t) { t.used = false; t.cap.visible = true; });
+    cells.forEach(function (c) { c.used = false; c.openT = 0; });
+    flying.forEach(function (f) { scene.remove(f.g); }); flying = [];
+    setStatus("<b>เดินทาง</b> แท่นยิงเก็บใต้หลังคาเกราะ"); ui();
+  });
+  window.addEventListener("keydown", function (e) {
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    var map = { "1": "b-bay", "2": "b-fire", "9": "b-fire2", "3": "b-recon", "4": "b-mast", "5": "b-bat", "6": "b-enemy", "7": "b-swap", "8": "b-rv", "r": "b-reset", "R": "b-reset" };
+    if (map[e.key] && !$(map[e.key]).disabled && document.activeElement !== $(map[e.key])) $(map[e.key]).click();
+  });
+
+  var V = function (x, y, z) { return new T.Vector3(x, y, z); };
+  // box cell: lid flips open, a bullet-shaped quad climbs straight out, then pitches over and dashes off
+  function fire() {
+    if (!(st.bay > 0.99 && st.left > 0)) return;
+    var c = null; for (var i = 0; i < cells.length; i++) if (!cells[i].used) { c = cells[i]; break; }
+    if (!c) return;
+    c.used = true; c.openT = 1; st.left--;
+    launcher.updateMatrixWorld(true);
+    var p0 = launcher.localToWorld(V(c.x, 0.5, c.z));
+    var d = sting(); d.position.copy(p0); d.visible = false; scene.add(d);
+    var fwd = car.localToWorld(V(1, 0, 0)).sub(car.getWorldPosition(V(0, 0, 0))).normalize();
+    flying.push({ g: d, type: "sting", dir: V(0, 1, 0), fwd: fwd, t: -0.3, side: (Math.random() - 0.5) * 0.9 });
+    var pTop = launcher.localToWorld(V(c.x, 0.9, c.z)); setTimeout(function () { puff(pTop); }, 300);
+    setStatus("<b>ปล่อยแล้ว</b> ฝาช่องเปิด ลมอัดดีดโดรนออกจากช่อง (ปล่อยเย็น) แขนกาง ใบพัดหมุน แล้วพุ่งเข้าเป้า ไม่มีแสงวาบ · เหลือ " + st.left + " ช่อง");
+    ui();
+  }
+  // special tube: cold launch on compressed air, wings and fins unfold after leaving the tube
+  function fireTube() {
+    if (!(st.bay > 0.99 && st.tl > 0)) return;
+    var t = null; for (var i = 0; i < tubes.length; i++) if (!tubes[i].used) { t = tubes[i]; break; }
+    if (!t) return;
+    t.used = true; t.cap.visible = false; st.tl--;
+    tubeRack.updateMatrixWorld(true);
+    var muzzle = tubeRack.localToWorld(V(1.6, 0, t.z));
+    var back = tubeRack.localToWorld(V(0.9, 0, t.z));
+    var dir = muzzle.clone().sub(back).normalize();
+    var d = interceptor(); d.position.copy(back); scene.add(d);
+    flying.push({ g: d, dir: dir, t: 0, side: (Math.random() - 0.5) * 0.6 });
+    puff(muzzle);
+    setStatus("<b>ยิงท่อพิเศษ</b> ลมอัดดันโดรนออกจากท่อ (ปล่อยเย็น) กางปีกกลางอากาศ · เหลือ " + st.tl + " ท่อ");
+    ui();
+  }
+
+  // ---------- camera orbit ----------
+  var orbit = { th: 0.75, ph: 1.12, r: 15, tgt: V(0, 1.2, 0) }, drag = false, lx = 0, ly = 0, lastIn = -10;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.addEventListener("pointerdown", function (e) { drag = true; lx = e.clientX; ly = e.clientY; el.classList.add("drag"); try { el.setPointerCapture(e.pointerId); } catch (x) {} });
+  el.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    orbit.th -= (e.clientX - lx) * 0.006; orbit.ph = Math.max(0.35, Math.min(1.45, orbit.ph - (e.clientY - ly) * 0.005));
+    lx = e.clientX; ly = e.clientY; lastIn = clock.elapsedTime;
+  });
+  function up() { drag = false; el.classList.remove("drag"); }
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  el.addEventListener("wheel", function (e) { e.preventDefault(); orbit.r = Math.max(7, Math.min(bat.on ? 110 : 34, orbit.r * (1 + Math.sign(e.deltaY) * 0.08))); lastIn = clock.elapsedTime; }, { passive: false });
+
+  function resize() {
+    var w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
+    renderer.setSize(w, h, false); renderer.domElement.style.width = "100%"; renderer.domElement.style.height = "100%";
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(el); else window.addEventListener("resize", resize);
+  resize();
+
+  var clock = new T.Clock();
+  function stepTo(cur, tgt, rate, dt) { return cur < tgt ? Math.min(tgt, cur + rate * dt) : Math.max(tgt, cur - rate * dt); }
+
+  function frame() {
+    var dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
+    var wasReady = st.bay > 0.99;
+    st.bay = stepTo(st.bay, st.bayT, 0.42, dt);
+    st.recon = stepTo(st.recon, st.reconT, 0.3, dt);
+    st.mast = stepTo(st.mast, st.mastT, 0.35, dt);
+    if ((st.bay > 0.99) !== wasReady) { ui(); if (st.bay > 0.99) setStatus("<b>พร้อมยิง</b> แท่นตลับยกขึ้นเหนือหลังคา " + st.left + " ช่อง + ท่อพิเศษ " + st.tl + " ท่อ"); }
+
+    // bay sequence: doors -> lift -> elevate
+    var ang = ss(0, 0.35, st.bay) * 1.75;
+    doors.forEach(function (d) { d.g.rotation.x = d.s < 0 ? ang : -ang; });
+    var lift = ss(0.3, 0.7, st.bay), elev = ss(0.65, 1, st.bay) * 0.62;
+    launcher.position.y = 0.78 + lift * 0.92; tubeRack.rotation.z = elev;
+    cells.forEach(function (c) { c.open = stepTo(c.open, c.openT, 3.5, dt); c.lid.rotation.z = ss(0, 1, c.open) * 1.95; });
+    ram.position.set(-0.55, 0.95 + lift * 0.5, 0); ram.rotation.z = 0.9 + elev * 0.4; ram.scale.x = 0.6 + lift * 0.75;
+
+    // recon drone
+    lid.position.x = -2.2 - ss(0, 0.3, st.recon) * 1.15;
+    var rise = ss(0.3, 0.75, st.recon), roam = ss(0.75, 1, st.recon);
+    recon.position.set(-2.2 + Math.sin(t * 0.35) * 4 * roam, 2.12 + rise * 5 + Math.sin(t * 1.3) * 0.12 * rise, Math.cos(t * 0.35) * 4 * roam);
+    recon.rotation.y = -t * 0.35 * roam;
+    recon.userData.rot.forEach(function (r) { r.rotation.y += dt * (rise > 0.01 ? 40 : 0); });
+
+    // tether relay
+    relay.position.y = 1.84 + ss(0, 1, st.mast) * 9;
+    relay.userData.rot.forEach(function (r) { r.rotation.y += dt * (st.mast > 0.01 ? 40 : 0); });
+    car.updateMatrixWorld(true);
+    var a = car.localToWorld(V(0.35, 1.78, 0.62)), b = relay.getWorldPosition(V(0, 0, 0));
+    cableGeo.setFromPoints([a, b]); cable.visible = st.mast > 0.02;
+
+    if (bat.on) {
+      updateLinks(t); if (bat.refs.gunRadar) bat.refs.gunRadar.rotation.y += dt * 0.9;
+      bat.raise = Math.min(1, (bat.raise || 0) + dt * 0.4);
+      var rz = ss(0, 1, bat.raise);
+      // erect the fold-up mast and drive the hydraulic ram between its roof anchor and the beam
+      var Mm = bat.refs.mast, th = (Math.PI / 2) * (1 - rz);
+      Mm.piv.rotation.z = th;
+      var pA = new T.Vector3(Mm.ax, Mm.ay, Mm.hz), pB = new T.Vector3(Mm.hx - Mm.at * Math.sin(th), Mm.hy + Mm.at * Math.cos(th), Mm.hz);
+      var dRam = pB.clone().sub(pA), Lr = dRam.length(), bodyL = Math.min(1.5, Lr * 0.9), qd = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), dRam.clone().normalize());
+      Mm.body.quaternion.copy(qd); Mm.body.scale.set(1, bodyL, 1); Mm.body.position.copy(pA).addScaledVector(dRam, bodyL / Lr / 2);
+      Mm.rod.quaternion.copy(qd); Mm.rod.scale.set(1, Lr - bodyL + 0.05, 1); Mm.rod.position.copy(pA).addScaledVector(dRam, (bodyL / Lr + 1) / 2);
+      updateSwap(dt); updateRV(dt);
+    } else bat.raise = 0;
+    updateEnemy(dt, t);
+    // radar spin + antenna sway
+    radar.rotation.y += dt * MODES[st.mode].spin;
+    st.solar = stepTo(st.solar, st.solarT, 0.5, dt);
+    var so = ss(0, 1, st.solar);
+    wings.forEach(function (w) { w.g.rotation.x = w.s * (Math.PI / 2) * (1 - so); });
+    var landed = 1 - ss(0, 0.3, st.recon);
+    cArms.forEach(function (a) {
+      if (a.ax === "z") a.m.position.z = a.s * (0.68 - 0.3 * landed); else a.m.position.x = -2.2 + a.s * (0.5 - 0.2 * landed);
+    });
+    ants.forEach(function (g, i) { g.rotation.z = Math.sin(t * 1.7 + i) * 0.025; });
+
+    // interceptors
+    for (var i = flying.length - 1; i >= 0; i--) {
+      var f = flying[i]; f.t += dt;
+      if (f.type === "sting") {
+        if (f.t < 0) continue; f.g.visible = true;
+        var sp2 = f.t < 0.15 ? 7 : f.t < 0.9 ? Math.max(2, 7 - (f.t - 0.15) * 9) : Math.min(30, 4 + (f.t - 0.9) * 22);
+        if (f.t > 0.7) { var w2 = V(f.fwd.x, 0.18, f.fwd.z + f.side).normalize(); f.dir.lerp(w2, dt * 2.2).normalize(); }
+        f.g.position.addScaledVector(f.dir, sp2 * dt);
+        f.g.quaternion.setFromUnitVectors(V(1, 0, 0), f.dir);
+        var unf = ss(0.15, 0.45, f.t);
+        f.g.userData.arms.forEach(function (gb) { gb.rotation.z = (Math.PI / 2 - 0.12) * (1 - unf) - 0.12; });
+        f.g.userData.rot.forEach(function (r) { r.rotation.x += dt * (unf > 0.9 ? 70 : 0); });
+        if (f.t > 4.5) { scene.remove(f.g); flying.splice(i, 1); }
+        continue;
+      }
+      var sp = f.t < 0.35 ? 3 + f.t * 40 : 17;
+      if (f.t > 0.6) { var want = V(f.dir.x, 0.32, f.dir.z + f.side).normalize(); f.dir.lerp(want, dt * 1.2).normalize(); }
+      f.g.position.addScaledVector(f.dir, sp * dt);
+      f.g.quaternion.setFromUnitVectors(V(1, 0, 0), f.dir);
+      var u = ss(0.28, 0.6, f.t);
+      f.g.userData.wings.forEach(function (w) { w.g.rotation.y = w.s * u * Math.PI / 2; });
+      f.g.userData.fins.forEach(function (fn) { fn.scale.y = 0.05 + u * 0.95; });
+      f.g.userData.prop.rotation.x += dt * (u > 0.5 ? 60 : 0);
+      if (f.t > 0.25 && f.t < 1.5 && Math.random() < 0.3) puff(f.g.position.clone());
+      if (f.t > 5) { scene.remove(f.g); flying.splice(i, 1); }
+    }
+    for (var j = puffs.length - 1; j >= 0; j--) {
+      var p = puffs[j]; p.t += dt; p.m.scale.setScalar(0.4 + p.t * 1.8); p.m.material.opacity = Math.max(0, 0.55 - p.t * 0.45);
+      if (p.t > 1.3) { scene.remove(p.m); p.m.material.dispose(); puffs.splice(j, 1); }
+    }
+
+    // camera
+    if (!drag && !reduce && t - lastIn > 4) orbit.th += dt * 0.12;
+    camera.position.set(orbit.tgt.x + orbit.r * Math.sin(orbit.ph) * Math.cos(orbit.th), orbit.tgt.y + orbit.r * Math.cos(orbit.ph), orbit.tgt.z + orbit.r * Math.sin(orbit.ph) * Math.sin(orbit.th));
+    camera.lookAt(orbit.tgt);
+    renderer.render(scene, camera);
+    placeLabels();
+    requestAnimationFrame(frame);
+  }
+  // hex colours above are sRGB; convert every material once so the scene isn't washed out
+  function lin(m) { if (!m || m.userData.lin) return; if (m.color) m.color.convertSRGBToLinear(); if (m.emissive) m.emissive.convertSRGBToLinear(); m.userData.lin = true; }
+  [mHull, mHull2, mDark, mMetal, mTrack, mGlass, mTube, mRed, mLight, mDrone, mDroneDark, lineMat, mEra, netMat].forEach(lin);
+  scene.traverse(function (o) { if (o.material && o.material !== ground.material) lin(o.material); });
+  scene.background.convertSRGBToLinear(); scene.fog.color.copy(scene.background);
+  ui(); power();
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

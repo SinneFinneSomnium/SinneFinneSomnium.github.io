@@ -6,19 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="SinneFinneSomnium — Personal portfolio and creative showcase.">
   <meta name="theme-color" content="#0a0a1a">
-  <link rel="stylesheet" href="Style.css">
-  <link rel="icon" type="image/png" href="Img/icon/ic.png">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/login.css">
+  <link rel="icon" type="image/png" href="assets/img/favicon-64.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="script.js" defer></script>
-  <title id="dynamic-title">SinneFinneSomnium</title>
+  <script src="assets/js/media.js" defer></script>
+  <script src="assets/js/login.js" defer></script>
+  <title>SinneFinneSomnium</title>
 </head>
 
 <body>
   <canvas id="particles"></canvas>
   <video class="bg-video" autoplay loop muted playsinline></video>
-   <audio id="bg-music" loop preload="auto"></audio>
+  <audio id="bg-music" preload="auto"></audio>
   <div id="cursor-glow"></div>
 
   <!-- Loading Screen -->
@@ -44,7 +46,7 @@
     <div class="login-container" id="login-container">
       <div class="login-border-glow"></div>
       <div class="login-avatar">
-        <img src="Img/icon/ic.png" alt="SinneFinneSomnium" id="login-avatar-img">
+        <img src="assets/img/avatar-400.webp" alt="SinneFinneSomnium" id="login-avatar-img" width="90" height="90">
         <div class="avatar-ring"></div>
       </div>
       <h2 class="login-heading" id="login-heading"></h2>
@@ -75,7 +77,7 @@
   <!-- Audio Controls -->
   <div class="audio-controls" id="audio-controls">
     <button id="music-toggle" class="music-toggle" title="Toggle Music">
-      <span id="music-icon">&#x1F509;;</span>
+      <span id="music-icon">&#x1F507;</span>
     </button>
     <div class="visualizer" id="visualizer">
       <div class="viz-bar"></div>

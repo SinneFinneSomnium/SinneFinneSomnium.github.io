@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="SinneFinneSomnium — Portfolio showcasing creative projects and skills.">
-  <link rel="stylesheet" href="Homepage.css">
-  <link rel="icon" type="image/png" href="../Img/icon/ic.png">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/home.css">
+  <link rel="icon" type="image/png" href="../assets/img/favicon-64.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -33,7 +34,7 @@
         <span></span>
       </button>
       <a href="#hero" class="nav-logo">
-        <img src="../Img/icon/ic.png" alt="Logo" class="nav-logo-img">
+        <img src="../assets/img/avatar-400.webp" alt="Logo" class="nav-logo-img" width="36" height="36">
         <span class="nav-brand" data-i18n="nav_brand">SinneFinneSomnium</span>
       </a>
     </div>
@@ -82,6 +83,35 @@
     </div>
 
     <div class="sidebar-body">
+
+      <!-- 0. Projects Dropdown (one link per project page in /projects) -->
+      <div class="sidebar-dropdown" id="dropdown-projects">
+        <button class="sidebar-dropdown-toggle" data-target="dropdown-projects-content">
+          <span class="sidebar-dropdown-icon">&#x1F680;</span>
+          <span class="sidebar-dropdown-title" data-i18n="sidebar_projects">My Projects</span>
+          <span class="sidebar-dropdown-arrow">&#x25BC;</span>
+        </button>
+        <div class="sidebar-dropdown-content" id="dropdown-projects-content">
+          <nav class="project-links" aria-label="Projects">
+            <a class="project-link" href="../projects/tdc-01/index.html">
+              <span class="project-link-icon">&#x1F6E1;&#xFE0F;</span>
+              <span class="project-link-text"><strong>TDC-01 Swarm</strong><small>Counter-drone unit concept</small></span>
+            </a>
+            <a class="project-link" href="../projects/aldrenia/index.html">
+              <span class="project-link-icon">&#x2694;&#xFE0F;</span>
+              <span class="project-link-text"><strong>Aldrenia</strong><small>Minecraft action-RPG mod</small></span>
+            </a>
+            <a class="project-link" href="../projects/civiclens/index.html">
+              <span class="project-link-icon">&#x1F5FA;&#xFE0F;</span>
+              <span class="project-link-text"><strong>CivicLens</strong><small>Thai public budget map</small></span>
+            </a>
+            <a class="project-link" href="../projects/this-website/index.html">
+              <span class="project-link-icon">&#x1F30C;</span>
+              <span class="project-link-text"><strong>This Website</strong><small>How this site is built</small></span>
+            </a>
+          </nav>
+        </div>
+      </div>
 
       <!-- 1. Library Dropdown -->
       <div class="sidebar-dropdown" id="dropdown-library">
@@ -256,6 +286,8 @@
         </div>
       </div>
 
+      <!-- HIDDEN until there is something real: the four video downloaders (they only showed "placeholder"). Move it out of the <template> to bring it back. -->
+      <template id="hidden-tools">
       <!-- 3. Tools Dropdown -->
       <div class="sidebar-dropdown" id="dropdown-tools">
         <button class="sidebar-dropdown-toggle" data-target="dropdown-tools-content">
@@ -300,7 +332,10 @@
           </div>
         </div>
       </div>
+      </template>
 
+      <!-- HIDDEN until there is something real: certificates. Move it out of the <template> to bring it back. -->
+      <template id="hidden-certificates">
       <!-- 4. Certificates Dropdown -->
       <div class="sidebar-dropdown" id="dropdown-certificates">
         <button class="sidebar-dropdown-toggle" data-target="dropdown-certificates-content">
@@ -328,7 +363,10 @@
           </div>
         </div>
       </div>
+      </template>
 
+      <!-- HIDDEN until there is something real: Template 5-9. Move it out of the <template> to bring it back. -->
+      <template id="hidden-templates">
       <!-- 5-9. Template Dropdowns -->
       <div class="sidebar-dropdown" id="dropdown-template-5">
         <button class="sidebar-dropdown-toggle" data-target="dropdown-template-5-content">
@@ -384,7 +422,10 @@
           <p class="template-placeholder">Content coming soon...</p>
         </div>
       </div>
+      </template>
 
+      <!-- HIDDEN until the Company page is real (it still says [Your Company Name]). -->
+      <template id="hidden-company-link">
       <!-- 10. Company Link -->
       <div class="sidebar-company-link">
         <a href="../Company/index.html" class="company-link-btn">
@@ -393,6 +434,7 @@
           <span class="company-arrow">&#x2192;</span>
         </a>
       </div>
+      </template>
 
     </div>
   </aside>
@@ -445,14 +487,14 @@
         <div class="about-grid">
           <div class="about-card glass-card">
             <div class="about-avatar">
-              <img src="../Img/icon/ic.png" alt="Avatar">
+              <img src="../assets/img/avatar-400.webp" alt="Avatar" width="200" height="200" loading="lazy">
             </div>
           </div>
           <div class="about-text glass-card">
             <h3 data-i18n="about_title">Who am I?</h3>
             <p data-i18n="about_p1">Hi! Hello there i'm SinneFinneSomnium, im Thais and a first years student that are studying in BBA but got so many interests in technology, Ai
-              , Science, Space, Physics, Arts, Poerty, History, Philisophy, Programming 
-              , Military equipment like Tanks and Aircraft, weired right?, yeahhh im kinda "Jack of all trade" guy but you know what?, Jack of all 
+              , Science, Space, Physics, Arts, Poetry, History, Philosophy, Programming 
+              , Military equipment like Tanks and Aircraft, weird right?, yeahhh im kinda "Jack of all trade" guy but you know what?,
               "jack of all trades, master of none, most of time better than master of one". </p>
             <p data-i18n="about_p2">soooo That's it i think thanks for reading till this Have a good day!</p>
             <div class="about-stats">
@@ -530,6 +572,57 @@
       <div class="section-inner">
         <h2 class="section-title" data-i18n="section_projects">Projects</h2>
         <div class="projects-grid">
+          <a class="project-card glass-card" href="../projects/tdc-01/index.html">
+            <div class="project-preview" style="background: linear-gradient(135deg, #334155, #6c9fff);">
+              <span class="project-emoji">&#x1F6E1;&#xFE0F;</span>
+              <img class="project-img" src="../assets/img/tdc-01-carrier.webp" alt="3D model of the TDC-01 Swarm carrier" width="960" height="540" loading="lazy" onerror="this.remove()">
+            </div>
+            <div class="project-info">
+              <h3>TDC-01 Swarm</h3>
+              <p>Concept for a tracked counter-drone unit that launches its own drone swarm, aimed at a DTI proposal.</p>
+              <div class="project-tags">
+                <span class="tag">Defense</span><span class="tag">3D Model</span><span class="tag">Concept</span>
+              </div>
+            </div>
+          </a>
+          <a class="project-card glass-card" href="../projects/aldrenia/index.html">
+            <div class="project-preview" style="background: linear-gradient(135deg, #a855f7, #ec4899);">
+              <span class="project-emoji">&#x2694;&#xFE0F;</span>
+              <!-- from projects/aldrenia/img (made by make_aldrenia_images.py); if it's missing, the emoji shows instead -->
+              <img class="project-img" src="../projects/aldrenia/img/combat.webp" alt="Aldrenia: using a sword skill against zombies" width="854" height="480" loading="lazy" onerror="this.remove()">
+            </div>
+            <div class="project-info">
+              <h3>Aldrenia</h3>
+              <p>Third-person action combat and an isekai RPG layer for Minecraft 1.21.1 (NeoForge).</p>
+              <div class="project-tags">
+                <span class="tag">Java</span><span class="tag">Minecraft Mod</span><span class="tag">Blockbench</span>
+              </div>
+            </div>
+          </a>
+          <a class="project-card glass-card" href="../projects/civiclens/index.html">
+            <div class="project-preview" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
+              <span class="project-emoji">&#x1F5FA;&#xFE0F;</span>
+            </div>
+            <div class="project-info">
+              <h3>CivicLens</h3>
+              <p>A map of Thailand where you can click down to any province, district or subdistrict and see its public budget documents.</p>
+              <div class="project-tags">
+                <span class="tag">Civic Tech</span><span class="tag">Data</span><span class="tag">Planned</span>
+              </div>
+            </div>
+          </a>
+          <a class="project-card glass-card" href="../projects/this-website/index.html">
+            <div class="project-preview" style="background: linear-gradient(135deg, #ec4899, #f97316);">
+              <span class="project-emoji">&#x1F30C;</span>
+            </div>
+            <div class="project-info">
+              <h3>This Website</h3>
+              <p>This site! Particle effects, glassmorphism, shuffled video backgrounds and music.</p>
+              <div class="project-tags">
+                <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span>
+              </div>
+            </div>
+          </a>
           <div class="project-card glass-card">
             <div class="project-preview" style="background: linear-gradient(135deg, #6c9fff, #a855f7);">
               <span class="project-emoji">&#x1F680;</span>
@@ -539,30 +632,6 @@
               <p>Multi-agent AI system with Manager, Worker, and Critic roles for complex task solving.</p>
               <div class="project-tags">
                 <span class="tag">Python</span><span class="tag">AI</span><span class="tag">CLI</span>
-              </div>
-            </div>
-          </div>
-          <div class="project-card glass-card">
-            <div class="project-preview" style="background: linear-gradient(135deg, #ec4899, #f97316);">
-              <span class="project-emoji">&#x1F30C;</span>
-            </div>
-            <div class="project-info">
-              <h3>Portfolio Website</h3>
-              <p>This website! Featuring particle effects, glassmorphism, and immersive video backgrounds.</p>
-              <div class="project-tags">
-                <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span>
-              </div>
-            </div>
-          </div>
-          <div class="project-card glass-card">
-            <div class="project-preview" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
-              <span class="project-emoji">&#x1F9E0;</span>
-            </div>
-            <div class="project-info">
-              <h3>Coming Soon</h3>
-              <p>More exciting projects are in the works. Stay tuned for updates!</p>
-              <div class="project-tags">
-                <span class="tag">???</span>
               </div>
             </div>
           </div>
@@ -577,15 +646,11 @@
         <p class="contact-desc" data-i18n="contact_desc">Have a question or want to work together? Feel free to reach
           out!</p>
         <div class="contact-links">
-          <a href="#" class="contact-card glass-card">
-            <span class="contact-icon">&#x1F4E7;</span>
-            <span>Email</span>
-          </a>
           <a href="https://discord.gg/CRp53HT4Cw" class="contact-card glass-card">
             <span class="contact-icon">&#x1F4AC;</span>
             <span>Discord Lounge</span>
           </a>
-          <a href="https://github.com/SineFineSomnium" class="contact-card glass-card">
+          <a href="https://github.com/SinneFinneSomnium" class="contact-card glass-card">
             <span class="contact-icon">&#x1F431;</span>
             <span>GitHub</span>
           </a>
@@ -619,7 +684,9 @@
     </div>
   </div>
 
-  <script src="homepage.js"></script>
+  <script src="../assets/js/media.js" defer></script>
+  <script src="../assets/js/reveal.js" defer></script>
+  <script src="../assets/js/home.js" defer></script>
 </body>
 
 </html>

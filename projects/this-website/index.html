@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How SinneFinneSomnium's portfolio site is built: plain HTML, CSS and JavaScript on GitHub Pages.">
+  <meta name="theme-color" content="#0a0a1a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/project.css">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon-64.png">
+  <title>This Website — SinneFinneSomnium</title>
+</head>
+
+<body>
+  <nav class="p-nav">
+    <a class="p-back" href="../../Home/Homepage.html#projects">&larr; All projects</a>
+    <a class="p-brand" href="../../Home/Homepage.html">
+      <img src="../../assets/img/avatar-400.webp" alt="" width="30" height="30">
+      <span class="gradient-text">SinneFinneSomnium</span>
+    </a>
+  </nav>
+
+  <main>
+    <header class="p-hero">
+      <div class="p-icon">&#x1F30C;</div>
+      <h1 class="p-title gradient-text">This Website</h1>
+      <p class="p-tagline">My personal corner of the internet. No framework, no build step: just HTML, CSS and JavaScript, hosted free on GitHub Pages.</p>
+      <div class="p-meta">
+        <span class="p-status">Live</span>
+        <span class="p-tag">HTML</span>
+        <span class="p-tag">CSS</span>
+        <span class="p-tag">JavaScript</span>
+        <span class="p-tag">GitHub Pages</span>
+      </div>
+      <div class="p-actions">
+        <a class="btn btn-primary" href="https://github.com/SinneFinneSomnium/SinneFinneSomnium.github.io" target="_blank" rel="noopener">Source on GitHub</a>
+        <a class="btn btn-outline" href="../../index.html">Replay the intro</a>
+      </div>
+    </header>
+
+    <section class="p-section">
+      <h2 class="section-title gradient-text">Features</h2>
+      <div class="p-grid">
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x2728;</div>
+          <h3>Intro &amp; particle network</h3>
+          <p>Loading screen, welcome message, a canvas particle network, a glowing cursor and parallax.</p>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F3AC;</div>
+          <h3>Shuffled video &amp; music</h3>
+          <p>Random background videos with cross-fades and a shuffled playlist. Broken links are skipped automatically.</p>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F570;&#xFE0F;</div>
+          <h3>Bangkok clock</h3>
+          <p>Live time in Bangkok, with the year in both the Buddhist Era and AD.</p>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F1F9;&#x1F1ED;</div>
+          <h3>English / ไทย</h3>
+          <p>One-click language switch that remembers your choice.</p>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F4DA;</div>
+          <h3>Side menu</h3>
+          <p>My projects, my reading list with progress bars, and a shuffling quote board.</p>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F4F1;</div>
+          <h3>Works on phones</h3>
+          <p>Tested down to 320 px wide.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="p-section">
+      <h2 class="section-title gradient-text">How it's organized</h2>
+      <table class="p-specs">
+        <tr><th>Pages</th><td><code>index.html</code> (intro + login), <code>Home/</code>, <code>Company/</code>, <code>projects/&lt;name&gt;/</code></td></tr>
+        <tr><th>Styles</th><td><code>assets/css/</code>: <code>base.css</code> is shared, plus one file per page</td></tr>
+        <tr><th>Scripts</th><td><code>assets/js/</code>: <code>media.js</code> (video + music), <code>reveal.js</code> (scroll effects), one file per page</td></tr>
+        <tr><th>Media</th><td>Playlist in <code>assets/media.json</code>, files hosted on Supabase Storage</td></tr>
+        <tr><th>New project</th><td>Copy <code>projects/_template/</code> and fill it in</td></tr>
+      </table>
+    </section>
+
+    <section class="p-section">
+      <h2 class="section-title gradient-text">Changelog</h2>
+      <ol class="p-timeline">
+        <li class="done"><strong>2026</strong>: first version: intro, login, homepage, sidebar</li>
+        <li class="done"><strong>Nov 2026</strong>: bug fixes (page freezing when a video failed, music, mobile layout), project pages, files reorganized into <code>assets/</code></li>
+        <li class="now"><strong>Next</strong>: maybe a walkable lobby you can explore <span class="when">idea</span></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="p-footer">
+    <p>&copy; 2026 SinneFinneSomnium &middot; <a href="../../Home/Homepage.html">Back to home</a></p>
+  </footer>
+
+  <script src="../../assets/js/reveal.js" defer></script>
+</body>
+
+</html>

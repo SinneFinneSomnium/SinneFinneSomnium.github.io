@@ -1,0 +1,370 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<a href="../../index.html" style="position:fixed;left:14px;bottom:14px;z-index:2147483647;padding:8px 14px;border-radius:999px;background:rgba(10,10,26,.82);color:#f0f0f5;font:600 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)">&larr; TDC-01 Swarm</a>
+
+<title>TDC-01 Swarm — โดรนรุ่น 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one 1120px column. Viewer + part card side by side (stacks on phone), then BOM ledger, then the DTI pitch blocks. */
+:root{
+  --bg:#edf0ec; --surface:#f8faf6; --ink:#18211d; --muted:#56635c; --line:#c7d0ca;
+  --accent:#a8641a; --accent-ink:#ffffff; --scene:#dde4df;
+  --c-bg:#d9efe0; --c-fg:#1d5b34; --l-bg:#f6e8c8; --l-fg:#7a4b06; --g-bg:#f6dcdc; --g-fg:#8a2424;
+  --bad:#b42318; --ok:#1d6b3c;
+  --f-display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111614; --surface:#18201c; --ink:#e3eae5; --muted:#97a69e; --line:#2d3833;
+  --accent:#e3a548; --accent-ink:#1a1206; --scene:#1a221e;
+  --c-bg:#163a24; --c-fg:#9fe0b4; --l-bg:#3d2e0e; --l-fg:#f1c76d; --g-bg:#3e1a1a; --g-fg:#f2a7a7;
+  --bad:#ff7a6b; --ok:#7fd69c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111614; --surface:#18201c; --ink:#e3eae5; --muted:#97a69e; --line:#2d3833;
+  --accent:#e3a548; --accent-ink:#1a1206; --scene:#1a221e;
+  --c-bg:#163a24; --c-fg:#9fe0b4; --l-bg:#3d2e0e; --l-fg:#f1c76d; --g-bg:#3e1a1a; --g-fg:#f2a7a7;
+  --bad:#ff7a6b; --ok:#7fd69c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4.4vw,42px);line-height:1.12;margin:6px 0 8px;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:23px;margin:0 0 10px;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 4px}
+p{margin:0 0 10px;max-width:72ch}
+a{color:var(--accent)}
+.lede{color:var(--muted);max-width:74ch}
+.t{display:inline-block;font-family:var(--f-mono);font-size:10.5px;font-weight:500;padding:0 5px;border-radius:3px;line-height:17px;vertical-align:1px;white-space:nowrap}
+.t.c{background:var(--c-bg);color:var(--c-fg)}.t.l{background:var(--l-bg);color:var(--l-fg)}.t.g{background:var(--g-bg);color:var(--g-fg)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header.top{padding-block:24px 8px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:14px}
+.stats:after{content:none}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stats div{background:var(--surface);padding:10px 12px;min-width:0}
+.stats small{display:block;color:var(--muted);font-size:12px}
+.stats b{font-family:var(--f-display);font-size:21px;font-weight:700;display:block;line-height:1.2}
+.stats .ask b{color:var(--accent)}
+
+/* model */
+.model{padding-block:18px 8px}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:10px}
+.seg{display:inline-flex;flex-wrap:wrap}
+.seg button{border-radius:0;margin-left:-1px}
+.seg button:first-child{border-radius:5px 0 0 5px;margin-left:0}
+.seg button:last-child{border-radius:0 5px 5px 0}
+button{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 11px;border-radius:5px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.exp{display:flex;align-items:center;gap:8px;font-size:13.5px;flex:1 1 220px;min-width:0}
+.exp input{flex:1;accent-color:var(--accent);min-width:80px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.viewer{position:relative;height:min(64vh,580px);min-height:340px;background:var(--scene);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+.hint{position:absolute;left:10px;bottom:8px;font-size:11.5px;color:var(--muted);pointer-events:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;min-width:0}
+.info h3{font-size:19px}
+.info .role{color:var(--muted);font-size:14px}
+.info dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;margin:10px 0 0;font-size:14px}
+.info dt{color:var(--muted);font-size:12.5px;padding-top:2px}
+.info dd{margin:0}
+.info .note{margin-top:10px;padding:8px 10px;border-left:3px solid var(--accent);background:var(--bg);font-size:13.5px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.chips button{font-size:12.5px;padding:4px 9px}
+.chips button.on{border-color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+
+section{padding-block:26px;border-top:1px solid var(--line);margin-top:18px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;font-size:12.5px;color:var(--muted);background:var(--bg);white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr[data-pid]{cursor:pointer}
+tbody tr[data-pid]:hover td{background:var(--bg)}
+tfoot td{font-weight:600;background:var(--bg)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.cols ul{margin:4px 0 0;padding-left:18px}
+.cols li{margin-bottom:4px;font-size:14px}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.ph{display:flex;flex-direction:column;gap:6px}
+.ph.ask{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ph .id{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ph .cost{font-family:var(--f-display);font-size:24px;font-weight:700;line-height:1.1}
+.ph .pill{display:inline-block;font-size:11px;font-family:var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:3px}
+.ph p{font-size:13.5px;margin:0}
+.ph .gate{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px;margin-top:auto}
+.sum{margin-top:12px;font-size:14px}
+ol.tests{margin:0;padding-left:22px}
+ol.tests li{margin-bottom:8px;max-width:80ch}
+.sev{font-family:var(--f-mono);font-size:11.5px;font-weight:500}
+.sev.h{color:var(--bad)}.sev.m{color:var(--accent)}
+.src{font-size:13px;color:var(--muted)}
+footer{padding-block:24px 40px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:18px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">TDC-01 Swarm · โดรนลาดตระเวนปีกตรึง ปล่อยจากท่อ · ไม่มีอาวุธ ไม่มีวัตถุระเบิด ไม่มีระบบกำหนดเป้า</div>
+  <h1>โดรนลาดตระเวนรุ่น 2 และชุดปล่อย</h1>
+  <p class="lede">ภาพทุกชิ้นส่วนของโดรน ท่อปล่อย และกล่องทดสอบ แตะชิ้นไหนก็ได้เพื่อดูขนาด วัสดุ และราคา ทั้งหมดยังเป็นแบบบนกระดาษ ยังไม่มีชิ้นงานจริงหรือผลทดสอบ ป้าย <span class="t c">Certain</span> = ค่าที่ล็อกในสเปกหรือคำนวณแล้ว · <span class="t l">Likely</span> = อนุมานหนักแน่น · <span class="t g">Guessing</span> = ตัวเลขตั้งต้นที่ต้องพิสูจน์</p>
+  <div class="stats" id="stats"></div>
+</header>
+</div>
+
+<div class="wrap model">
+  <div class="bar">
+    <div class="seg" role="group" aria-label="เลือกโมเดล" id="sceneSeg">
+      <button type="button" data-s="drone" aria-pressed="true">โดรนรุ่น 2</button>
+      <button type="button" data-s="tube" aria-pressed="false">ท่อปล่อยรุ่น 2</button>
+      <button type="button" data-s="box" aria-pressed="false">กล่องทดสอบรุ่น 1</button>
+    </div>
+    <label class="exp" for="explode">ประกอบ <input type="range" id="explode" min="0" max="1" step="0.01" value="0"> แยกชิ้น</label>
+    <button type="button" id="xray" aria-pressed="false">ผิวโปร่ง</button>
+    <button type="button" id="reframe">จัดมุมกล้อง</button>
+  </div>
+  <div class="stage">
+    <div class="viewer" id="viewer"><span class="hint">ลากเพื่อหมุน · ล้อหรือบีบนิ้วเพื่อซูม · แตะชิ้นส่วนเพื่อดูข้อมูล</span></div>
+    <div class="card info" id="info" aria-live="polite"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="wrap">
+<section id="bom">
+  <h2>รายการชิ้นส่วนและราคา</h2>
+  <p>ราคาประเมินจากร้านงานอดิเรกและวัสดุอุตสาหกรรมในไทย เกือบทั้งหมดเป็น <span class="t g">Guessing</span> จนกว่าจะได้ใบเสนอราคา แตะแถวเพื่อดูชิ้นนั้นในโมเดล</p>
+  <div class="tabs" id="bomTabs"></div>
+  <div class="tbl"><table>
+    <thead><tr><th>รายการ</th><th>ชิ้นส่วน</th><th class="n">จำนวน</th><th class="n">ต่อหน่วย</th><th class="n">รวม (บาท)</th><th>ป้าย</th></tr></thead>
+    <tbody id="bomBody"></tbody>
+    <tfoot><tr><td colspan="4" id="bomFootLbl">รวม</td><td class="n" id="bomFoot"></td><td><span class="t g">Guessing</span></td></tr></tfoot>
+  </table></div>
+</section>
+
+<section id="pitch">
+  <h2>ทำไมต้องมี และทำไมต้องผลิตในไทย</h2>
+  <div class="cols">
+    <div class="card"><h3>ปัญหา</h3>
+      <ul>
+        <li>หน่วยแนวหน้าต้องเห็นพื้นที่ข้างหน้าก่อนเข้าไป โดรนสี่ใบพัดบินได้ราว 20–40 นาที <span class="t l">Likely</span> ไม่พอสำหรับการเฝ้าระยะไกล</li>
+        <li>โดรนปีกตรึงแบบโยนมือต้องมีคนยืนในที่โล่งและมีพื้นที่ขึ้นบิน</li>
+        <li>โดรนลาดตระเวนนำเข้าราคาสูงและพึ่งอะไหล่ต่างประเทศ ซ่อมเองไม่ได้ <span class="t g">Guessing</span> ยังไม่ได้เทียบราคารุ่นที่กองทัพใช้จริง</li>
+      </ul></div>
+    <div class="card"><h3>สิ่งที่เสนอ</h3>
+      <ul>
+        <li>โดรนปีกตรึง 2.77 กก. <span class="t l">Likely</span> เก็บในท่อ ⌀0.20 × 1.6 ม. <span class="t c">Certain</span> ปล่อยจากรถหรือขาตั้งด้วยลมอัด ไม่มีคนต้องออกไปยืน</li>
+        <li>ปีก หาง ใบพัดกางเองหลังพ้นปากท่อ บินอัตโนมัติด้วย ArduPilot ส่งภาพซูม 10× กลับฐาน</li>
+        <li>เป้าเวลาบิน 60 นาที <span class="t g">Guessing</span> ความเร็วเดินทาง 65–75 กม./ชม. <span class="t l">Likely</span> ลงด้วยร่ม ใช้ซ้ำได้</li>
+        <li>ไม่มีอาวุธ ไม่มีช่องบรรทุกของปล่อย ไม่มีระบบกำหนดเป้า งานคือดูและส่งภาพเท่านั้น</li>
+      </ul></div>
+    <div class="card"><h3>ผลิตในประเทศได้แค่ไหน</h3>
+      <ul>
+        <li>ทำเองในไทยได้: ลำตัวคอมโพสิต ปีกโฟม เฟืองและกลไก (CNC) ชิ้นงานพิมพ์ 3 มิติ แพ็กแบต ท่อและระบบลม <span class="t l">Likely</span></li>
+        <li>ซอฟต์แวร์บินเป็นโอเพนซอร์ส แก้ไขและตรวจสอบโค้ดเองได้ทั้งหมด</li>
+        <li>ยังต้องนำเข้า: โมดูลกล้องซูม ลิงก์ภาพ บอร์ดคุมบิน เซลล์แบต รวม ≈<b id="importShare"></b> ของต้นทุนโดรน <span class="t g">Guessing</span> นี่คือรายการที่ควรหาผู้ผลิตในประเทศเป็นลำดับถัดไป</li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="status">
+  <h2>สถานะตอนนี้</h2>
+  <p>ทำแล้วบนกระดาษ ยังไม่มีชิ้นงานจริง ผู้ให้ทุนควรประเมินจากตัวเลขเหล่านี้และแผนทดสอบด้านล่าง ไม่ใช่จากภาพ 3 มิติ</p>
+  <div class="tbl"><table>
+    <thead><tr><th>เรื่อง</th><th>ผล</th><th>ป้าย</th></tr></thead>
+    <tbody>
+      <tr><td>แรงดีดออกท่อ</td><td>12 ม./วิ ด้วยระยะชัก 0.45 ม. = ≈16 g (สเปกเดิม 0.15 ม. จะเป็น 49 g จึงลดลำตัวเหลือ 1.10 ม.)</td><td><span class="t c">Certain</span> คำนวณ</td></tr>
+      <tr><td>จุดศูนย์ถ่วง</td><td>28% ของคอร์ดปีก หลังย้ายแบตไปหน้าสุด (ผังแรก 47% ค้างท้ายเกิน)</td><td><span class="t l">Likely</span></td></tr>
+      <tr><td>ของใส่ลำตัวได้ไหม</td><td>ใช้ปริมาตร ≈1.6 จาก ≈9.4 ลิตร ข้อจำกัดจริงคือลูกกล้องห้ามเกิน ≈70 มม.</td><td><span class="t l">Likely</span></td></tr>
+      <tr><td>น้ำหนักรวม</td><td><span id="massCell"></span> กรัม จากเพดาน 3,000 กรัม</td><td><span class="t g">Guessing</span></td></tr>
+      <tr><td>ความเร็วร่วงหล่น</td><td>≈52 กม./ชม. (14.4 ม./วิ) สูงกว่าความเร็วออกท่อ จึงต้องเงยท่อ ≥40° และเร่งมอเตอร์ทันทีที่ปีกล็อก</td><td><span class="t l">Likely</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="phases">
+  <h2>งบประมาณรายเฟส</h2>
+  <p>ขอเงินทีละเฟส แต่ละเฟสมีเกณฑ์ผ่านที่วัดได้ ถ้าไม่ผ่านจะหยุดแก้แบบก่อนใช้เงินเฟสถัดไป <b>คำขอตอนนี้คือเฟส 1 เท่านั้น</b></p>
+  <div class="phases" id="phaseCards"></div>
+  <p class="sum" id="phaseSum"></p>
+</section>
+
+<section id="risks">
+  <h2>ความเสี่ยงหลัก และการทดสอบที่จะปิดแต่ละข้อ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ความเสี่ยง</th><th>ระดับ</th><th>รับมือ</th><th>ปิดด้วย</th></tr></thead>
+    <tbody>
+      <tr><td>ปีกสองข้างกางไม่พร้อมกัน เครื่องหมุนควงหลังออกท่อ</td><td><span class="sev h">สูง</span></td><td>เฟืองซิงก์ + สวิตช์ล็อกก่อนอนุญาตมอเตอร์</td><td>กางบนโต๊ะ 50/50 ครั้ง วิดีโอ 240 เฟรม/วิ ต่างกัน ≤20 มิลลิวินาที <span class="t g">Guessing</span></td></tr>
+      <tr><td>ออกท่อช้ากว่าความเร็วร่วงหล่น</td><td><span class="sev h">สูง</span></td><td>เงยท่อ ≥40° มอเตอร์เต็มกำลังทันที</td><td>เฟส 2 ดีดจากกล่อง 10 นัด แล้วเฟส 3 ปล่อยจากท่อจริง</td></tr>
+      <tr><td>กล้อง กิมบอล ขั้วแบตเสียจากแรง 16 g</td><td><span class="sev m">กลาง</span></td><td>ยึดแน่น หุ้มแบต เลือกกิมบอลที่ล็อกได้</td><td>ดีดหุ่นติดบอร์ดวัดความเร่งที่ 24 g (1.5 เท่า) <span class="t l">Likely</span></td></tr>
+      <tr><td>หาโมดูลซูม 10× ที่ใส่ลูก ⌀≤70 มม. ไม่ได้</td><td><span class="sev m">กลาง</span></td><td>ยอมซูมน้อยลง หรือฝังกล้องในหัวแบบไม่มีลูก</td><td>สำรวจตลาดก่อนเฟส 3 ไม่ใช้เงิน</td></tr>
+      <tr><td>บินได้ไม่ถึง 60 นาที</td><td><span class="sev m">กลาง</span></td><td>ค่า L/D = 9 เป็นตัวเลขเดา <span class="t g">Guessing</span></td><td>วัดกำลังไฟจริงในเฟส 1B แล้วคำนวณขนาดแบตใหม่</td></tr>
+      <tr><td>ทดสอบภารกิจเต็มรูปแบบไม่ได้ เพราะกฎหมายบังคับบินในระยะสายตา</td><td><span class="sev m">กลาง</span></td><td>ทดสอบในระยะสายตาก่อน ขอใบอนุญาตเฉพาะจาก กพท. หรือทดสอบในพื้นที่ของหน่วยงานรัฐ</td><td>ต้องมีหน่วยงานร่วม ข้อนี้คือเหตุผลที่ควรคุยกับ DTI ตั้งแต่เฟสแรก</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="tests">
+  <h2>แผนทดสอบเรียงลำดับ</h2>
+  <ol class="tests">
+    <li><b>ร่อนโฟมขนาดจริง</b> (เฟส 1A) ยืนยันจุดศูนย์ถ่วงและเสถียรภาพก่อนซื้ออุปกรณ์</li>
+    <li><b>บินโยนมือ ปีกตรึง</b> (เฟส 1B) จูนระบบบิน วัดกำลังไฟจริง แยกปัญหาการบินออกจากปัญหาการปล่อย</li>
+    <li><b>กางปีกบนโต๊ะ 50 ครั้ง</b> ล็อกครบ 50/50 กางเสร็จใน 0.3 วิ <span class="t g">Guessing</span> พลาดครั้งเดียวนับใหม่</li>
+    <li><b>ดีดจากกล่องทดสอบ</b> (เฟส 2) 10 นัด ความเร็วออกแกว่ง ≤±10% <span class="t g">Guessing</span></li>
+    <li><b>ทดสอบแรงกระแทก</b> หุ่นน้ำหนักจริงติดบอร์ดวัดความเร่ง ทุกชิ้นทำงานได้ที่ 24 g</li>
+    <li><b>ปล่อยจากท่อ บินในระยะสายตา ต่ำกว่า 90 ม.</b> 10 เที่ยว มีจุดกลับบ้านและขอบเขตบินทุกเที่ยว</li>
+    <li><b>ร่มชูชีพ</b> ทิ้งหุ่นก่อน แล้วเปิดจากตัวจริงที่ 60 ม. ลงไม่เกิน 6 ม./วิ <span class="t l">Likely</span></li>
+    <li><b>กล้องและเวลาบิน</b> 20 → 40 → 60 นาที ต่างจากที่คำนวณไม่เกิน 15%</li>
+  </ol>
+  <p class="src" style="margin-top:10px">ทุกขั้นบันทึกวิดีโอและล็อกการบิน แนบเป็นหลักฐานในรายงานแต่ละเฟส</p>
+</section>
+
+<section id="legal">
+  <h2>กฎหมายที่กระทบแผนทดสอบ</h2>
+  <ul>
+    <li>ขึ้นทะเบียนทั้ง กสทช. และ กพท. ทำประกันบุคคลที่สาม ≥1,000,000 บาท <span class="t c">Certain</span></li>
+    <li>บินในระยะสายตา กลางวัน ไม่เกิน 90 ม. เว้นแต่ได้รับอนุญาตเป็นหนังสือ <span class="t c">Certain</span></li>
+    <li>ห้ามบินพลเรือนใน 7 จังหวัดชายแดนกับ อ.สัตหีบ และ อ.บ้านฉาง ตั้งแต่ 9 ธ.ค. 2568 จนกว่าจะมีประกาศเปลี่ยน <span class="t c">Certain</span> สนามทดสอบต้องอยู่นอกพื้นที่เหล่านี้</li>
+  </ul>
+  <p class="src">ตรวจ 30 ต.ค. 2569 จาก <a href="https://www.tatnews.org/2025/11/flying-a-drone-in-thailand-updated-guide-for-tourists/" target="_blank" rel="noopener">ททท. คู่มือบินโดรน</a> และ <a href="https://www.nationthailand.com/news/general/40059428" target="_blank" rel="noopener">The Nation</a> ประกาศเปลี่ยนบ่อย เช็กเว็บ กพท. ก่อนบินทุกครั้ง ไม่ใช่คำแนะนำทางกฎหมาย</p>
+</section>
+</div>
+
+<footer><div class="wrap">ภาพรวมทั้งหน่วย (รถ Swarm CTOC รถปืน และโดรน): <a href="../fire-unit/index.html" target="_blank" rel="noopener">TDC-01 เว็บรวมทุกโมเดล</a><br>TDC-01 ·โมเดลแนวคิดเพื่อวางแผนงานต้นแบบ · โดรนลาดตระเวนไม่มีอาวุธ ไม่มีวัตถุระเบิด ไม่มีระบบกำหนดเป้า · ปรับปรุง 30 ต.ค. 2569</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="drone-module.js"></script>
+<script>
+(function(){
+"use strict";
+const T=window.TDCDrone, $=s=>document.querySelector(s), fmt=T.fmt;
+const tag=k=>`<span class="t ${k}">${T.TAGS[k]}</span>`;
+const SCENES={drone:'โดรนรุ่น 2',tube:'ท่อปล่อยรุ่น 2',box:'กล่องทดสอบรุ่น 1'};
+const partsIn=s=>Object.keys(T.PARTS).filter(id=>T.PARTS[id].scene===s||(s==='tube'&&T.PARTS[id].scene==='drone'));
+
+/* stats */
+const ph=T.phases(), ask=ph[0].cost+ph[1].cost, mass=T.droneMass();
+$('#stats').innerHTML=[
+ ['ลำตัว','1.10 ม.','c'],['ปีกกาง','1.40 ม.','c'],['น้ำหนัก','≈'+(mass/1000).toFixed(2)+' กก.','l'],['เป้าเวลาบิน','60 นาที','g'],
+ ['ความเร็วเดินทาง','65–75 กม./ชม.','l'],['แรงดีดออกท่อ','≈16 g','c'],['ต้นทุนต้นแบบ (โดรน+ท่อ)','≈'+fmt(T.bomTotal('drone')+T.bomTotal('tube'))+' ฿','g']
+].map(r=>`<div><small>${r[0]} ${tag(r[2])}</small><b>${r[1]}</b></div>`).join('')+`<div class="ask"><small>คำขอเฟส 1 ${tag('g')}</small><b>${fmt(ask)} ฿</b></div>`;
+$('#massCell').textContent=fmt(mass);
+const imp=['cam','radio','fc','batt'].reduce((a,p)=>a+T.partPrice(p)[0],0);
+$('#importShare').textContent=Math.round(imp/T.bomTotal('drone')*100)+'%';
+
+/* phases */
+$('#phaseCards').innerHTML=ph.map(p=>`<div class="card ph${p.ask?' ask':''}"><span class="id">เฟส ${p.id} · ${p.weeks}${p.ask?'<span class="pill">ขอตอนนี้</span>':''}</span><h3>${p.name}</h3><span class="cost">${fmt(p.cost)} ฿ ${tag('g')}</span><p>${p.what}</p><p class="gate"><b>ผ่านเมื่อ:</b> ${p.pass}</p></div>`).join('');
+const tot=ph.reduce((a,p)=>a+p.cost,0);
+$('#phaseSum').innerHTML=`รวมถึงต้นแบบรุ่น 2 ที่บินได้ ≈<b>${fmt(tot)} บาท</b> ${tag('g')} ไม่รวมวิทยุเครือข่าย mesh (≈120,000 บาท) ซึ่งเป็นเฟสหลังจากนี้ ไม่รวมค่าแรงและค่าสนามทดสอบ`;
+
+/* BOM */
+let bomKey='drone';
+function renderBom(){
+  $('#bomTabs').innerHTML=Object.keys(SCENES).map(k=>`<button type="button" data-b="${k}" aria-pressed="${k===bomKey}">${SCENES[k]} · ${fmt(T.bomTotal(k))} ฿</button>`).join('');
+  $('#bomBody').innerHTML=T.BOM[bomKey].map(r=>`<tr${r[0]?` data-pid="${r[0]}"`:''}><td>${r[1]}</td><td>${r[0]?T.PARTS[r[0]].name:'<small>ทั่วไป</small>'}</td><td class="n">${r[2]}</td><td class="n">${fmt(r[3])}</td><td class="n">${fmt(r[2]*r[3])}</td><td>${tag(r[4])}</td></tr>`).join('');
+  $('#bomFootLbl').textContent='รวม '+SCENES[bomKey]; $('#bomFoot').textContent=fmt(T.bomTotal(bomKey));
+}
+$('#bomTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;bomKey=b.dataset.b;renderBom()});
+$('#bomBody').addEventListener('click',e=>{const tr=e.target.closest('tr[data-pid]');if(!tr)return;const pid=tr.dataset.pid,s=T.PARTS[pid].scene;setScene(s);select(pid);$('#viewer').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})});
+renderBom();
+
+/* info card */
+function sceneSummary(){
+  const ids=partsIn(cur), k=cur==='tube'?['drone','tube']:[cur], sum=k.reduce((a,x)=>a+T.bomTotal(x),0);
+  $('#info').innerHTML=`<h3>${SCENES[cur]}</h3><p class="role">${cur==='drone'?'ทุกชิ้นของโดรน เลื่อนแถบ "แยกชิ้น" เพื่อดูของข้างใน':cur==='tube'?'โดรนพับปีกอยู่ในท่อ เลื่อน "แยกชิ้น" เพื่อดันโดรนออกจากปากท่อ':'กล่องทดสอบขนาดเท่าช่องจริง ใช้พิสูจน์กลไกดีดและกางปีกด้วยโดรนสเกลเล็ก'}</p><dl><dt>ชิ้นส่วน</dt><dd>${ids.length} ชิ้นที่แตะได้</dd><dt>ต้นทุนรวม</dt><dd class="mono">${fmt(sum)} ฿ ${tag('g')}</dd></dl><p class="note">แตะชิ้นส่วนในภาพหรือปุ่มด้านล่างเพื่อดูขนาด วัสดุ และราคา</p>`;
+}
+function showPart(pid){
+  const p=T.PARTS[pid], pr=T.partPrice(pid);
+  $('#info').innerHTML=`<h3>${p.name}</h3><p class="role">${p.role||''}</p><dl>
+    <dt>ขนาด</dt><dd>${p.dims[0]} ${tag(p.dims[1])}</dd>
+    ${p.mass[0]?`<dt>น้ำหนัก</dt><dd class="mono">${fmt(p.mass[0])} ก. ${tag(p.mass[1])}</dd>`:''}
+    <dt>วัสดุ</dt><dd>${p.mat}</dd>
+    <dt>ราคาประเมิน</dt><dd class="mono">${pr[0]?fmt(pr[0])+' ฿ '+tag(pr[1]):'รวมอยู่ในชิ้นอื่น'}</dd>
+  </dl>${p.note?`<p class="note">${p.note[0]} ${tag(p.note[1])}</p>`:''}`;
+}
+
+/* 3D */
+const viewer=$('#viewer');
+let cur='drone', sel=null;
+if(!window.THREE){viewer.insertAdjacentHTML('beforeend','<p style="padding:60px 20px;text-align:center">โหลดตัวแสดงผล 3 มิติไม่สำเร็จ ตารางด้านล่างยังใช้งานได้</p>');sceneSummary();return}
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+viewer.prepend(renderer.domElement);
+const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(38,1,0.02,200);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.12; controls.minDistance=0.3; controls.maxDistance=12;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+controls.autoRotate=!reduce; controls.autoRotateSpeed=0.8;
+controls.addEventListener('start',()=>{controls.autoRotate=false});
+scene.add(new THREE.HemisphereLight(0xffffff,0x56635c,0.65));
+const sun=new THREE.DirectionalLight(0xffffff,0.8); sun.position.set(3,6,4); scene.add(sun);
+const fill=new THREE.DirectionalLight(0xffffff,0.25); fill.position.set(-3,2,-4); scene.add(fill);
+const grid=new THREE.GridHelper(8,32,0x7d8b83,0x9aa79f); grid.material.transparent=true; grid.material.opacity=0.35; scene.add(grid);
+function theme(){const c=getComputedStyle(document.documentElement).getPropertyValue('--scene').trim()||'#dde4df';scene.background=new THREE.Color(c)}
+theme(); matchMedia('(prefers-color-scheme: dark)').addEventListener('change',theme);
+new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const D=T.build(THREE);
+for(const k in D.scenes){scene.add(D.scenes[k].group);D.scenes[k].group.visible=false}
+let exCur=0, exTarget=0;
+function frame(){const s=D.scenes[cur];controls.target.copy(s.target);const k=Math.max(1,1.15/camera.aspect);camera.position.copy(s.cam).sub(s.target).multiplyScalar(k).add(s.target)}
+function setScene(s){
+  if(s===cur&&D.scenes[s].group.visible)return;
+  cur=s; for(const k in D.scenes)D.scenes[k].group.visible=k===s;
+  document.querySelectorAll('#sceneSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===s));
+  exCur=exTarget=0; $('#explode').value=0; D.setExplode(s,0);
+  D.setXray(s,$('#xray').getAttribute('aria-pressed')==='true');
+  sel=null; D.highlight(null,'sel'); frame(); renderChips(); sceneSummary();
+}
+function renderChips(){
+  $('#chips').innerHTML=partsIn(cur).map(id=>`<button type="button" data-pid="${id}" class="${id===sel?'on':''}">${T.PARTS[id].name}</button>`).join('');
+}
+function select(pid){
+  sel=pid; D.highlight(pid,'sel');
+  document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('on',b.dataset.pid===pid));
+  if(!pid){sceneSummary();return}
+  const p=T.PARTS[pid];
+  if(cur==='drone'&&!p.shell&&exTarget<0.3&&$('#xray').getAttribute('aria-pressed')!=='true'){$('#xray').setAttribute('aria-pressed','true');D.setXray(cur,true)}
+  showPart(pid);
+}
+$('#chips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)select(b.dataset.pid===sel?null:b.dataset.pid)});
+$('#sceneSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setScene(b.dataset.s)});
+$('#explode').addEventListener('input',e=>{exTarget=+e.target.value});
+$('#xray').addEventListener('click',e=>{const on=e.currentTarget.getAttribute('aria-pressed')!=='true';e.currentTarget.setAttribute('aria-pressed',on);D.setXray(cur,on)});
+$('#reframe').addEventListener('click',frame);
+
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2();
+function pick(ev){
+  const r=renderer.domElement.getBoundingClientRect();
+  ptr.set((ev.clientX-r.left)/r.width*2-1,-(ev.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(ptr,camera);
+  const hits=ray.intersectObjects(D.scenes[cur].group.children,true);
+  for(const h of hits){const pid=h.object.userData.pid;if(pid&&h.object.material.opacity>0.16)return pid}
+  for(const h of hits){if(h.object.userData.pid)return h.object.userData.pid}
+  return null;
+}
+let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY]});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const m=Math.hypot(e.clientX-down[0],e.clientY-down[1]);down=null;if(m<6)select(pick(e))});
+renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||e.buttons)return;const p=pick(e);D.highlight(p,'hover');renderer.domElement.style.cursor=p?'pointer':'grab'});
+renderer.domElement.addEventListener('pointerleave',()=>D.highlight(null,'hover'));
+
+function resize(){const w=viewer.clientWidth,h=viewer.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+resize(); new ResizeObserver(resize).observe(viewer);
+(function loop(){
+  requestAnimationFrame(loop);
+  if(Math.abs(exTarget-exCur)>0.001){exCur+=(exTarget-exCur)*(reduce?1:0.18);D.setExplode(cur,exCur)}
+  controls.update(); renderer.render(scene,camera);
+})();
+cur=''; setScene('drone');
+})();
+</script>
+
+</body></html>

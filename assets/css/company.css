@@ -1,30 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");
+/* =========================================================
+   company.css — Company/index.html
+   Shared theme and scroll reveal live in base.css
+   ========================================================= */
 
-:root {
-  --bg-dark: #0a0a1a;
-  --glass-bg: rgba(15, 15, 35, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --accent-blue: #6c9fff;
-  --accent-purple: #a855f7;
-  --accent-pink: #ec4899;
-  --accent-gradient: linear-gradient(135deg, #6c9fff, #a855f7, #ec4899);
-  --text-primary: #f0f0f5;
-  --text-secondary: rgba(240, 240, 245, 0.6);
-  --font-main: 'Inter', 'Outfit', system-ui, sans-serif;
-  --radius-lg: 24px;
-  --radius-md: 14px;
-  --radius-sm: 8px;
-}
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-
-body {
-  color: var(--text-primary);
-  font-family: var(--font-main);
-  background: var(--bg-dark);
-  min-height: 100vh;
-}
+body { min-height: 100vh; }
 
 /* Nav */
 .company-nav {
@@ -178,17 +158,6 @@ body {
 .btn { padding: 14px 32px; border-radius: 50px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; font-family: var(--font-main); cursor: pointer; }
 .btn-primary { background: var(--accent-gradient); color: white; border: none; }
 .btn-primary:hover { box-shadow: 0 8px 30px rgba(108,159,255,0.35); transform: translateY(-2px); }
-
-/* Fade-in */
-.fade-in {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-}
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 /* Footer */
 .company-footer {

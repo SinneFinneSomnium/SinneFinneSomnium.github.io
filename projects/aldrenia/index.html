@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aldrenia — third-person action combat and an isekai RPG layer for Minecraft 1.21.1 (NeoForge).">
+  <meta name="theme-color" content="#0a0a1a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/project.css">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon-64.png">
+  <title>Aldrenia — SinneFinneSomnium</title>
+  <script>
+    // The gallery pictures live in img/ (made by make_aldrenia_images.py).
+    // Until they're uploaded, hide any picture that's missing, and the whole gallery if none are there.
+    function sfsMissing(img) {
+      var fig = img.closest("figure"), gallery = fig && fig.parentNode;
+      if (fig) fig.remove();
+      if (gallery && !gallery.querySelector("figure")) {
+        var sec = document.getElementById("gallery"), btn = document.getElementById("gallery-btn");
+        if (sec) sec.style.display = "none";
+        if (btn) btn.style.display = "none";
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <nav class="p-nav">
+    <a class="p-back" href="../../Home/Homepage.html#projects">&larr; All projects</a>
+    <a class="p-brand" href="../../Home/Homepage.html">
+      <img src="../../assets/img/avatar-400.webp" alt="" width="30" height="30">
+      <span class="gradient-text">SinneFinneSomnium</span>
+    </a>
+  </nav>
+
+  <main>
+    <header class="p-hero">
+      <div class="p-icon">&#x2694;&#xFE0F;</div>
+      <h1 class="p-title gradient-text">Aldrenia</h1>
+      <p class="p-subtitle">a.k.a. Elaria</p>
+      <p class="p-tagline">A third-person action RPG for Minecraft: sword combos, dodges and lock-on, plus an isekai layer of levels, stats and skills you earn by playing.</p>
+      <div class="p-meta">
+        <span class="p-status">In development &middot; v0.1.0</span>
+        <span class="p-tag">Minecraft 1.21.1</span>
+        <span class="p-tag">NeoForge</span>
+        <span class="p-tag">Java 21</span>
+        <span class="p-tag">Blockbench</span>
+      </div>
+      <div class="p-actions">
+        <a class="btn btn-primary" id="gallery-btn" href="#gallery">See it in action</a>
+        <a class="btn btn-outline" href="#mods">What's inside</a>
+      </div>
+    </header>
+
+    <section class="p-section" id="mods">
+      <h2 class="section-title gradient-text">Two mods, one project</h2>
+      <div class="p-grid">
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F5E1;&#xFE0F;</div>
+          <h3>Aldrenia Combat</h3>
+          <p>Third-person action combat that works on its own:</p>
+          <ul class="p-list" style="margin-top: 10px;">
+            <li>Combos whose hits follow the animation's real sword path</li>
+            <li>Poise and stagger</li>
+            <li>Dodge rolls with i-frames</li>
+            <li>Procedural walk, run and guard poses</li>
+            <li>Over-the-shoulder camera and lock-on</li>
+          </ul>
+        </div>
+        <div class="p-card glass-card">
+          <div class="p-card-icon">&#x1F4DC;</div>
+          <h3>Aldrenia (RPG)</h3>
+          <p>The isekai RPG layer, built on top of Combat:</p>
+          <ul class="p-list" style="margin-top: 10px;">
+            <li>Levels and EXP</li>
+            <li>4 stats: STR, AGI, INT, VIT</li>
+            <li>Passive skills unlocked by how you play, defined in JSON</li>
+            <li>HUD and a status window (<strong>K</strong>)</li>
+            <li>The voice of &ldquo;the Fragment&rdquo; that talks to you in chat</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="p-section" id="gallery">
+      <h2 class="section-title gradient-text">Gallery</h2>
+      <div class="p-gallery">
+        <figure>
+          <a href="img/combat.webp"><img src="img/combat.webp" onerror="sfsMissing(this)" alt="Player using a skill against zombies, with the skill bar and level shown" width="854" height="480"></a>
+          <figcaption>Skills in a real fight: Dash Slash, Spin Slash, Execution</figcaption>
+        </figure>
+        <figure>
+          <a href="img/skills-hud.webp"><img src="img/skills-hud.webp" onerror="sfsMissing(this)" alt="Third-person view of a skill effect, with the HUD" width="854" height="480"></a>
+          <figcaption>HUD: HP, level and skill cooldowns</figcaption>
+        </figure>
+        <figure>
+          <a href="img/dodge-roll.webp"><img src="img/dodge-roll.webp" onerror="sfsMissing(this)" alt="Dodge roll animation frames from side and first-person views"></a>
+          <figcaption>Dodge-roll test, frame by frame</figcaption>
+        </figure>
+        <figure>
+          <a href="img/combo-poses.webp"><img src="img/combo-poses.webp" onerror="sfsMissing(this)" alt="Sheet of sword combo poses seen from three camera angles"></a>
+          <figcaption>Combo pose sheet: checking the sword stays visible from every camera</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="p-section">
+      <h2 class="section-title gradient-text">How it's built</h2>
+      <table class="p-specs">
+        <tr><th>Game</th><td>Minecraft 1.21.1, NeoForge 21.1.252+</td></tr>
+        <tr><th>Language</th><td>Java 21, one Gradle project that builds both mod jars</td></tr>
+        <tr><th>Animation</th><td>Made in Blockbench; my own pipeline turns them into game data</td></tr>
+        <tr><th>Library</th><td>Player Animation Library by ZigyTheBird (MIT)</td></tr>
+        <tr><th>Fonts</th><td>Alegreya, Cinzel, Sarabun (SIL Open Font License)</td></tr>
+      </table>
+    </section>
+
+    <section class="p-section">
+      <h2 class="section-title gradient-text">Roadmap</h2>
+      <ol class="p-timeline">
+        <li class="now"><strong>Combat animation</strong> <span class="when">now</span></li>
+        <li><strong>Map</strong></li>
+        <li><strong>Models</strong></li>
+        <li><strong>Mod systems</strong></li>
+        <li><strong>Story</strong></li>
+        <li><strong>Optimization</strong></li>
+        <li><strong>Weapons</strong></li>
+        <li><strong>Release</strong>, maybe as a modpack on CurseForge or Modrinth</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="p-footer">
+    <p>&copy; 2026 SinneFinneSomnium &middot; Not an official Minecraft product &middot; <a href="../../Home/Homepage.html">Back to home</a></p>
+  </footer>
+
+  <script src="../../assets/js/reveal.js" defer></script>
+</body>
+
+</html>
